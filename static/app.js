@@ -548,8 +548,9 @@ $("#ticket").addEventListener("submit", async (e) => {
     await stageOrder({
       symbol: f.get("symbol"), side: state.side, qty: Number(f.get("qty")), type: f.get("type"),
       limitPrice: f.get("type") === "limit" ? Number(f.get("limitPrice")) : null, rationale: f.get("rationale") || "",
+      stopLoss: f.get("stopLoss") ? Number(f.get("stopLoss")) : null, takeProfit: f.get("takeProfit") ? Number(f.get("takeProfit")) : null,
     });
-    e.target.qty.value = ""; e.target.rationale.value = "";
+    e.target.qty.value = ""; e.target.rationale.value = ""; e.target.stopLoss.value = ""; e.target.takeProfit.value = "";
   } catch (err) { toast(err.message, true); }
 });
 $("#commit-form").addEventListener("submit", async (e) => {
@@ -737,6 +738,112 @@ function createBotFromBacktest(body) {
   ]);
 }
 
+
+// ---------------------------------------------------------------- gold scalp (intraday) backtest
+let scalpCatalog = { strategies: [], history: {} };
+async function loadScalp() {
+  try {
+    scalpCatalog = await api("/api/intraday/strategies");
+    $("#sc-strategy").innerHTML = scalpCatalog.strategies.map((s) => `<option value="${esc(s.id)}">${esc(s.label)}</option>`).join("");
+    renderScalpParams();
+    const h = scalpCatalog.history;
+    const line = (tf, label) => h[tf] && h[tf].files ? `${label}: ${h[tf].files} files, ${esc(h[tf].from)} → ${esc(h[tf].to)}` : `${label}: none downloaded yet`;
+    $("#sc-avail").innerHTML = `Local XAUUSD history (Dukascopy spot). ${line("60m", "Hourly")} · ${line("15m", "Minute")}. Fetch more with <code>python scripts/fetch_dukascopy.py</code>.`;
+  } catch (e) { $("#sc-avail").textContent = "Gold history: " + e.message; }
+}
+function renderScalpParams() {
+  const spec = scalpCatalog.strategies.find((s) => s.id === $("#sc-strategy").value);
+  if (!spec) return;
+  $("#sc-params").innerHTML = Object.entries(spec.params).map(([k, v]) =>
+    `<label>${esc(k.replace(/_/g, " "))}<input data-sparam="${esc(k)}" type="number" step="any" value="${v}"></label>`).join("");
+}
+$("#sc-strategy").addEventListener("change", renderScalpParams);
+
+$("#sc-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const body = {
+    strategy: f.get("strategy"), timeframe: f.get("timeframe"), years: Number(f.get("years")),
+    capital: Number(f.get("capital")), riskPct: Number(f.get("riskPct")), maxRiskPct: Number(f.get("maxRiskPct")),
+    spread: Number(f.get("spread")), leverage: Number(f.get("leverage")),
+    params: Object.fromEntries($$("#sc-params [data-sparam]").map((i) => [i.dataset.sparam, Number(i.value)])),
+  };
+  const out = $("#sc-out");
+  $("#sc-run").disabled = true;
+  out.innerHTML = '<p class="muted typing">Running gold backtest </p>';
+  try {
+    const r = await api("/api/intraday/backtest", { method: "POST", body });
+    const m = r.metrics;
+    const good = m.netProfit > 0 && (m.profitFactor ?? 0) > 1;
+    const row = (k, v, c = "") => `<tr><td>${k}</td><td class="${c}">${v}</td></tr>`;
+    out.innerHTML = `
+      <div class="verdict ${good ? "good" : "bad"}">
+        <b>XAUUSD ${esc(r.timeframe)} · ${esc(r.label)}</b> · ${esc(r.period.start)} → ${esc(r.period.end)} (${r.period.years} years)<br>
+        ${money(r.assumptions.capital)} became <b>${money(m.finalEquity)}</b> (${pct(m.totalReturn * 100, 1)}) over ${m.trades} trades.
+        Win rate <b>${fmtPct(m.winRate)}</b>, profit factor <b>${fmtNum(m.profitFactor)}</b>, worst drawdown <b>${fmtPct(m.maxDrawdown)}</b>.
+        ${m.winRate >= 0.85 && !good ? '<br><span class="down">High win rate but it loses money: the few losses are much bigger than the many wins.</span>' : ""}
+        ${m.blown ? '<br><span class="down">The account ran out of margin and stopped trading.</span>' : ""}
+        ${m.skippedMinSize ? `<br><span class="down">${m.skippedMinSize} signals skipped: the minimum size (1 oz) would have risked more than ${r.assumptions.riskPct > 0 ? body.maxRiskPct : "?"}% of the account.</span>` : ""}
+      </div>
+      <table class="bt-metrics"><tbody>
+        ${row("Net profit", money(m.netProfit), cls(m.netProfit))}
+        ${row("Yearly return (CAGR)", m.cagr === null ? "—" : pct(m.cagr * 100, 1), cls(m.cagr))}
+        ${row("Trades / per week", `${m.trades} / ${fmtNum(m.tradesPerWeek, 1)}`)}
+        ${row("Win rate", fmtPct(m.winRate))}
+        ${row("Average win / loss", `${money(m.avgWin)} / ${money(m.avgLoss)}`)}
+        ${row("Expectancy per trade", money(m.expectancy), cls(m.expectancy))}
+        ${row("Average result in R (risk units)", fmtNum(m.avgR), cls(m.avgR))}
+        ${row("Worst losing streak", m.worstLosingStreak)}
+        ${row("Costs modelled", `spread $${r.assumptions.spread}/oz, commission $${r.assumptions.commissionPerUnitSide}/oz/side, 1:${r.assumptions.leverage}, min ${r.assumptions.minQty} oz`)}
+      </tbody></table>
+      <div id="sc-chart" class="bt-chart"></div>
+      <div class="row gap"><button class="btn push" id="sc-bot">RUN AS PAPER BOT</button>
+        <span class="muted small">Trades gold futures (GC=F) live on the paper CFD account with these settings.</span></div>
+      <h4>YEAR BY YEAR</h4>
+      <table class="bt-metrics"><thead><tr><th>YEAR</th><th>TRADES</th><th>WIN RATE</th><th>PROFIT</th></tr></thead><tbody>
+        ${r.yearly.slice().reverse().map((y) => `<tr><td>${y.year}</td><td>${y.trades}</td><td>${fmtPct(y.winRate)}</td><td class="${cls(y.pnl)}">${money(y.pnl)}</td></tr>`).join("") || '<tr><td colspan="4" class="muted">No trades</td></tr>'}
+      </tbody></table>
+      <h4>LAST TRADES</h4>
+      <table class="table small"><thead><tr><th>OPENED (UTC)</th><th>SIDE</th><th>OZ</th><th>ENTRY</th><th>SL / TP</th><th>EXIT</th><th>WHY</th><th>P&amp;L</th></tr></thead><tbody>
+        ${r.trades.slice(-40).reverse().map((t) => `<tr><td>${new Date(t.entryTime * 1000).toISOString().slice(0, 16).replace("T", " ")}</td><td class="${t.side === "buy" ? "up" : "down"}">${t.side}</td><td>${t.qty}</td><td>${num(t.entry)}</td><td>${num(t.sl)} / ${num(t.tp)}</td><td>${num(t.exit)}</td><td>${esc(t.reason)}</td><td class="${cls(t.pnl)}">${money(t.pnl)}</td></tr>`).join("")}
+      </tbody></table>`;
+    const LW = window.LightweightCharts;
+    if (LW && r.curve.length) {
+      const ch = LW.createChart($("#sc-chart"), {
+        layout: { background: { color: "transparent" }, textColor: "#7a8696", fontFamily: "JetBrains Mono, monospace", fontSize: 11 },
+        grid: { vertLines: { color: "#141a22" }, horzLines: { color: "#141a22" } }, autoSize: true,
+        rightPriceScale: { borderColor: "#1e2631" }, timeScale: { borderColor: "#1e2631" },
+      });
+      ch.addLineSeries({ color: "#ffb000", lineWidth: 2, title: "equity" }).setData(r.curve.map(([t, v]) => ({ time: t, value: v })));
+      ch.timeScale().fitContent();
+    }
+    $("#sc-bot").onclick = () => createScalpBot(body);
+  } catch (err) { out.innerHTML = `<p class="down">${esc(err.message)}</p>`; }
+  finally { $("#sc-run").disabled = false; }
+});
+
+function createScalpBot(body) {
+  const id = ("gold-" + body.strategy).replace(/_/g, "-").slice(0, 40);
+  modal("RUN GOLD STRATEGY AS PAPER BOT", `
+    <p>Bot <b>${esc(id)}</b> will trade <b>GC=F</b> (gold futures, Yahoo, delayed) on the <b>paper-gold</b> CFD account with
+    ${esc(body.strategy)} on ${esc(body.timeframe)} bars, risking ${body.riskPct}% per trade (max ${body.maxRiskPct}% with the 1 oz minimum),
+    stop-loss and take-profit on every order.</p>
+    <p class="muted small">It checks every minute, enters on the last completed bar, exits on stop-loss, take-profit, time limit or 21:00 UTC.
+    Live stops are checked once a minute against delayed quotes, so live fills will differ from the backtest.</p>
+    <label class="row gap"><input type="checkbox" id="sc-enable" checked> Start trading now</label>`, [
+    { label: "CANCEL", className: "ghost", onClick: async () => {} },
+    { label: "CREATE BOT", className: "btn push", onClick: async () => {
+      await api(`/api/automation/bots/${id}`, { method: "PUT", body: {
+        id, type: "intraday", enabled: $("#sc-enable").checked, account: "paper-gold", strategy: body.strategy, params: body.params,
+        symbols: ["GC=F"], timeframe: body.timeframe, riskPct: body.riskPct, maxRiskPct: body.maxRiskPct,
+        allocationPerSymbol: 1000, intervalMinutes: 1, maxDailyLossPct: 5, respectMarketHours: true,
+      } });
+      toast(`Bot ${id} created`);
+      selectTab("right", "auto"); loadAutomation(); loadStatus();
+    } },
+  ]);
+}
+
 // ---------------------------------------------------------------- automation
 let automation = { killSwitch: false, bots: [] };
 async function loadAutomation() {
@@ -754,7 +861,9 @@ async function loadAutomation() {
 function renderBot(b) {
   const st = b.state || {}, p = b.performance || {};
   const status = st.halted ? '<span class="tag halt">HALTED</span>' : b.enabled ? '<span class="tag on">ON</span>' : '<span class="tag">OFF</span>';
-  const what = b.type === "ai" ? '<span class="tag ai">AI AUTOPILOT</span>' : `${esc(b.strategy)} ${esc(JSON.stringify(b.params))}`;
+  const what = b.type === "ai" ? '<span class="tag ai">AI AUTOPILOT</span>'
+    : b.type === "intraday" ? `<span class="tag">SCALP ${esc(b.timeframe)}</span> ${esc(b.strategy)} · risk ${b.riskPct}%/trade (max ${b.maxRiskPct}%) · SL/TP on every order`
+    : `${esc(b.strategy)} ${esc(JSON.stringify(b.params))}`;
   const holdings = Object.entries(p.holdings || {}).map(([s, h]) => `${esc(s)} ${fmtNum(h.qty, h.qty % 1 ? 4 : 0)} @ ${num(h.avgCost)}`).join(", ") || "flat";
   return `<li>
     <div class="bot-head"><span><b>${esc(b.id)}</b> ${status}${b.running ? ' <span class="tag">RUNNING</span>' : ""}</span><span class="muted small">${esc(b.account)}</span></div>
@@ -847,7 +956,7 @@ function eventSummary(ev) {
     case "trade.commit": return `${p.account}: ${p.hash} "${p.message}" by ${p.author}`;
     case "trade.push": return `${p.account}: ${p.hash} ${p.status} · equity ${money(p.equity)}`;
     case "trade.rejected": return `${p.account}: ${p.hash} blocked by guards: ${(p.violations || []).join("; ")}`;
-    case "trade.fill": return `${p.account}: ${(p.fills || []).length} resting order(s) filled`;
+    case "trade.fill": return `${p.account}: ` + (p.fills || []).map((f) => f.reason ? `${f.reason} ${f.symbol} @ ${num(f.price)} (${num(f.realized)})` : `filled ${f.symbol}`).join("; ");
     case "agent.user": return `you: ${p.text}`;
     case "agent.reply": return `agent: ${(p.text || "").slice(0, 160)}`;
     case "agent.tool": return `tool ${p.tool} ${JSON.stringify(p.input).slice(0, 120)}`;
@@ -855,6 +964,7 @@ function eventSummary(ev) {
     case "bot.run": return `${p.bot}: ${p.action}`;
     case "bot.trade": return `${p.bot}: ${p.side} ${p.qty} ${p.symbol} pushed (${p.hash})`;
     case "bot.halted": return `${p.bot} HALTED: ${p.reason}`;
+    case "bot.exit": return `${p.bot}: ${p.reason} ${p.side} ${p.qty} ${p.symbol} @ ${num(p.price)} (${p.realized >= 0 ? "+" : ""}${num(p.realized)})`;
     case "bot.error": return `${p.bot}: ${p.action}`;
     case "backtest.run": return `${p.symbol} ${p.strategy}: ${(p.totalReturn * 100).toFixed(1)}% vs B&H ${(p.benchmark * 100).toFixed(1)}%`;
     case "automation.killswitch": return p.on ? "KILL SWITCH ON" : "kill switch off";
@@ -893,6 +1003,7 @@ async function initEvents() {
   loadWatchlist();
   loadAccounts();
   loadStrategies();
+  loadScalp();
   loadAutomation();
   initEvents();
   if (!$("#chat").children.length) addMsg("bot", "Ask me about any ticker, or ask for a trade idea. I can stage and commit orders; you review and push. Type <code>HELP</code> in the command bar for shortcuts.");

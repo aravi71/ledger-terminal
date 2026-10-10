@@ -329,11 +329,100 @@ They should match apart from slippage and fill timing.
 data, non-repeatable answers, API cost per decision). Evaluate it only by
 forward paper trading, and against the strategy bots.
 
+## 7b. Gold (XAUUSD) intraday and scalping research
+
+### Data and test method
+
+- **Data:** Dukascopy spot XAUUSD bid candles, downloaded with
+  `scripts/fetch_dukascopy.py` into `data/history/` (local only). Hourly bars
+  from October 2016 to September 2026 (59,122 bars). Minute data is being
+  downloaded newest-first; when this was written it covered only February
+  to October 2026, so the 15-minute results below are **preliminary**.
+- **Engine:** `app/intraday.py`. Entries at the next bar's open; stop-loss
+  and take-profit tested against each bar's high/low, **stop first** when both
+  are touched in one bar; gaps fill at the open; buys pay the spread.
+- **Costs:** $0.30/oz spread plus $0.035/oz commission per side; leverage
+  1:100; minimum size 1 oz (0.01 lot); 1% risk per trade.
+- **No cherry-picking:** each strategy's settings are chosen on 2016–2023
+  only (in-sample, 70%) and then reported on 2023–2026 (out-of-sample, 30%),
+  which played no part in the choice. Reproduce with
+  `python scripts/gold_research.py`. Full results:
+  [`gold-research-2026-10-10.json`](gold-research-2026-10-10.json).
+
+### Results on 10 years of hourly gold (account of 10,000, 1% risk)
+
+| Strategy | Win rate 2016–23 → 2023–26 | Profit factor 2016–23 → 2023–26 | Net 2016–23 | Net 2023–26 | Verdict |
+|---|---:|---:|---:|---:|---|
+| **Asian-hours drift** (long 18:00 → ~03:00 New York, 5×ATR stop) | 51.9% → 57.1% | **1.30 → 1.64** | **+3,833** | **+3,759** | Profitable in both periods |
+| Asian-range breakout at London open | 38.5% → 44.7% | 0.95 → 1.12 | −3,555 | +2,463 | Lost for 7 years; recent gain only |
+| Trend pullback (EMA 20/50/200) | 43.3% → 48.2% | 0.86 → 1.08 | −6,190 | +1,717 | Lost for 7 years |
+| Fade failed Asian-range break | 60.4% → 57.4% | 0.77 → 0.76 | −3,854 | −1,412 | Loses |
+| RSI(2) dip, small target / wide stop | 68.3% → 65.3% | 0.92 → 0.81 | −955 | −781 | Loses |
+
+### About a 90% win rate
+
+The best win rate any tested setting reached was **85%** (RSI(2) dip, 0.3×ATR
+target, 6×ATR stop), and it **lost money** (profit factor 0.92 out-of-sample).
+None reached 90%. A very high win rate comes from a target much smaller than
+the stop: you win small almost every time and occasionally lose big. After
+spread and commission that usually loses. Vendor robots advertising 85–90%
+win rates seldom show results after costs, or out-of-sample. Judge a strategy
+by **profit factor, expectancy and drawdown**, not win rate.
+
+### What $100 and $1,000 accounts would have done (Asian-hours drift, 10 years)
+
+| Start | Rule | Trades | Result | Yearly | Worst drawdown | Note |
+|---|---|---:|---:|---:|---:|---|
+| $1,000 | 1% risk, max 5% with the 1 oz minimum | 1,944 | **$2,716** | 10.6% | 19% | 1 oz usually risks 4–5% here, so the real risk is about 4–5× the 1% target |
+| $100 | 1% risk, max 5% | 0 | $100 | – | – | Every trade skipped: 1 oz always risks more than 5% of $100 |
+| $100 | 1% risk, max 25% | 1,978 | $2,612 | 38.8% | 39% | Very aggressive: up to a quarter of the account per trade; it survived only because the edge held |
+| $10,000 | 1% risk | 1,998 | $18,680 | 6.5% | 4.6% | Sizing works as intended |
+
+Year by year ($1,000 account): 2017 +49, 2018 −22, 2019 −1, 2020 +169,
+2021 +184, 2022 +73, 2023 +268, 2024 +363, 2025 +336, 2026 (to September)
++273. The edge was flat in 2018–2019 and strongest during the 2020–2026 gold
+bull market.
+
+**Small accounts:** with a standard account, gold's 1 oz minimum makes
+proper risk control impossible below about $2,000–5,000. A broker with
+smaller minimum sizes (a "cent" or micro account) fixes this; set
+`minQty` on the account to match it.
+
+**Costs decide it:** at a $0.80/oz spread (common around the daily reopen at
+some brokers) the 2016–2023 period turns slightly negative. Check your
+broker's real spread at 18:00 New York before trading this live.
+
+### 15-minute scalping (preliminary, about 8 months of data)
+
+On the minute data available so far (February–October 2026), the Asian-hours
+drift was again the strongest. Breakout and trend pullback were mixed, and the
+fade and RSI(2) setups lost. About 8 months is far too short to rely on. Let
+`fetch_dukascopy.py --tf minute` finish (it resumes where it stopped) and
+re-run `scripts/gold_research.py` for a multi-year 15-minute test.
+
+### Live paper bot
+
+`gold-asia-drift` runs on the `paper-gold` CFD account ($1,000, 1:100):
+
+- Symbol **GC=F** (COMEX gold futures from Yahoo, about 10 minutes delayed)
+  as a live stand-in for spot XAUUSD. Futures trade a few dollars above spot.
+- Signal on the hourly bar that closes at 17:00 New York (Monday–Thursday).
+  The bot waits for the 18:00 reopen, buys with a 5×ATR stop-loss and a
+  far take-profit, and exits after the ninth hourly bar (about 03:00 New York).
+- Risk 1% per trade, at most 5% when the 1 oz minimum forces more; the bot
+  halts if the account loses more than 5% in a day.
+- Live stops are checked once a minute against delayed quotes, which is
+  coarser than the backtest. Expect live results to differ.
+
+Create other gold bots from the **GOLD SCALP** tab: run a backtest, then
+**Run as paper bot**.
+
 ## 8. Accounts and brokers
 
 | Account | Type | Status | Notes |
 |---|---|---|---|
 | `paper-main` | Local simulator | Enabled | Section 5 |
+| `paper-gold` | Local CFD simulator: 1:100 leverage, long and short, stop-loss/take-profit, $1,000 | Enabled | For gold intraday bots; `brokerConfig` sets leverage, spread, commission and minimum size |
 | `alpaca-paper` | Alpaca **paper** API | Disabled | Put `ALPACA_API_KEY_ID` / `ALPACA_API_SECRET_KEY` in `.env`, set `"enabled": true`, restart. The base URL is fixed to `paper-api.alpaca.markets`, so it cannot place live-money orders |
 
 There is **no live-money broker** in this codebase.

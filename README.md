@@ -91,6 +91,14 @@ market-hours checks, and per-bot P&L. A bot only sells what it bought itself.
 The `ai-autopilot` bot lets Claude make the decisions instead (it needs an
 API key, can only trade its listed symbols, and every run is logged).
 
+**Gold scalping (GOLD SCALP tab):** intraday XAUUSD backtests on local
+Dukascopy history (10 years hourly, minute data as downloaded) with
+stop-loss/take-profit, spread, commission, leverage and broker minimum size,
+for any starting capital ($100, $1,000, …). **Run as paper bot** trades it
+live on the `paper-gold` CFD account (leverage, shorts, SL/TP brackets).
+Research results, including why no tested setup reached a profitable 90% win
+rate: [HANDBOOK §7b](docs/HANDBOOK.md#7b-gold-xauusd-intraday-and-scalping-research).
+
 **The agent** can research (quotes, technicals, price history, news, account
 state) and **stage and commit** orders. It has no push tool, so execution is
 always yours. Each tool call shows as a chip under the reply and is written to
@@ -204,7 +212,7 @@ pip install -r requirements.txt
 python -m pytest
 ```
 
-42 tests cover the strategies (including no-look-ahead checks), the backtester, the bots (kill switch, loss-limit halt, market hours, never touching manual positions, AI symbol fencing), the indicators, DCF and risk maths, every guard rule, the paper
+59 tests cover the strategies (including no-look-ahead checks), the backtester, the gold intraday engine (stop-before-target, spread on shorts, minimum size, no look-ahead), the CFD broker (margin, brackets, stop-out), the bots (kill switch, loss-limit halt, market hours, never touching manual positions, AI symbol fencing), the indicators, DCF and risk maths, every guard rule, the paper
 broker (fills, cash and short-sale checks, resting limit orders, persistence),
 the full stage → commit → push flow (including atomic rejection, cooldown and
 revert), every HTTP endpoint, the login, and the agent's tool dispatch and tool-use loop
@@ -212,6 +220,17 @@ revert), every HTTP endpoint, the login, and the agent's tool dispatch and tool-
 offline demo data provider.
 
 ---
+
+## Gold history and research
+
+```bash
+python scripts/fetch_dukascopy.py --symbol XAUUSD --tf hour --start 2016-10
+python scripts/fetch_dukascopy.py --symbol XAUUSD --tf minute --start 2021-10
+python scripts/gold_research.py
+```
+
+The feed throttles heavily; the downloader backs off, resumes where it
+stopped, and fetches minute data newest-first.
 
 ## Reproducing the backtest report
 

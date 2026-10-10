@@ -72,6 +72,9 @@ class AlpacaPaperBroker:
         }
 
     async def place_order(self, order: OrderRequest) -> dict[str, Any]:
+        if order.stopLoss is not None or order.takeProfit is not None:
+            return {"status": "rejected", "filledQty": 0, "avgFillPrice": None, "brokerOrderId": None,
+                    "message": "Stop-loss/take-profit brackets are not implemented for the Alpaca adapter yet"}
         body: dict[str, Any] = {"symbol": order.symbol, "qty": str(order.qty), "side": order.side, "type": order.type, "time_in_force": "day"}
         if order.type == "limit":
             body["limit_price"] = str(order.limitPrice)

@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .brokers import AlpacaPaperBroker, BrokerError, OrderRequest, PaperBroker
+from .brokers import AlpacaPaperBroker, BrokerError, CfdPaperBroker, OrderRequest, PaperBroker
 from .config import AccountConfig, Config
 from .events import EventLog
 from .guards import GuardContext, check_order
@@ -251,6 +251,16 @@ class UTAManager:
                 slippage_bps=float(bc.get("slippageBps", 2)),
                 commission=float(bc.get("commissionPerOrder", 0)),
                 allow_short=acc.guards.allowShort,
+            )
+        if acc.type == "cfd":
+            return CfdPaperBroker(
+                self.config.data_dir / "brokers" / f"{acc.id}.json",
+                self.market,
+                starting_cash=float(bc.get("startingCash", 1000)),
+                leverage=float(bc.get("leverage", 100)),
+                spread=float(bc.get("spread", 0.30)),
+                commission=float(bc.get("commissionPerUnitSide", 0.035)),
+                min_qty=float(bc.get("minQty", 1)),
             )
         if acc.type == "alpaca":
             return AlpacaPaperBroker(bc.get("keyIdEnv", "ALPACA_API_KEY_ID"), bc.get("secretKeyEnv", "ALPACA_API_SECRET_KEY"))

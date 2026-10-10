@@ -40,7 +40,7 @@ class GuardConfig(BaseModel):
 
 class AccountConfig(BaseModel):
     id: str
-    type: Literal["paper", "alpaca"]
+    type: Literal["paper", "alpaca", "cfd"]
     label: str = ""
     enabled: bool = True
     guards: GuardConfig = Field(default_factory=GuardConfig)
@@ -68,15 +68,19 @@ class WatchlistConfig(BaseModel):
 
 
 class BotConfig(BaseModel):
-    """An automated trader. ``strategy`` bots run a rule-based strategy;
+    """An automated trader. ``strategy`` bots run a daily rule-based strategy;
+    ``intraday`` bots scalp with stop-loss/take-profit on a CFD account;
     ``ai`` bots let the Claude agent stage and commit, then auto-push."""
 
     id: str = Field(pattern=r"^[a-z0-9][a-z0-9-]{1,40}$")
-    type: Literal["strategy", "ai"] = "strategy"
+    type: Literal["strategy", "intraday", "ai"] = "strategy"
+    timeframe: Literal["5m", "15m", "30m", "60m"] = "15m"
+    riskPct: float = Field(default=1.0, gt=0, le=10)
+    maxRiskPct: float = Field(default=5.0, gt=0, le=25)
     enabled: bool = False
     account: str = "paper-main"
     strategy: str = "sma_cross"
-    params: dict[str, float] = Field(default_factory=dict)
+    params: dict[str, float] = Field(default_factory=dict)  # strategy parameters (numbers only)
     symbols: list[str] = Field(default_factory=list)
     allocationPerSymbol: float = Field(default=5000, gt=0)
     intervalMinutes: int = Field(default=15, ge=1, le=1440)
@@ -111,6 +115,21 @@ DEFAULTS: dict[str, dict[str, Any]] = {
                     "allowShort": False,
                 },
                 "brokerConfig": {"startingCash": 100000, "slippageBps": 2, "commissionPerOrder": 0},
+            },
+            {
+                "id": "paper-gold",
+                "type": "cfd",
+                "label": "Paper CFD · gold, $1,000, 1:100",
+                "enabled": True,
+                "guards": {
+                    "maxOrderValue": 100000,
+                    "maxPositionValue": 200000,
+                    "cooldownSeconds": 0,
+                    "maxOrdersPerDay": 60,
+                    "symbolWhitelist": ["GC=F"],
+                    "allowShort": True,
+                },
+                "brokerConfig": {"startingCash": 1000, "leverage": 100, "spread": 0.30, "commissionPerUnitSide": 0.035, "minQty": 1},
             },
             {
                 "id": "alpaca-paper",

@@ -74,6 +74,7 @@
           <button data-tab="panel">INVESTOR PANEL</button>
           <button data-tab="dcf">DCF</button>
           <button data-tab="bt">BACKTEST</button>
+          <button data-tab="scalp">GOLD SCALP</button>
         </div>
         <div class="tab-body" data-tabbody="lower">
           <div data-pane="news" class="pane on"><ul id="news" class="news"></ul></div>
@@ -111,6 +112,23 @@
             </form>
             <p id="bt-desc" class="muted small"></p>
             <div id="bt-out"></div>
+          </div>
+          <div data-pane="scalp" class="pane">
+            <form id="sc-form" class="dcf-form">
+              <label>Strategy<select name="strategy" id="sc-strategy"></select></label>
+              <label>Timeframe<select name="timeframe" id="sc-tf"><option value="60m">1 hour (up to 10 years)</option><option value="15m">15 minutes (recent minute data)</option></select></label>
+              <label>Years of history<input name="years" type="number" step="any" min="0.25" max="20" value="10"></label>
+              <label>Starting capital $<input name="capital" type="number" step="any" value="1000" list="sc-caps"></label>
+              <datalist id="sc-caps"><option value="100"></option><option value="1000"></option><option value="10000"></option></datalist>
+              <label>Risk per trade %<input name="riskPct" type="number" step="any" value="1"></label>
+              <label>Max risk with minimum size %<input name="maxRiskPct" type="number" step="any" value="5"></label>
+              <label>Spread $/oz<input name="spread" type="number" step="any" value="0.30"></label>
+              <label>Leverage 1:<input name="leverage" type="number" step="any" value="100"></label>
+              <span id="sc-params" class="contents"></span>
+              <button class="btn" type="submit" id="sc-run">RUN GOLD BACKTEST</button>
+            </form>
+            <p id="sc-avail" class="muted small"></p>
+            <div id="sc-out"></div>
           </div>
         </div>
       </div>
@@ -159,6 +177,8 @@
               <input name="qty" type="number" step="any" min="0" placeholder="QTY" required>
               <select name="type"><option value="market">MKT</option><option value="limit">LMT</option></select>
               <input name="limitPrice" type="number" step="any" placeholder="LIMIT" disabled>
+              <input name="stopLoss" type="number" step="any" placeholder="STOP-LOSS (CFD)" class="half">
+              <input name="takeProfit" type="number" step="any" placeholder="TAKE-PROFIT (CFD)" class="half">
               <input name="rationale" class="wide" placeholder="Rationale (optional)">
               <button class="btn wide" type="submit">STAGE</button>
             </form>

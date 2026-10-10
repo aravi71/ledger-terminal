@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response, StreamingRes
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import analytics, indicators, strategies
+from . import analytics, indicators, intraday, strategies
 from .agent import AgentError, TradingAgent
 from .automation import AutoTrader, is_crypto
 from .backtest import run_backtest
@@ -37,6 +37,8 @@ class StageBody(BaseModel):
     qty: float = Field(gt=0)
     type: Literal["market", "limit"] = "market"
     limitPrice: float | None = None
+    stopLoss: float | None = None
+    takeProfit: float | None = None
     rationale: str = ""
 
 
@@ -68,6 +70,18 @@ class BacktestBody(BaseModel):
     allocation: float | None = Field(default=10_000, gt=0)
     slippageBps: float = Field(default=2, ge=0, le=500)
     commission: float = Field(default=0, ge=0)
+
+
+class IntradayBody(BaseModel):
+    strategy: str
+    timeframe: Literal["15m", "60m"] = "60m"
+    years: float = Field(default=10, gt=0, le=20)
+    capital: float = Field(default=1000, gt=0)
+    riskPct: float = Field(default=1, gt=0, le=10)
+    maxRiskPct: float = Field(default=5, gt=0, le=50)
+    spread: float = Field(default=0.30, ge=0, le=10)
+    leverage: float = Field(default=100, ge=1, le=1000)
+    params: dict[str, float] = Field(default_factory=dict)
 
 
 class KillBody(BaseModel):
@@ -288,7 +302,8 @@ def create_app(
     @app.post("/api/accounts/{account_id}/stage")
     async def stage(account_id: str, body: StageBody):
         try:
-            order = OrderRequest(symbol=normalize_symbol(body.symbol), side=body.side, qty=body.qty, type=body.type, limitPrice=body.limitPrice)
+            order = OrderRequest(symbol=normalize_symbol(body.symbol), side=body.side, qty=body.qty, type=body.type,
+                                 limitPrice=body.limitPrice, stopLoss=body.stopLoss, takeProfit=body.takeProfit)
         except ValueError as e:
             raise HTTPException(422, str(e))
         return await utas.get(account_id).stage(order, body.rationale, source="user")
@@ -358,6 +373,50 @@ def create_app(
         events.emit("backtest.run", {"symbol": symbol, "strategy": body.strategy, "params": body.params, "totalReturn": result["metrics"]["totalReturn"], "benchmark": result["benchmark"]["totalReturn"]})
         return {"symbol": symbol, "dataSource": market.mode, **result}
 
+    # --- intraday (gold) backtests on local history ---------------------------------
+    history_cache: dict[int, tuple[int, list]] = {}
+
+    def gold_history(minutes: int) -> list:
+        sub = config.data_dir / "history" / "XAUUSD" / ("h1" if minutes >= 60 else "m1")
+        count = len(list(sub.glob("*.csv"))) if sub.exists() else 0
+        hit = history_cache.get(minutes)
+        if hit and hit[0] == count:
+            return hit[1]
+        bars = intraday.load_history(config.data_dir, "XAUUSD", minutes)
+        history_cache[minutes] = (count, bars)
+        return bars
+
+    @app.get("/api/intraday/strategies")
+    async def intraday_strategies():
+        avail = {}
+        for tf, sub in (("60m", "h1"), ("15m", "m1")):
+            files = sorted((config.data_dir / "history" / "XAUUSD" / sub).glob("*.csv")) if (config.data_dir / "history" / "XAUUSD" / sub).exists() else []
+            avail[tf] = {"files": len(files), "from": files[0].stem if files else None, "to": files[-1].stem if files else None}
+        return {"strategies": [{"id": k, "label": v["label"], "params": v["params"]} for k, v in intraday.STRATEGIES.items() if not k.startswith("_")],
+                "history": avail, "symbol": "XAUUSD"}
+
+    @app.post("/api/intraday/backtest")
+    async def intraday_backtest(body: IntradayBody):
+        if body.strategy not in intraday.STRATEGIES:
+            raise HTTPException(400, f"Unknown strategy. Options: {list(intraday.STRATEGIES)}")
+        minutes = 60 if body.timeframe == "60m" else 15
+        try:
+            bars = await asyncio.to_thread(gold_history, minutes)
+        except FileNotFoundError as e:
+            raise HTTPException(400, str(e))
+        cutoff = bars[-1]["t"] - int(body.years * 365.25 * 86400) if bars else 0
+        bars = [b for b in bars if b["t"] >= cutoff]
+        costs = intraday.Costs(spread=body.spread, leverage=body.leverage)
+        try:
+            result = await asyncio.to_thread(
+                intraday.run_intraday, bars, body.strategy, body.params, body.capital, body.riskPct, body.maxRiskPct, costs, 21, 250)
+        except ValueError as e:
+            raise HTTPException(400, str(e))
+        m = result["metrics"]
+        events.emit("backtest.run", {"symbol": "XAUUSD", "strategy": body.strategy, "params": body.params,
+                                     "totalReturn": m["totalReturn"], "benchmark": 0.0, "winRate": m["winRate"], "timeframe": body.timeframe})
+        return {"symbol": "XAUUSD", "timeframe": body.timeframe, **result}
+
     # --- automation ------------------------------------------------------------------
     @app.get("/api/automation")
     async def automation_status():
@@ -377,6 +436,13 @@ def create_app(
             raise HTTPException(400, "bot id in path and body differ")
         if body.account not in utas.utas:
             raise HTTPException(400, f"Unknown or disabled account {body.account!r}")
+        if body.type == "intraday":
+            if len(body.symbols) != 1:
+                raise HTTPException(400, "An intraday bot trades exactly one symbol")
+            if body.strategy not in intraday.STRATEGIES:
+                raise HTTPException(400, f"Unknown intraday strategy. Options: {list(intraday.STRATEGIES)}")
+            if utas.get(body.account).cfg.type != "cfd":
+                raise HTTPException(400, "Intraday bots need a CFD account (type 'cfd')")
         if body.type == "strategy":
             if not body.symbols:
                 raise HTTPException(400, "A strategy bot needs at least one symbol")

@@ -99,6 +99,9 @@ class PaperBroker:
     async def place_order(self, order: OrderRequest) -> dict[str, Any]:
         oid = "pp-" + uuid.uuid4().hex[:10]
         record = {"id": oid, **order.model_dump(), "createdAt": time.time()}
+        if order.stopLoss is not None or order.takeProfit is not None:
+            return {"status": "rejected", "filledQty": 0, "avgFillPrice": None, "brokerOrderId": oid,
+                    "message": "This cash paper account has no stop-loss/take-profit orders; use a CFD account (type 'cfd')"}
         try:
             px = await self._price(order.symbol)
             if order.type == "market":

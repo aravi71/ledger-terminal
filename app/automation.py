@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from . import intraday
 from .agent import AgentError, TradingAgent
 from .brokers import OrderRequest
 from .config import BotConfig, Config
@@ -38,7 +39,7 @@ from .uta import TradingError, UTAManager
 
 NY = ZoneInfo("America/New_York")
 IST = ZoneInfo("Asia/Kolkata")
-PAPER_ACCOUNT_TYPES = {"paper", "alpaca"}  # the Alpaca adapter is hard-wired to its paper endpoint
+PAPER_ACCOUNT_TYPES = {"paper", "alpaca", "cfd"}  # Alpaca is hard-wired to its paper endpoint; cfd is a local simulator
 
 
 def is_crypto(symbol: str) -> bool:
@@ -140,7 +141,12 @@ class AutoTrader:
         for bot in auto.bots:
             st = self.bot_state(bot.id)
             perf: dict[str, Any] = {}
-            if bot.account in self.utas.utas:
+            if bot.type == "intraday" and bot.account in self.utas.utas:
+                acct = await self.utas.get(bot.account).broker.account()
+                perf = {"holdings": {p["symbol"]: {"qty": p["qty"], "avgCost": p["avgPrice"]} for p in acct["positions"]},
+                        "realizedPnl": acct["cash"] - acct.get("startingCash", acct["cash"]),
+                        "unrealizedPnl": acct["equity"] - acct["cash"], "totalPnl": acct["totalPnl"], "equity": acct["equity"]}
+            elif bot.account in self.utas.utas:
                 ledger = bot_ledger(self.utas.get(bot.account), bot.id)
                 unrealized = 0.0
                 for sym, h in ledger["holdings"].items():
@@ -185,6 +191,8 @@ class AutoTrader:
                 return {"bot": bot.id, "halted": True, "reason": st["haltReason"]}
             if bot.type == "ai":
                 return await self._run_ai(bot, uta)
+            if bot.type == "intraday":
+                return await self._run_intraday(bot, uta)
             return await self._run_strategy(bot, uta)
         except (TradingError, AgentError, ValueError) as e:
             self._record(bot, f"error: {e}", "bot.error")
@@ -248,6 +256,100 @@ class AutoTrader:
         summary = "; ".join(f"{a['symbol']}: {a['action']}" + (f" ({a.get('reason') or a.get('status')})" if a.get("reason") or a.get("status") else "") for a in actions) or "no symbols"
         self._record(bot, summary, actions=actions)
         return {"bot": bot.id, "actions": actions}
+
+    async def _run_intraday(self, bot: BotConfig, uta) -> dict[str, Any]:
+        """Scalp one symbol on a CFD account with stop-loss / take-profit.
+
+        Exits (stop, target, time limit, end of day) never go through guards;
+        entries are staged, committed and pushed like any other order.
+        """
+        if uta.cfg.type != "cfd":
+            raise TradingError("Intraday bots need a CFD account (type 'cfd'): leverage, shorts and stop-loss/take-profit")
+        if bot.strategy not in intraday.STRATEGIES:
+            raise TradingError(f"Unknown intraday strategy {bot.strategy!r}. Options: {list(intraday.STRATEGIES)}")
+        if len(bot.symbols) != 1:
+            raise TradingError("An intraday bot trades exactly one symbol")
+        symbol, broker, st = bot.symbols[0], uta.broker, self.bot_state(bot.id)
+        minutes = int(bot.timeframe.rstrip("m"))
+        params = {**intraday.STRATEGIES[bot.strategy]["params"], **bot.params}
+        for fill in await broker.reconcile():
+            self.events.emit("bot.exit", {"bot": bot.id, **fill})
+        now = datetime.now(timezone.utc)
+        rng = {5: "5d", 15: "1mo", 30: "1mo", 60: "3mo"}[minutes]
+        bars = [b for b in await self.market.history(symbol, rng, bot.timeframe) if b["t"] + minutes * 60 <= now.timestamp()]
+        if len(bars) < 250:
+            self._record(bot, f"skip: only {len(bars)} completed {bot.timeframe} bars")
+            return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "skip", "reason": "not enough bars"}]}
+        acct = await broker.account()
+        pos = next((p for p in acct["positions"] if p["symbol"] == symbol), None)
+        flat = params.get("flat_hour", 21)
+        flat = None if flat is None or flat < 0 else int(flat)
+        if pos:
+            held = (bars[-1]["t"] - (st.get("openedBarT") or bars[-1]["t"])) // (minutes * 60)  # completed bars after the entry bar
+            max_bars = int(params.get("max_bars") or 0)
+            end_of_day = flat is not None and now.hour >= flat
+            if (max_bars and held >= max_bars) or end_of_day:
+                fill = await broker.close_position(symbol, "end of day" if end_of_day else "time exit")
+                self.events.emit("bot.exit", {"bot": bot.id, **fill})
+                self._record(bot, f"{symbol}: closed ({fill['reason']}), realized {fill['realized']:+.2f}")
+                return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "close", "reason": fill["reason"]}]}
+            self._record(bot, f"{symbol}: holding {pos['qty']:+g} @ {pos['avgPrice']:.2f}, SL {pos['stopLoss']}, TP {pos['takeProfit']}, open P&L {pos['unrealizedPnl']:+.2f}")
+            return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "hold"}]}
+        if bot.respectMarketHours and not market_open(symbol, now):
+            self._record(bot, f"{symbol}: skip (market closed)")
+            return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "skip", "reason": "market closed"}]}
+        if flat is not None and now.hour >= flat - 1:
+            self._record(bot, f"{symbol}: no new entries after {flat - 1:02d}:00 UTC")
+            return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "skip", "reason": "after entry window"}]}
+        # Gold and CME futures pause 17:00-18:00 New York time; a signal on the bar that closes
+        # into the break is held until the reopen, matching the backtest's next-bar-open entry.
+        in_break = not is_crypto(symbol) and now.astimezone(NY).hour == 17
+        pending = st.get("pending")
+        if pending and pending["t"] == bars[-1]["t"]:
+            if in_break:
+                return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "wait", "reason": "waiting for reopen"}]}
+            sig = (pending["side"], pending["sd"], pending["td"])
+            st["pending"] = None
+        else:
+            if st.get("lastSignalBar") == bars[-1]["t"]:
+                return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "wait", "reason": "no new bar"}]}
+            st["lastSignalBar"] = bars[-1]["t"]
+            st["pending"] = None
+            self._save()
+            sig = intraday.latest_signal(bars, bot.strategy, bot.params)
+            if not sig:
+                self._record(bot, f"{symbol}: no signal on the {bot.timeframe} bar")
+                return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "wait", "reason": "no signal"}]}
+            if in_break:
+                st["pending"] = {"side": sig[0], "sd": sig[1], "td": sig[2], "t": bars[-1]["t"]}
+                self._record(bot, f"{symbol}: {sig[0]} signal, waiting for the 18:00 New York reopen")
+                return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "wait", "reason": "waiting for reopen"}]}
+        side, stop_dist, target_dist = sig
+        price = float((await self.market.quote(symbol))["price"])
+        entry = price + broker.spread / 2 if side == "buy" else price - broker.spread / 2
+        risk_unit = stop_dist + broker.spread
+        equity = acct["equity"]
+        qty = math.floor(equity * bot.riskPct / 100 / risk_unit / broker.min_qty) * broker.min_qty
+        if qty < broker.min_qty:
+            if broker.min_qty * risk_unit <= equity * bot.maxRiskPct / 100:
+                qty = broker.min_qty
+            else:
+                msg = f"{symbol}: {side} signal skipped, minimum size risks {broker.min_qty * risk_unit / equity:.1%} of equity (cap {bot.maxRiskPct}%)"
+                self._record(bot, msg)
+                return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "skip", "reason": "minimum size too risky"}]}
+        sl = round(entry - stop_dist if side == "buy" else entry + stop_dist, 2)
+        tp = round(entry + target_dist if side == "buy" else entry - target_dist, 2)
+        order = OrderRequest(symbol=symbol, side=side, qty=qty, stopLoss=sl, takeProfit=tp)
+        rationale = (f"{bot.strategy} on {bot.timeframe}: {side} {qty:g} @ ~{entry:.2f}, SL {sl} ({stop_dist:.2f}), TP {tp} ({target_dist:.2f}), "
+                     f"risking {qty * risk_unit:.2f} = {qty * risk_unit / equity:.1%} of equity")
+        staged = await uta.stage(order, rationale, source="bot")
+        res = await self._push_bot_commit(bot, uta, [staged["id"]], f"{side} {qty:g} {symbol} SL {sl} TP {tp} ({bot.strategy})")
+        if res["status"] == "pushed":
+            # the entry happens inside the bar now forming; time exits count completed bars from it
+            st["openedBarT"] = int(now.timestamp()) // (minutes * 60) * (minutes * 60)
+            self.events.emit("bot.trade", {"bot": bot.id, "symbol": symbol, "side": side, "qty": qty, "hash": res["hash"], "sl": sl, "tp": tp})
+        self._record(bot, rationale + f" -> {res['status']}")
+        return {"bot": bot.id, "actions": [{"symbol": symbol, "action": side, "qty": qty, "sl": sl, "tp": tp, **res}]}
 
     async def _run_ai(self, bot: BotConfig, uta) -> dict[str, Any]:
         if not self.agent.configured:

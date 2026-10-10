@@ -244,3 +244,6 @@ kbd { color: var(--amber); font: inherit; }
   .events .p { grid-column: 1 / -1; }
   .statusbar span:not(#last-event) { display: none; }
 }
+
+.ticket .half { grid-column: span 2; }
+@media (max-width: 760px) { .ticket .half { grid-column: auto; } }

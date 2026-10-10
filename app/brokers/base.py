@@ -17,6 +17,8 @@ class OrderRequest(BaseModel):
     qty: float = Field(gt=0)
     type: Literal["market", "limit"] = "market"
     limitPrice: float | None = Field(default=None, gt=0)
+    stopLoss: float | None = Field(default=None, gt=0)
+    takeProfit: float | None = Field(default=None, gt=0)
 
     @model_validator(mode="after")
     def _limit_needs_price(self) -> "OrderRequest":

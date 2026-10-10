@@ -18,7 +18,7 @@ def client(tmp_path):
 
 def test_status_and_market_endpoints(client):
     s = client.get("/api/status").json()
-    assert s["marketData"] == "demo" and s["accounts"] == ["paper-main"]
+    assert s["marketData"] == "demo" and s["accounts"] == ["paper-main", "paper-gold"]
     assert s["ai"]["configured"] is False
     assert client.get("/api/quote/AAPL").json()["symbol"] == "AAPL"
     assert len(client.get("/api/history/AAPL?range=6mo").json()["bars"]) > 100
