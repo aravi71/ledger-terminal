@@ -13,7 +13,8 @@ load_dotenv(ROOT / ".env")
 
 if __name__ == "__main__":
     host = os.getenv("LEDGER_HOST", "127.0.0.1")
-    port = int(os.getenv("LEDGER_PORT", "3002"))
+    # Cloud hosts (Render, Railway, Hugging Face, Fly) inject PORT.
+    port = int(os.getenv("PORT") or os.getenv("LEDGER_PORT", "3002"))
     local = host in ("127.0.0.1", "localhost", "::1")
     if not local and not os.getenv("LEDGER_PASSWORD"):
         sys.exit(

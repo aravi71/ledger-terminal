@@ -9,8 +9,9 @@ instead of a person, plus these extra controls:
 - per-bot daily loss limit: if account equity falls more than
   ``maxDailyLossPct`` below the day's starting equity, the bot halts and
   stays halted until a person resumes it
-- market-hours check (US equities trade 09:30-16:00 ET on weekdays; FX and
-  futures on weekdays; crypto 24/7). No exchange-holiday calendar.
+- market-hours check (US equities 09:30-16:00 ET and Indian NSE/BSE
+  09:15-15:30 IST on weekdays; FX and futures on weekdays; crypto 24/7).
+  No exchange-holiday calendar.
 - strategy bots act on the last *completed* daily bar, exactly like the
   backtester (signal at close, fill at next open)
 - each bot only sells what it bought (it tracks its own holdings from its
@@ -36,6 +37,7 @@ from .strategies import get_signals
 from .uta import TradingError, UTAManager
 
 NY = ZoneInfo("America/New_York")
+IST = ZoneInfo("Asia/Kolkata")
 PAPER_ACCOUNT_TYPES = {"paper", "alpaca"}  # the Alpaca adapter is hard-wired to its paper endpoint
 
 
@@ -43,10 +45,17 @@ def is_crypto(symbol: str) -> bool:
     return "-" in symbol and symbol.split("-")[-1] in {"USD", "USDT", "USDC", "EUR", "BTC", "ETH"}
 
 
+def is_india(symbol: str) -> bool:
+    return symbol.endswith((".NS", ".BO")) or symbol in {"^NSEI", "^NSEBANK", "^BSESN"}
+
+
 def market_open(symbol: str, now: datetime | None = None) -> bool:
     now = now or datetime.now(timezone.utc)
     if is_crypto(symbol):
         return True
+    if is_india(symbol):  # NSE/BSE: 09:15-15:30 IST, weekdays
+        ist = now.astimezone(IST)
+        return ist.weekday() < 5 and dtime(9, 15) <= ist.time() < dtime(15, 30)
     et = now.astimezone(NY)
     if et.weekday() >= 5:
         return False
@@ -58,7 +67,7 @@ def market_open(symbol: str, now: datetime | None = None) -> bool:
 def completed_bars(symbol: str, bars: list[dict[str, Any]], now: datetime | None = None) -> list[dict[str, Any]]:
     """Drop today's still-forming daily bar so live decisions match the backtest."""
     now = now or datetime.now(timezone.utc)
-    tz = timezone.utc if is_crypto(symbol) else NY
+    tz = timezone.utc if is_crypto(symbol) else IST if is_india(symbol) else NY
     today = now.astimezone(tz).date()
     return [b for b in bars if datetime.fromtimestamp(b["t"], tz).date() < today]
 

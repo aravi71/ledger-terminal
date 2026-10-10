@@ -669,7 +669,7 @@ $("#bt-form").addEventListener("submit", async (e) => {
       <div class="verdict ${beat ? "good" : "bad"}">
         <b>${esc(r.symbol)} · ${esc(r.strategy)}</b> ${esc(JSON.stringify(r.params))} · ${esc(r.period.start)} → ${esc(r.period.end)} (${r.period.bars} daily bars, ${esc(r.dataSource)} data)<br>
         Return on the $${num(r.assumptions.allocation || r.assumptions.initialCash, 0)} allocated: strategy ${fmtPct(m.returnOnAllocation)} vs buy-and-hold ${fmtPct(b.returnOnAllocation)}. It <b>${beat ? "beat" : "did not beat"}</b> the benchmark on return; max drawdown ${fmtPct(m.maxDrawdown)} vs ${fmtPct(b.maxDrawdown)}.
-        ${smallSample ? `<br><span class="down">Only ${m.trades} closed trades: too few to draw conclusions.</span>` : ""}
+        ${m.trades === 0 && !m.openTrade ? `<br><span class="down">No position was ever opened. Either the signal never fired, or one unit costs more than the allocation (raise "Allocation per trade").</span>` : smallSample ? `<br><span class="down">Only ${m.trades} closed trades: too few to draw conclusions.</span>` : ""}
         Current signal: <b>${r.currentSignal ? "LONG" : "FLAT"}</b>.
       </div>
       <table class="bt-metrics"><thead><tr><th></th><th>STRATEGY</th><th>BUY &amp; HOLD</th></tr></thead><tbody>
@@ -687,6 +687,10 @@ $("#bt-form").addEventListener("submit", async (e) => {
         ${row("Time in market", fmtPct(m.exposure), "100%")}
       </tbody></table>
       <div id="bt-chart" class="bt-chart"></div>
+      <h4>YEAR BY YEAR <span class="muted">· on the starting capital</span></h4>
+      <table class="bt-metrics"><thead><tr><th>YEAR</th><th>STRATEGY</th><th>P&amp;L</th><th>BUY &amp; HOLD</th><th>P&amp;L</th></tr></thead><tbody>
+        ${r.yearly.slice().reverse().map((y) => `<tr><td>${y.year}${y.partial ? ' <span class="muted">(partial)</span>' : ""}</td><td class="${cls(y.strategy)}">${pct(y.strategy * 100, 1)}</td><td class="${cls(y.strategyPnl)}">${money(y.strategyPnl)}</td><td class="${cls(y.benchmark)}">${pct(y.benchmark * 100, 1)}</td><td class="${cls(y.benchmarkPnl)}">${money(y.benchmarkPnl)}</td></tr>`).join("")}
+      </tbody></table>
       <div class="row gap"><button class="btn push" id="bt-paper">PAPER TRADE THIS STRATEGY</button>
         <span class="muted small">Creates an automated bot with these settings on the paper account.</span></div>
       <h4>TRADES</h4>

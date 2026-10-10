@@ -1,0 +1,22 @@
+# One-click deploy on Render (https://render.com): New -> Blueprint -> pick this repo.
+# The free plan sleeps after ~15 minutes without visitors and has no persistent
+# disk, so bots pause while it sleeps and paper-trading history resets on each
+# deploy. For always-on paper trading use a paid plan with a disk, or a VPS
+# (see docs/HANDBOOK.md section 11).
+services:
+  - type: web
+    name: ledger-terminal
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: LEDGER_HOST
+        value: 0.0.0.0
+      - key: LEDGER_USERNAME
+        value: admin
+      - key: LEDGER_PASSWORD
+        generateValue: true   # shown in the Render dashboard under Environment
+      - key: LEDGER_MARKET_DATA
+        value: yahoo
+      - key: ANTHROPIC_API_KEY
+        sync: false           # optional: enables the AI agent and autopilot

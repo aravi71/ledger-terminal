@@ -54,6 +54,20 @@ def test_backtest_buy_and_hold_matches_benchmark_and_fills_next_open():
     assert r["metrics"]["openTrade"] is True and r["metrics"]["trades"] == 0
 
 
+def test_yearly_breakdown_chains_to_total():
+    from datetime import datetime as dt
+    start = int(dt(2023, 12, 1, tzinfo=timezone.utc).timestamp())
+    bars = make_bars([100 + i * 0.5 for i in range(500)], start=start)
+    r = run_backtest(bars, "buy_and_hold", initial_cash=10_000, allocation=10_000, slippage_bps=0)
+    years = [y["year"] for y in r["yearly"]]
+    assert years == sorted(years) and years[0] == 2023 and r["yearly"][0]["partial"] and not r["yearly"][1]["partial"]
+    growth = 1.0
+    for y in r["yearly"]:
+        growth *= 1 + y["strategy"]
+    assert growth - 1 == pytest.approx(r["metrics"]["totalReturn"])
+    assert sum(y["strategyPnl"] for y in r["yearly"]) == pytest.approx(r["metrics"]["finalEquity"] - 10_000)
+
+
 def test_backtest_costs_reduce_returns():
     bars = make_bars([100 + (i % 10) for i in range(200)])
     cheap = run_backtest(bars, "rsi_reversion", {"period": 3, "entry": 30, "exit": 60}, slippage_bps=0)
@@ -81,6 +95,8 @@ def test_market_hours():
     assert market_open("SPY", mon_open) is True
     assert market_open("SPY", mon_late) is False
     assert market_open("EURUSD=X", mon_late) is True
+    assert market_open("^NSEI", datetime(2026, 10, 12, 5, 0, tzinfo=timezone.utc)) is True    # 10:30 IST
+    assert market_open("RELIANCE.NS", mon_open) is False                                       # 20:30 IST
 
 
 def test_completed_bars_drops_today():

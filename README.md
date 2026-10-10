@@ -204,7 +204,7 @@ pip install -r requirements.txt
 python -m pytest
 ```
 
-41 tests cover the strategies (including no-look-ahead checks), the backtester, the bots (kill switch, loss-limit halt, market hours, never touching manual positions, AI symbol fencing), the indicators, DCF and risk maths, every guard rule, the paper
+42 tests cover the strategies (including no-look-ahead checks), the backtester, the bots (kill switch, loss-limit halt, market hours, never touching manual positions, AI symbol fencing), the indicators, DCF and risk maths, every guard rule, the paper
 broker (fills, cash and short-sale checks, resting limit orders, persistence),
 the full stage → commit → push flow (including atomic rejection, cooldown and
 revert), every HTTP endpoint, the login, and the agent's tool dispatch and tool-use loop
@@ -213,7 +213,23 @@ offline demo data provider.
 
 ---
 
+## Reproducing the backtest report
+
+```bash
+python scripts/yearly_report.py --range 10y --capital 10000 --out docs/yearly-report.json
+```
+
+This backtests every strategy on 14 markets (US, gold, crypto, India) and
+writes year-by-year returns and P&L per 10,000 of capital. A summary is in
+[docs/HANDBOOK.md §7](docs/HANDBOOK.md#7-backtesting).
+
 ## Deployment
+
+**Free hosting:** `render.yaml` deploys to Render's free plan in a few clicks
+(New → Blueprint). Free hosts sleep when idle, so for bots that trade around
+the clock use a VM or VPS. See the hosting options table in
+[docs/HANDBOOK.md §11](docs/HANDBOOK.md#11-deploying-to-a-server-paper-trading).
+
 
 For a server, use Docker and an HTTPS reverse proxy:
 

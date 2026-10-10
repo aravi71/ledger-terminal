@@ -70,6 +70,29 @@ def _simulate(bars, signals, initial_cash, allocation, allocation_pct, slip, com
     return equity, trades, in_market
 
 
+def yearly_breakdown(ts: Sequence[int], equity: Sequence[float], bench: Sequence[float]) -> list[dict[str, Any]]:
+    """Calendar-year return and dollar P&L for the strategy and the benchmark.
+
+    Each year runs from the last close of the previous year (or the first bar)
+    to the year's last close. First and last years may be partial.
+    """
+    years: dict[int, list[int]] = {}
+    for i, t in enumerate(ts):
+        years.setdefault(datetime.fromtimestamp(t, timezone.utc).year, []).append(i)
+    out = []
+    ordered = sorted(years)
+    for n, y in enumerate(ordered):
+        idx = years[y]
+        start = idx[0] - 1 if idx[0] > 0 else 0
+        end = idx[-1]
+        row = {"year": y, "partial": n == 0 or n == len(ordered) - 1, "from": _date(ts[start]), "to": _date(ts[end])}
+        for key, series in (("strategy", equity), ("benchmark", bench)):
+            row[key] = series[end] / series[start] - 1 if series[start] else 0.0
+            row[key + "Pnl"] = series[end] - series[start]
+        out.append(row)
+    return out
+
+
 def run_backtest(
     bars: Sequence[dict[str, Any]],
     strategy: str,
@@ -124,5 +147,6 @@ def run_backtest(
         "benchmark": bench_metrics,
         "trades": trades,
         "curve": curve,
+        "yearly": yearly_breakdown(ts, equity, bench),
         "currentSignal": signals[-1],
     }

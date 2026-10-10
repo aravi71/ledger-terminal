@@ -262,6 +262,52 @@ $100,000 fully allocated, 2 bps slippage, $0 commission, default parameters
 Re-run any of these yourself in the BACKTEST tab: pick a symbol, strategy,
 parameters, history length and costs, then click RUN BACKTEST.
 
+### Year-by-year results across 14 markets (run 2026-10-10)
+
+US stocks and ETFs, gold, Bitcoin, Ethereum, the NIFTY 50 and NIFTY Bank
+indices, and four large Indian stocks. 10 years of daily prices, 10,000 of
+capital fully invested, slippage of 2 bps (US), 5 bps (India) and 10 bps
+(crypto). Reproduce it with `python scripts/yearly_report.py`. The full
+per-year numbers are in
+[`yearly-report-2026-10-10.json`](yearly-report-2026-10-10.json).
+
+| Strategy | Median yearly return | ≈ per 10,000 a year | Median worst fall | Beat buy & hold (of 14) | Up years |
+|---|---:|---:|---:|---:|---:|
+| Buy and hold | 15.2% | 1,522 | 43.1% | – | 80.0% |
+| SMA crossover 50/200 | 8.2% | 817 | 36.4% | 2 | 71.2% |
+| Breakout 20/10 | 6.1% | 607 | 20.8% | 0 | 71.2% |
+| RSI mean reversion | 2.4% | 241 | 23.6% | 0 | 56.0% |
+
+Compound yearly return per market:
+
+| Market | Buy & hold | SMA cross | Breakout | RSI | Worst fall: hold → breakout |
+|---|---:|---:|---:|---:|---:|
+| S&P 500 ETF (SPY) | 13.7% | 6.5% | 6.4% | 2.2% | 34.1% → 6.9% |
+| Nasdaq-100 ETF (QQQ) | 20.2% | 10.9% | 8.0% | 4.2% | 35.6% → 13.9% |
+| Apple (AAPL) | 27.6% | 12.5% | 10.9% | 5.2% | 38.7% → 16.5% |
+| Microsoft (MSFT) | 24.9% | 12.8% | 7.8% | 3.1% | 37.6% → 22.3% |
+| NVIDIA (NVDA) | 63.6% | 27.1% | 14.8% | -2.4% | 66.4% → 33.8% |
+| Gold ETF (GLD) | 12.4% | 8.4% | 3.6% | 1.0% | 26.4% → 18.4% |
+| Bitcoin (BTC-USD) | 63.1% | 25.0% | 24.8% | 11.2% | 83.4% → 25.8% |
+| Ethereum (ETH-USD) | 25.8% | 26.4% | 22.4% | -15.5% | 94.0% → 42.7% |
+| NIFTY 50 (index) (^NSEI) | 10.0% | 2.5% | 2.5% | -0.3% | 38.4% → 20.6% |
+| NIFTY Bank (index) (^NSEBANK) | 11.1% | 1.3% | 4.0% | 2.5% | 47.9% → 17.0% |
+| Reliance Industries (RELIANCE.NS) | 16.7% | 5.0% | 5.7% | 2.3% | 45.1% → 19.6% |
+| Tata Consultancy Services (TCS.NS) | 6.2% | 8.0% | 3.6% | 5.7% | 56.5% → 21.0% |
+| HDFC Bank (HDFCBANK.NS) | 8.3% | 2.7% | 3.2% | 1.4% | 41.1% → 27.0% |
+| Infosys (INFY.NS) | 7.2% | 2.0% | 5.1% | 2.8% | 50.7% → 22.0% |
+
+**What can you expect to earn?** Over this decade, buying and holding a
+broad index earned roughly 10–20% a year: NIFTY 50 about 10%, S&P 500 about
+14%, Nasdaq-100 about 20%. That is about 1,000–2,000 a year per 10,000 in the
+first year, compounding after that. Single stocks and crypto were spread much
+wider, from about 6% a year (TCS) to about 64% (NVIDIA, Bitcoin), and fell
+37–94% at their worst. The trading strategies earned less
+(median 2–8% a year) because they sit in cash for part of the time. In
+exchange, breakout roughly halved the worst falls. These are past results
+from a strong decade, before tax and brokerage fees. They are not a forecast
+or a promise.
+
 ### Forward paper test (what is running now)
 
 Backtests show the past. The forward paper test checks that the live bots
@@ -320,6 +366,18 @@ There is **no live-money broker** in this codebase.
 If anything looks wrong, press **KILL SWITCH** first and investigate second.
 
 ## 11. Deploying to a server (paper trading)
+
+### Free and low-cost hosting options
+
+| Option | Cost | Always on (bots keep trading)? | Keeps history? | How |
+|---|---|---|---|---|
+| **Render** (included `render.yaml`) | Free plan | No: sleeps after ~15 min without visitors | No: resets on each deploy (paid disk fixes this) | Push to GitHub → Render → New → Blueprint → pick the repo. The password is generated for you under Environment |
+| **Hugging Face Spaces** (Docker) | Free | Sleeps after ~48 h without visitors | No (paid storage fixes this) | New Space → Docker → push this repo. Set `LEDGER_PASSWORD` as a secret; the app reads `PORT` |
+| **Oracle Cloud Always Free VM** | Free | Yes | Yes | Create an Ubuntu VM, install Docker, follow the steps below |
+| **Any small VPS** (Hetzner, DigitalOcean, Lightsail) | ~$4–6 / month | Yes | Yes | Follow the steps below |
+
+For **paper-trading bots that run 24/7**, use a VM or VPS. The free web hosts
+are fine for showing the dashboard and running backtests.
 
 ### Requirements
 

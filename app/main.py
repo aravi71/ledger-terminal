@@ -349,7 +349,9 @@ def create_app(
         try:
             result = run_backtest(
                 bars, body.strategy, body.params, body.initialCash, body.allocation,
-                slippage_bps=body.slippageBps, commission=body.commission, fractional=is_crypto(symbol),
+                slippage_bps=body.slippageBps, commission=body.commission,
+                # Indices aren't bought unit by unit; treat them like an index fund.
+                fractional=is_crypto(symbol) or symbol.startswith("^"),
             )
         except ValueError as e:
             raise HTTPException(400, str(e))

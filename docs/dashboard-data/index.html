@@ -1,0 +1,452 @@
+<style>
+  /* Visual analysis: verdict on top, then one question per card, ending on the year-by-year explorer. */
+  .bt { display: grid; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); max-width: 72rem; margin-inline: auto; }
+  .bt-head { display: grid; gap: var(--cds-gap-sm); }
+  .bt-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .bt-takeaway { margin: 0; font-size: var(--cds-font-size-body); color: var(--color-fg); max-width: 62ch; line-height: 1.55; }
+  .bt-takeaway b { font-weight: 600; }
+  .bt-note { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.5; max-width: 70ch; }
+  .bt-tiles { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); }
+  .bt-tile, .bt-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+  .bt-tile { display: grid; gap: var(--cds-gap-xs); align-content: start; }
+  .bt-tile-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .bt-tile-value { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .bt-tile-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+  .bt-grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); }
+  .bt-card { display: grid; gap: var(--cds-gap-sm); align-content: start; }
+  .bt-card h2 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+  .bt-chart { position: relative; min-height: 18rem; }
+  .bt-chart svg { display: block; overflow: visible; }
+  .bt-chart text { fill: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+  .bt-hbars { display: grid; gap: var(--cds-gap-md); min-height: 12rem; align-content: start; }
+  .bt-hbar { display: grid; gap: var(--cds-gap-xs); }
+  .bt-hbar-top { display: flex; justify-content: space-between; gap: var(--cds-gap-sm); font-size: var(--cds-font-size-caption); }
+  .bt-hbar-top span:last-child { color: var(--color-fg-muted); font-variant-numeric: tabular-nums; text-align: right; }
+  .bt-hbar-track { height: 0.75rem; }
+  .bt-hbar-fill { height: 100%; border-radius: 0.375rem; min-width: 2px; }
+  .bt-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .bt-legend span { display: inline-flex; align-items: center; gap: 0.375rem; }
+  .bt-sw { width: 0.625rem; height: 0.625rem; border-radius: 50%; display: inline-block; }
+  .bt-sw.sq { border-radius: 2px; }
+  .bt-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; }
+  .bt-tip .t1 { color: var(--cds-text-secondary); }
+  .bt-tip div { display: flex; align-items: center; gap: 0.375rem; font-variant-numeric: tabular-nums; }
+  .bt-tablebox { overflow: auto; max-height: 30rem; }
+  .bt-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+  .bt-table th { position: sticky; top: 0; background: var(--color-panel); text-align: right; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+  .bt-table td { text-align: right; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+  .bt-table th:first-child, .bt-table td:first-child, .bt-table .l { text-align: left; }
+  .bt-table tbody tr { cursor: pointer; }
+  .bt-table tbody tr:hover td { background: var(--cds-chart-grid); }
+  .bt-table tr.on td { font-weight: 600; }
+  .bt-table td.pos { color: var(--color-ok); } .bt-table td.neg { color: var(--color-bad); }
+  .bt-table td.best { box-shadow: inset 0 -2px 0 var(--color-ok); }
+  .bt-muted { color: var(--color-fg-muted); }
+  .bt-hide-narrow { }
+  @container (max-width: 34rem) { .bt-hide-narrow { display: none; } }
+  .bt-tablewrap { container-type: inline-size; }
+  .bt-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+  .bt-controls select { font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); }
+  .bt-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+  .bt-seg button { font: inherit; font-size: var(--cds-font-size-caption); background: var(--color-bg); color: var(--color-fg-muted); border: 0; padding: var(--cds-pad-xs) var(--cds-pad-sm); cursor: pointer; }
+  .bt-seg button + button { border-left: 1px solid var(--color-border-line); }
+  .bt-seg button[aria-pressed="true"] { background: var(--color-panel); color: var(--color-fg); font-weight: 600; }
+  .bt-seg button:focus-visible, .bt-controls select:focus-visible { outline: 2px solid var(--cds-chart-axis); outline-offset: 1px; }
+  .bt-stats { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-lg); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+  .bt-stats b { color: var(--color-fg); font-weight: 600; }
+  .bt-method { display: grid; gap: var(--cds-gap-sm); }
+  .bt-method ul { margin: 0; padding-left: 1.1rem; display: grid; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; max-width: 75ch; }
+  [data-dash-source-state=empty] { color: transparent; }
+  [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+  .bt-fail { display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .bt-fail::before { content: ""; width: 0.375rem; height: 0.375rem; border-radius: 50%; background: var(--color-bad); }
+</style>
+
+<div class="bt">
+  <header class="bt-head" id="summary">
+    <h1 class="bt-title">Strategy backtest results</h1>
+    <p class="bt-takeaway" id="takeaway">
+      Over 10 years and 14 markets, simply buying and holding earned a median of
+      <b data-source="summary" data-field="medianCagr" data-where="strategy=buy_and_hold" class="dash-skeleton">—</b> a year,
+      about <b data-source="summary" data-field="earnPerYearOn10k" data-where="strategy=buy_and_hold" class="dash-skeleton">—</b> on every 10,000 invested.
+      The trading strategies beat it in only <b data-source="beats" data-field="beat" class="dash-skeleton">—</b> of
+      <span data-source="beats" data-field="pairs" class="dash-skeleton">—</span> market tests, but the breakout strategy cut the typical worst fall from
+      <span data-source="summary" data-field="medianMaxDrawdown" data-where="strategy=buy_and_hold" class="dash-skeleton">—</span> to
+      <span data-source="summary" data-field="medianMaxDrawdown" data-where="strategy=breakout" class="dash-skeleton">—</span>.
+    </p>
+    <p class="bt-note">Backtests of daily prices, October 2016 to October 2026 (Ethereum from November 2017). Amounts are per 10,000 of capital in each market's own currency: dollars for US and crypto, rupees for India. Past results do not predict future returns. Not financial advice.</p>
+  </header>
+
+  <section class="bt-tiles" id="headline">
+    <div class="bt-tile">
+      <span class="bt-tile-label">Buy and hold · typical year</span>
+      <span class="bt-tile-value dash-skeleton" data-source="summary" data-field="medianCagr" data-where="strategy=buy_and_hold">—</span>
+      <span class="bt-tile-sub">≈ <span data-source="summary" data-field="earnPerYearOn10k" data-where="strategy=buy_and_hold">—</span> a year per 10,000</span>
+    </div>
+    <div class="bt-tile">
+      <span class="bt-tile-label">Best trading strategy · SMA crossover</span>
+      <span class="bt-tile-value dash-skeleton" data-source="summary" data-field="medianCagr" data-where="strategy=sma_cross">—</span>
+      <span class="bt-tile-sub">≈ <span data-source="summary" data-field="earnPerYearOn10k" data-where="strategy=sma_cross">—</span> a year per 10,000</span>
+    </div>
+    <div class="bt-tile">
+      <span class="bt-tile-label">Worst fall · breakout</span>
+      <span class="bt-tile-value dash-skeleton" data-source="summary" data-field="medianMaxDrawdown" data-where="strategy=breakout">—</span>
+      <span class="bt-tile-sub">vs <span data-source="summary" data-field="medianMaxDrawdown" data-where="strategy=buy_and_hold">—</span> for buy and hold (median)</span>
+    </div>
+    <div class="bt-tile">
+      <span class="bt-tile-label">Tests where a strategy beat buy and hold</span>
+      <span class="bt-tile-value dash-skeleton" data-source="beats" data-field="beat">—</span>
+      <span class="bt-tile-sub">of <span data-source="beats" data-field="pairs">—</span> strategy–market tests</span>
+    </div>
+  </section>
+
+  <section class="bt-grid">
+    <div class="bt-card" id="by-strategy">
+      <h2>Typical yearly return by strategy</h2>
+      <p class="bt-note">Median compound yearly return across the 14 markets, and what that means per 10,000 invested.</p>
+      <div class="bt-hbars dash-skeleton" id="hbars" data-source="summary"></div>
+    </div>
+    <div class="bt-card" id="risk-return">
+      <h2>Return against worst fall, every test</h2>
+      <p class="bt-note">Each dot is one strategy on one market. Higher is more return; further right is a deeper fall from a peak.</p>
+      <div class="bt-legend" id="legend"></div>
+      <div class="bt-chart dash-skeleton" id="scatter" data-source="results"></div>
+    </div>
+  </section>
+
+  <section class="bt-card bt-tablewrap" id="markets">
+    <h2>Every market at a glance</h2>
+    <p class="bt-note">Compound yearly return per strategy. The highest in each row is underlined. Click a row to see it year by year.</p>
+    <div class="bt-tablebox">
+      <table class="bt-table" id="matrix" data-source="matrix" data-row-key="symbol">
+        <thead><tr>
+          <th data-field="symbol">Symbol</th>
+          <th data-field="name" class="l bt-hide-narrow">Market</th>
+          <th data-field="region" class="l bt-hide-narrow">Region</th>
+          <th data-field="buy_and_hold">Buy and hold</th>
+          <th data-field="sma_cross">SMA cross</th>
+          <th data-field="breakout">Breakout</th>
+          <th data-field="rsi_reversion">RSI</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="bt-card" id="years">
+    <h2>Year by year: how much 10,000 earned</h2>
+    <div class="bt-controls">
+      <select id="pick-market" aria-label="Market" data-source="results"></select>
+      <div class="bt-seg" role="group" aria-label="Strategy" id="pick-strategy">
+        <button type="button" data-s="sma_cross">SMA crossover</button>
+        <button type="button" data-s="breakout">Breakout</button>
+        <button type="button" data-s="rsi_reversion">RSI reversion</button>
+      </div>
+    </div>
+    <div class="bt-stats" id="year-stats">
+      <span>10,000 became <b class="st" data-source="results" data-field="finalValue" data-k="s">—</b></span>
+      <span>buy and hold: <b class="st" data-source="results" data-field="finalValue" data-k="h">—</b></span>
+      <span>yearly return <b class="st" data-source="results" data-field="cagr" data-k="s">—</b> vs <span class="st" data-source="results" data-field="cagr" data-k="h">—</span></span>
+      <span>up years <b class="st" data-source="results" data-field="positiveYears" data-k="s">—</b> of <span class="st" data-source="results" data-field="fullYears" data-k="s">—</span></span>
+      <span>worst year <b class="st" data-source="results" data-field="worstYear" data-k="s">—</b></span>
+      <span>worst fall <b class="st" data-source="results" data-field="maxDrawdown" data-k="s">—</b> vs <span class="st" data-source="results" data-field="maxDrawdown" data-k="h">—</span></span>
+    </div>
+    <div class="bt-legend" id="year-legend"></div>
+    <div class="bt-chart dash-skeleton" id="yearchart" data-source="yearpair"></div>
+    <div class="bt-tablebox">
+      <table class="bt-table" id="yeartable" data-source="yearpair" data-row-key="key">
+        <thead><tr>
+          <th data-field="year">Year</th>
+          <th data-field="ret">Strategy</th>
+          <th data-field="pnl">Profit on 10,000</th>
+          <th data-field="bhRet">Buy and hold</th>
+          <th data-field="bhPnl">Profit on 10,000</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="bt-note">Each year's profit is measured on the capital at the start of that year, so later years compound earlier gains. First and last years are partial.</p>
+  </section>
+
+  <section class="bt-card bt-method" id="method">
+    <h2>How this was tested</h2>
+    <ul>
+      <li>Daily bars from Yahoo Finance. The signal is computed at each day's close and the trade is filled at the next day's open, so no future prices are used.</li>
+      <li>Long only, one position per market, full 10,000 capital per position, fractional units allowed.</li>
+      <li>Trading costs: slippage of 2 basis points per fill in US markets, 5 in India and 10 in crypto. No brokerage fees, taxes or dividends are included, which slightly understates buy and hold.</li>
+      <li>Default parameters, not tuned to these markets: SMA 50/200, breakout 20-day high in and 10-day low out, RSI 14 in below 30 and out above 55.</li>
+      <li>The markets were chosen knowing they exist today and mostly did well (survivorship bias). Indian indices cannot be bought directly; an index fund or ETF tracks them with small differences.</li>
+      <li>Produced by Ledger Terminal's backtester, the same code its paper-trading bots run.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+  const STRATS = ['buy_and_hold', 'sma_cross', 'breakout', 'rsi_reversion'];
+  const NAMES = { buy_and_hold: 'Buy and hold', sma_cross: 'SMA crossover', breakout: 'Breakout', rsi_reversion: 'RSI reversion' };
+  const fPct = d3.format('.1%');
+  const fSigned = d3.format('+.1%');
+  const fInt = d3.format(',.0f');
+  const fMoney = (v) => (v < 0 ? '−' : '+') + fInt(Math.abs(v));
+  const color = (s) => dash.colors[STRATS.indexOf(s)];
+
+  dash.calc('beats', {
+    title: 'Tests beating buy and hold',
+    description: 'How many strategy–market tests had a higher yearly return than buy and hold on the same market.',
+    inputs: ['results'],
+    fn: (results) => {
+      const hold = new Map(results.filter((r) => r.strategy === 'buy_and_hold').map((r) => [r.symbol, r.cagr]));
+      const tests = results.filter((r) => r.strategy !== 'buy_and_hold');
+      return [{ beat: tests.filter((r) => r.cagr > hold.get(r.symbol)).length, pairs: tests.length }];
+    },
+  });
+
+  dash.calc('matrix', {
+    title: 'Yearly return by market',
+    description: 'Each market with every strategy’s compound yearly return side by side.',
+    inputs: ['results'],
+    fn: (results) => Array.from(d3.group(results, (r) => r.symbol), ([symbol, rows]) => {
+      const row = { symbol, name: rows[0].name, region: rows[0].region };
+      for (const r of rows) row[r.strategy] = r.cagr;
+      return row;
+    }),
+  });
+
+  dash.calc('yearpair', {
+    title: 'Strategy vs buy and hold by year',
+    description: 'Each year’s return and profit on 10,000 for a strategy beside buy and hold on the same market.',
+    inputs: ['yearly'],
+    fn: (yearly) => {
+      const hold = new Map(yearly.filter((r) => r.strategy === 'buy_and_hold').map((r) => [r.symbol + '|' + r.year, r]));
+      return yearly.filter((r) => r.strategy !== 'buy_and_hold').map((r) => {
+        const b = hold.get(r.symbol + '|' + r.year);
+        return { key: r.symbol + '|' + r.strategy + '|' + r.year, symbol: r.symbol, strategy: r.strategy, year: r.year, partial: r.partial,
+          ret: r.return, pnl: r.pnl, bhRet: b ? b.return : null, bhPnl: b ? b.pnl : null };
+      });
+    },
+  });
+
+  const root = document.querySelector('.bt');
+  const tipFor = (box) => {
+    let tip = box.querySelector('.bt-tip');
+    if (!tip) { tip = document.createElement('div'); tip.className = 'bt-tip'; tip.hidden = true; box.appendChild(tip); }
+    return tip;
+  };
+  const placeTip = (box, tip, x, y) => {
+    tip.hidden = false;
+    const w = tip.offsetWidth, h = tip.offsetHeight, bw = box.clientWidth;
+    tip.style.left = Math.max(0, Math.min(bw - w, x + 12)) + 'px';
+    tip.style.top = Math.max(0, y - h - 10) + 'px';
+  };
+  const tipLine = (tip, sw, text) => {
+    const d = document.createElement('div');
+    if (sw) { const s = document.createElement('span'); s.className = 'bt-sw'; s.style.background = sw; d.appendChild(s); }
+    d.appendChild(document.createTextNode(text));
+    tip.appendChild(d);
+  };
+  const failed = (el) => { el.replaceChildren(); const f = document.createElement('div'); f.className = 'bt-fail'; f.textContent = 'Failed to load'; el.appendChild(f); };
+  const textWidth = (svg, str) => { const t = svg.append('text').text(str); const w = t.node().getComputedTextLength(); t.remove(); return w; };
+
+  // ---- figures marked in markup
+  function fillMarks(id, rows, fmt) {
+    root.querySelectorAll(`[data-source="${id}"][data-field]`).forEach((el) => {
+      if (el.tagName === 'TABLE' || el.tagName === 'TH') return;
+      const where = el.dataset.where;
+      const row = where ? rows.find((r) => where.split('&').every((p) => { const [k, v] = p.split('='); return String(r[k]) === decodeURIComponent(v); })) : rows[0];
+      el.classList.remove('dash-skeleton');
+      el.textContent = row ? fmt(el.dataset.field, row[el.dataset.field]) : '—';
+    });
+  }
+  const fmtSummary = (f, v) => (f === 'earnPerYearOn10k' ? fInt(v) : fPct(v));
+
+  // ---- strategy bars
+  function drawBars(rows) {
+    const box = document.getElementById('hbars');
+    box.classList.remove('dash-skeleton');
+    const max = d3.max(rows, (r) => r.medianCagr) || 1;
+    box.replaceChildren(...STRATS.map((s) => rows.find((r) => r.strategy === s)).filter(Boolean).map((r) => {
+      const row = document.createElement('div'); row.className = 'bt-hbar';
+      const top = document.createElement('div'); top.className = 'bt-hbar-top';
+      const a = document.createElement('span'); a.textContent = r.label;
+      const b = document.createElement('span'); b.textContent = `${fPct(r.medianCagr)} · ≈ ${fInt(r.earnPerYearOn10k)} a year · worst fall ${fPct(r.medianMaxDrawdown)}`;
+      top.append(a, b);
+      const track = document.createElement('div'); track.className = 'bt-hbar-track';
+      const fill = document.createElement('div'); fill.className = 'bt-hbar-fill';
+      fill.style.width = Math.max(0, r.medianCagr / max * 100) + '%'; fill.style.background = color(r.strategy);
+      track.appendChild(fill); row.append(top, track);
+      return row;
+    }));
+  }
+
+  // ---- legend
+  function drawLegend(el, items) {
+    el.replaceChildren(...items.map(([label, c, sq]) => {
+      const s = document.createElement('span'); const sw = document.createElement('i');
+      sw.className = 'bt-sw' + (sq ? ' sq' : ''); sw.style.background = c; s.append(sw, document.createTextNode(label)); return s;
+    }));
+  }
+
+  // ---- scatter
+  function drawScatter(rows) {
+    const box = document.getElementById('scatter');
+    box.classList.remove('dash-skeleton');
+    box.querySelectorAll('svg').forEach((n) => n.remove());
+    const W = Math.max(280, box.clientWidth), H = 288;
+    const svg = d3.select(box).insert('svg', ':first-child').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const y = d3.scaleLinear([Math.min(0, d3.min(rows, (r) => r.cagr)), d3.max(rows, (r) => r.cagr)], [0, 0]).nice();
+    const ticksY = y.ticks(5);
+    const left = 8 + d3.max(ticksY, (t) => textWidth(svg, fPct(t)));
+    const m = { top: 8, right: 12, bottom: 34, left };
+    y.range([H - m.bottom, m.top]);
+    const x = d3.scaleLinear([0, d3.max(rows, (r) => r.maxDrawdown)], [m.left, W - m.right]).nice();
+    svg.append('g').selectAll('line').data(ticksY).join('line').attr('x1', m.left).attr('x2', W - m.right).attr('y1', (d) => y(d)).attr('y2', (d) => y(d))
+      .attr('stroke', (d) => (d === 0 ? 'var(--cds-chart-axis)' : 'var(--cds-chart-grid)'));
+    svg.append('g').selectAll('text').data(ticksY).join('text').attr('x', m.left - 6).attr('y', (d) => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text((d) => fPct(d));
+    const ticksX = x.ticks(Math.max(2, Math.floor((W - m.left) / 80)));
+    svg.append('g').selectAll('text').data(ticksX).join('text').attr('x', (d) => x(d)).attr('y', H - m.bottom + 16).attr('text-anchor', 'middle').text((d) => fPct(d));
+    svg.append('text').attr('x', W - m.right).attr('y', H - 2).attr('text-anchor', 'end').text('Worst fall from a peak →');
+    svg.append('text').attr('x', m.left).attr('y', m.top).attr('dy', '0.9em').attr('dx', 4).text('Yearly return ↑');
+    const dots = svg.append('g').selectAll('circle').data(rows).join('circle')
+      .attr('cx', (d) => x(d.maxDrawdown)).attr('cy', (d) => y(d.cagr)).attr('r', 5)
+      .attr('fill', (d) => color(d.strategy)).attr('fill-opacity', 0.85).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1);
+    const tip = tipFor(box);
+    const delaunay = d3.Delaunay.from(rows, (d) => x(d.maxDrawdown), (d) => y(d.cagr));
+    svg.append('rect').attr('x', m.left).attr('y', m.top).attr('width', W - m.left - m.right).attr('height', H - m.top - m.bottom).attr('fill', 'transparent')
+      .on('pointermove', (event) => {
+        const [px, py] = d3.pointer(event);
+        const i = delaunay.find(px, py); const d = rows[i];
+        dots.attr('r', (o) => (o === d ? 7 : 5)).attr('fill-opacity', (o) => (o === d ? 1 : 0.35));
+        tip.replaceChildren();
+        const t = document.createElement('div'); t.className = 't1'; t.textContent = `${d.symbol} · ${d.name}`; tip.appendChild(t);
+        tipLine(tip, color(d.strategy), `${d.label}: ${fPct(d.cagr)} a year`);
+        tipLine(tip, null, `Worst fall ${fPct(d.maxDrawdown)} · ${fInt(d.finalValue)} from 10,000`);
+        const r = box.getBoundingClientRect(), sr = svg.node().getBoundingClientRect(), k = sr.width / W;
+        placeTip(box, tip, x(d.maxDrawdown) * k + (sr.left - r.left), y(d.cagr) * k + (sr.top - r.top));
+      })
+      .on('pointerleave', () => { tip.hidden = true; dots.attr('r', 5).attr('fill-opacity', 0.85); })
+      .on('click', (event) => { const [px, py] = d3.pointer(event); const d = rows[delaunay.find(px, py)]; pick(d.symbol, d.strategy === 'buy_and_hold' ? null : d.strategy); });
+  }
+
+  // ---- market table
+  function drawMatrix(rows) {
+    const tb = document.querySelector('#matrix tbody');
+    const sel = dash.params().symbol;
+    tb.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr'); if (r.symbol === sel) tr.className = 'on';
+      const best = d3.max(STRATS, (s) => r[s]);
+      const cells = [['symbol', r.symbol], ['name', r.name], ['region', r.region], ...STRATS.map((s) => [s, r[s]])];
+      for (const [f, v] of cells) {
+        const td = document.createElement('td');
+        if (f === 'name' || f === 'region') td.className = 'l bt-hide-narrow';
+        if (STRATS.includes(f)) { td.textContent = fPct(v); td.classList.add(v < 0 ? 'neg' : 'pos'); if (v === best) td.classList.add('best'); }
+        else td.textContent = v;
+        tr.appendChild(td);
+      }
+      tr.addEventListener('click', () => { pick(r.symbol, null); document.getElementById('years').scrollIntoView({ behavior: 'smooth', block: 'start' }); dash.setLink('years'); });
+      return tr;
+    }));
+  }
+
+  // ---- year-by-year explorer
+  const marketSel = document.getElementById('pick-market');
+  const segButtons = [...document.querySelectorAll('#pick-strategy button')];
+  function pick(symbol, strategy) {
+    const p = {}; if (symbol) p.symbol = symbol; if (strategy) p.strategy = strategy; dash.setParams(p);
+  }
+  marketSel.addEventListener('change', () => pick(marketSel.value, null));
+  segButtons.forEach((b) => b.addEventListener('click', () => pick(null, b.dataset.s)));
+
+  function drawYears(pairs, results) {
+    const { symbol, strategy } = dash.params();
+    segButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.s === strategy)));
+    const rows = pairs.filter((r) => r.symbol === symbol && r.strategy === strategy).sort((a, b) => a.year - b.year);
+    const res = results.find((r) => r.symbol === symbol && r.strategy === strategy);
+    const hold = results.find((r) => r.symbol === symbol && r.strategy === 'buy_and_hold');
+    const fmtStat = { finalValue: fInt, cagr: fPct, positiveYears: String, fullYears: String, worstYear: fSigned, maxDrawdown: fPct };
+    document.querySelectorAll('#year-stats .st').forEach((el) => {
+      const row = el.dataset.k === 'h' ? hold : res;
+      const strat = el.dataset.k === 'h' ? 'buy_and_hold' : strategy;
+      el.dataset.where = 'key=' + encodeURIComponent(`${symbol}|${strat}`).replace(/%5E/g, '^').replace(/%7C/g, '|');
+      el.textContent = row ? fmtStat[el.dataset.field](row[el.dataset.field]) : '—';
+    });
+    drawLegend(document.getElementById('year-legend'), [[NAMES[strategy], color(strategy), true], ['Buy and hold', color('buy_and_hold'), true]]);
+
+    const box = document.getElementById('yearchart');
+    box.classList.remove('dash-skeleton');
+    box.querySelectorAll('svg').forEach((n) => n.remove());
+    const W = Math.max(280, box.clientWidth), H = 288;
+    const svg = d3.select(box).insert('svg', ':first-child').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const vals = rows.flatMap((r) => [r.ret, r.bhRet]).filter((v) => v !== null);
+    const y = d3.scaleLinear([Math.min(0, d3.min(vals) ?? 0), Math.max(0, d3.max(vals) ?? 0)], [0, 0]).nice();
+    const ticksY = y.ticks(5);
+    const left = 8 + (d3.max(ticksY, (t) => textWidth(svg, fPct(t))) || 0);
+    const m = { top: 8, right: 8, bottom: 26, left };
+    y.range([H - m.bottom, m.top]);
+    const x = d3.scaleBand(rows.map((r) => r.year), [m.left, W - m.right]).paddingInner(0.25).paddingOuter(0.1);
+    const inner = d3.scaleBand(['s', 'b'], [0, x.bandwidth()]).padding(0.08);
+    svg.append('g').selectAll('line').data(ticksY).join('line').attr('x1', m.left).attr('x2', W - m.right).attr('y1', (d) => y(d)).attr('y2', (d) => y(d))
+      .attr('stroke', (d) => (d === 0 ? 'var(--cds-chart-axis)' : 'var(--cds-chart-grid)'));
+    svg.append('g').selectAll('text').data(ticksY).join('text').attr('x', m.left - 6).attr('y', (d) => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text((d) => fPct(d));
+    const every = Math.ceil(rows.length / Math.max(1, Math.floor((W - m.left) / 44)));
+    svg.append('g').selectAll('text').data(rows.filter((_, i) => i % every === 0)).join('text')
+      .attr('x', (d) => x(d.year) + x.bandwidth() / 2).attr('y', H - 8).attr('text-anchor', 'middle').text((d) => d.year + (d.partial ? '*' : ''));
+    const bar = (g, key, val, c) => g.append('rect')
+      .attr('x', (d) => x(d.year) + inner(key)).attr('width', inner.bandwidth())
+      .attr('y', (d) => y(Math.max(0, d[val] ?? 0))).attr('height', (d) => Math.abs(y(d[val] ?? 0) - y(0)))
+      .attr('rx', 3).attr('fill', c).attr('fill-opacity', (d) => (d.partial ? 0.45 : 1));
+    const groups = svg.append('g').selectAll('g').data(rows).join('g');
+    bar(groups, 's', 'ret', color(strategy));
+    bar(groups, 'b', 'bhRet', color('buy_and_hold'));
+    const tip = tipFor(box);
+    svg.append('g').selectAll('rect').data(rows).join('rect')
+      .attr('x', (d) => x(d.year) - (x.step() - x.bandwidth()) / 2).attr('width', x.step()).attr('y', m.top).attr('height', H - m.top - m.bottom).attr('fill', 'transparent')
+      .on('pointermove', (event, d) => {
+        groups.attr('opacity', (o) => (o === d ? 1 : 0.4));
+        tip.replaceChildren();
+        const t = document.createElement('div'); t.className = 't1'; t.textContent = `${d.year}${d.partial ? ' (partial)' : ''}`; tip.appendChild(t);
+        tipLine(tip, color(strategy), `${NAMES[strategy]}: ${fSigned(d.ret)} · ${fMoney(d.pnl)}`);
+        if (d.bhRet !== null) tipLine(tip, color('buy_and_hold'), `Buy and hold: ${fSigned(d.bhRet)} · ${fMoney(d.bhPnl)}`);
+        const r = box.getBoundingClientRect(), sr = svg.node().getBoundingClientRect(), k = sr.width / W;
+        placeTip(box, tip, (x(d.year) + x.bandwidth() / 2) * k + (sr.left - r.left), y(Math.max(0, d.ret, d.bhRet ?? 0)) * k + (sr.top - r.top));
+      })
+      .on('pointerleave', () => { tip.hidden = true; groups.attr('opacity', 1); });
+
+    const tb = document.querySelector('#yeartable tbody');
+    tb.replaceChildren(...rows.slice().reverse().map((r) => {
+      const tr = document.createElement('tr'); tr.dataset.key = r.key;
+      const cells = [[String(r.year) + (r.partial ? ' (partial)' : ''), ''], [fSigned(r.ret), r.ret], [fMoney(r.pnl), r.pnl],
+        [r.bhRet === null ? '—' : fSigned(r.bhRet), r.bhRet], [r.bhPnl === null ? '—' : fMoney(r.bhPnl), r.bhPnl]];
+      for (const [text, v] of cells) { const td = document.createElement('td'); td.textContent = text; if (typeof v === 'number') td.className = v < 0 ? 'neg' : 'pos'; tr.appendChild(td); }
+      return tr;
+    }));
+  }
+
+  let linked = false;
+  dash.onData(() => {
+    const summary = dash.data('summary'), results = dash.data('results'), beats = dash.data('beats');
+    const matrix = dash.data('matrix'), pairs = dash.data('yearpair');
+
+    if (summary.status === 'ok') { fillMarks('summary', summary.data, fmtSummary); drawBars(summary.data); }
+    else if (summary.status === 'error') failed(document.getElementById('hbars'));
+    if (beats.status === 'ok') fillMarks('beats', beats.data, (f, v) => fInt(v));
+
+    drawLegend(document.getElementById('legend'), STRATS.map((s) => [NAMES[s], color(s)]));
+    if (results.status === 'ok') {
+      drawScatter(results.data);
+      const markets = Array.from(new Map(results.data.map((r) => [r.symbol, r.name])));
+      const cur = dash.params().symbol;
+      marketSel.replaceChildren(...markets.map(([s, n]) => new Option(`${n} (${s})`, s)));
+      marketSel.value = cur;
+    } else if (results.status === 'error') failed(document.getElementById('scatter'));
+
+    if (matrix.status === 'ok') drawMatrix(matrix.data);
+    if (pairs.status === 'ok' && results.status === 'ok') drawYears(pairs.data, results.data);
+    else if (pairs.status === 'error') failed(document.getElementById('yearchart'));
+
+    if (!linked && pairs.status === 'ok') {
+      linked = true;
+      const named = document.getElementById(location.hash.slice(1));
+      if (named) named.scrollIntoView();
+    }
+  });
+</script>
