@@ -500,7 +500,7 @@ async function xmRefresh() {
         pos.map((p) => `<tr><td>${esc(p.brokerSymbol)}</td><td class="${p.qty > 0 ? "up" : "down"}">${p.qty > 0 ? "buy" : "sell"} ${p.lots}</td><td>${num(p.avgPrice)}</td><td>${num(p.marketPrice)}</td><td>${p.stopLoss ? num(p.stopLoss) : "—"} / ${p.takeProfit ? num(p.takeProfit) : "—"}</td><td class="${cls(p.unrealizedPnl)}">${money(p.unrealizedPnl)}</td></tr>`).join("")}</tbody>` : '<tbody><tr><td class="muted">No open positions</td></tr></tbody>';
     }
     const auto = await xget("/api/automation"); const bots = auto.bots.filter((b) => b.account === "xm-demo");
-    const last = (b) => { const l = (b.state && b.state.log) || []; const x = l[l.length - 1]; return x ? (x.msg || x.message || JSON.stringify(x)) : ""; };
+    const last = (b) => (b.state && (b.state.lastError || b.state.lastAction)) || "";
     $("#x-bots").innerHTML = `<thead><tr><th>Bot</th><th>Strategy</th><th>Risk</th><th>Last action</th><th>On</th></tr></thead><tbody>${
       bots.map((b) => `<tr><td>${esc(b.id)}</td><td>${esc(b.strategy)}</td><td>${b.riskPct}%</td><td class="muted" style="white-space:normal;text-align:left">${esc(last(b))}</td><td><input type="checkbox" data-bot="${esc(b.id)}" ${b.enabled ? "checked" : ""}></td></tr>`).join("") || '<tr><td class="muted">No bots for xm-demo</td></tr>'}</tbody>`;
     window.__xbots = bots;
@@ -517,7 +517,10 @@ $("#x-bots").addEventListener("change", async (ev) => {
   try { await xget(`/api/automation/bots/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(cfg) }); } catch (e) { alert(e.message); }
   xmRefresh();
 });
-$("#x-url").value = store.get("xurl", "http://127.0.0.1:3002");
+// Served by the Ledger server itself (http://127.0.0.1:3002/app/): use that server, and connect straight away.
+const LOCAL = /^(127\.0\.0\.1|localhost|\[::1\])$/.test(location.hostname) && location.pathname.startsWith("/app");
+$("#x-url").value = LOCAL ? location.origin : store.get("xurl", "http://127.0.0.1:3002");
+if (LOCAL) { xmRefresh(); window.__xt = setInterval(xmRefresh, 15000); }
 
 // ---------------------------------------------------------------- boot
 (async function boot() {

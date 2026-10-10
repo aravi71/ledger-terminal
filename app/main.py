@@ -213,7 +213,7 @@ def create_app(
     async def revalidate_ui(request: Request, call_next):
         # Make browsers re-check the UI files so an upgrade is picked up immediately.
         response = await call_next(request)
-        if request.url.path == "/" or request.url.path.startswith("/static/"):
+        if request.url.path == "/" or request.url.path.startswith(("/static/", "/app/")):
             response.headers["Cache-Control"] = "no-cache"
         return response
 
@@ -606,6 +606,10 @@ def create_app(
 
     # --- UI ------------------------------------------------------------------------
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
+    # The GitHub Pages trading app, served by this server too: same origin as the API, so its
+    # Broker (XM) tab works without the browser's public-site-to-localhost restrictions.
+    if (ROOT / "docs" / "index.html").exists():
+        app.mount("/app", StaticFiles(directory=ROOT / "docs", html=True), name="pages-app")
 
     @app.get("/")
     async def index():

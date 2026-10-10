@@ -181,7 +181,7 @@
           <li>Open <b>MetaTrader 5</b> on this PC (it is installed). <b>File → Login to Trade Account</b>, choose an <b>XMGlobal-MT5 Demo</b> server and log in with your XM <b>demo</b> login. You type the password into MetaTrader yourself; this app never sees it.</li>
           <li>In MetaTrader: <b>Tools → Options → Expert Advisors → Allow algorithmic trading</b>, and turn on the <b>Algo Trading</b> button.</li>
           <li>Start the Ledger server on the same PC: <code>.venv\Scripts\python run.py</code> in the <code>ledger-terminal</code> folder.</li>
-          <li>Press <b>CONNECT</b>. This page talks only to the server on your own PC (127.0.0.1); nothing about your account goes to GitHub.</li>
+          <li>Open <a href="http://127.0.0.1:3002/app/">http://127.0.0.1:3002/app/</a> (this same app, served by your PC) and go to this tab; it connects by itself. From the GitHub Pages address, press <b>CONNECT</b> and allow "local network access" if Chrome asks. Nothing about your account goes to GitHub.</li>
           <li>Turn on the <b>xm-gold-asia-drift</b> bot. It trades gold (XM symbol <code>GOLD</code>) at 1% risk while the server and MetaTrader are running.</li>
         </ol>
         <p class="muted small">Later, the same setup can run on a Windows VPS so it trades 24/5 without your PC. Keep it on demo until months of demo results match the backtest.</p>

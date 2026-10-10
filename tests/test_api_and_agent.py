@@ -136,3 +136,9 @@ def test_cors_only_for_the_pages_site(client):
     assert pre.status_code == 204 and pre.headers["access-control-allow-private-network"] == "true"
     assert client.get("/api/status", headers={"Origin": "https://aravi71.github.io"}).headers["access-control-allow-origin"] == "https://aravi71.github.io"
     assert "access-control-allow-origin" not in client.get("/api/status", headers={"Origin": "https://evil.example"}).headers
+
+
+def test_pages_app_served_locally(client):
+    r = client.get("/app/")
+    assert r.status_code == 200 and "Ledger Terminal" in r.text
+    assert client.get("/app/data/index.json").status_code == 200
