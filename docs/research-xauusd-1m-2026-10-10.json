@@ -1,0 +1,368 @@
+{
+ "generated": "2026-10-10",
+ "symbol": "XAUUSD",
+ "timeframeMinutes": 1,
+ "costs": {
+  "spread": 0.3,
+  "commission": 0.035,
+  "leverage": 100,
+  "min_qty": 1.0,
+  "qty_step": 1.0,
+  "swap_long": 0.6,
+  "swap_short": 0.2
+ },
+ "riskPerTradePct": 1.0,
+ "results": {
+  "orb_fvg": {
+   "label": "Opening range + fair-value gap (YouTube 1-minute scalp)",
+   "chosen": {
+    "or_minutes": 15,
+    "rr": 3.0
+   },
+   "inSample": {
+    "period": {
+     "start": "2024-11-19",
+     "end": "2026-03-18",
+     "years": 1.33
+    },
+    "trades": 330,
+    "winRate": 0.23636363636363636,
+    "profitFactor": 0.8680383957664899,
+    "netProfit": -2952.47,
+    "totalReturn": -0.29524729999998867,
+    "cagr": -0.23188136516715196,
+    "maxDrawdown": 0.3638645944235361,
+    "avgR": -0.08732121212121212,
+    "expectancy": -8.946887878787534,
+    "tradesPerWeek": 4.784641142817321,
+    "worstLosingStreak": 27,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 7047.53,
+    "medianMonth": -0.016175795466915277,
+    "avgMonth": -0.018256351304711788,
+    "positiveMonths": 0.35294117647058826,
+    "bestMonth": 0.1294859946012401,
+    "worstMonth": -0.14283995120093174,
+    "monthsAbove30pct": 0
+   },
+   "outOfSample": {
+    "period": {
+     "start": "2026-03-18",
+     "end": "2026-10-09",
+     "years": 0.56
+    },
+    "trades": 141,
+    "winRate": 0.2624113475177305,
+    "profitFactor": 1.0176962540747954,
+    "netProfit": 61.79,
+    "totalReturn": 0.006178900000026966,
+    "cagr": 0.011022201194496706,
+    "maxDrawdown": 0.23441024177437114,
+    "avgR": 0.029687943262411354,
+    "expectancy": 0.4382198581579424,
+    "tradesPerWeek": 4.82534872995564,
+    "worstLosingStreak": 14,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 10061.79,
+    "medianMonth": 0.042762123581641776,
+    "avgMonth": 0.0036770518156529625,
+    "positiveMonths": 0.5,
+    "bestMonth": 0.10461900000000002,
+    "worstMonth": -0.10054612263112828,
+    "monthsAbove30pct": 0
+   },
+   "full": {
+    "period": {
+     "start": "2024-11-19",
+     "end": "2026-10-09",
+     "years": 1.89
+    },
+    "trades": 471,
+    "winRate": 0.24416135881104034,
+    "profitFactor": 0.9089926382482776,
+    "netProfit": -2895.54,
+    "totalReturn": -0.2895537999999689,
+    "cagr": -0.16560007725231407,
+    "maxDrawdown": 0.39016875633261106,
+    "avgR": -0.05229299363057325,
+    "expectancy": -6.147639065816748,
+    "tradesPerWeek": 4.796750448467327,
+    "worstLosingStreak": 27,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 7104.46,
+    "medianMonth": -0.016175795466915277,
+    "avgMonth": -0.011719820163711966,
+    "positiveMonths": 0.4166666666666667,
+    "bestMonth": 0.1294859946012401,
+    "worstMonth": -0.14283995120093174,
+    "monthsAbove30pct": 0
+   },
+   "monthly": [
+    {
+     "month": "2024-11",
+     "return": 0.016747999999999985
+    },
+    {
+     "month": "2024-12",
+     "return": 0.03905294133846349
+    },
+    {
+     "month": "2025-01",
+     "return": -0.016175795466915277
+    },
+    {
+     "month": "2025-02",
+     "return": -0.049228087122341835
+    },
+    {
+     "month": "2025-03",
+     "return": 0.02530661809350332
+    },
+    {
+     "month": "2025-04",
+     "return": -0.10605226172710847
+    },
+    {
+     "month": "2025-05",
+     "return": -0.14283995120093174
+    },
+    {
+     "month": "2025-06",
+     "return": -0.007594248670426906
+    },
+    {
+     "month": "2025-07",
+     "return": 0.06577449671049629
+    },
+    {
+     "month": "2025-08",
+     "return": -0.016962610164413916
+    },
+    {
+     "month": "2025-09",
+     "return": 0.014676114614174507
+    },
+    {
+     "month": "2025-10",
+     "return": 0.1294859946012401
+    },
+    {
+     "month": "2025-11",
+     "return": -0.030077739921481883
+    },
+    {
+     "month": "2025-12",
+     "return": -0.08382053025152969
+    },
+    {
+     "month": "2026-01",
+     "return": -0.05252056630786872
+    },
+    {
+     "month": "2026-02",
+     "return": -0.08545550249062805
+    },
+    {
+     "month": "2026-03",
+     "return": 0.0897050214990518
+    },
+    {
+     "month": "2026-04",
+     "return": 0.06997277970368132
+    },
+    {
+     "month": "2026-05",
+     "return": -0.09791156980216142
+    },
+    {
+     "month": "2026-06",
+     "return": 0.08290123629801949
+    },
+    {
+     "month": "2026-07",
+     "return": -0.0577568473945822
+    },
+    {
+     "month": "2026-08",
+     "return": -0.02785985703167404
+    },
+    {
+     "month": "2026-09",
+     "return": -0.08235939968191863
+    },
+    {
+     "month": "2026-10",
+     "return": 0.04171608044626529
+    }
+   ],
+   "capitals": {
+    "100": {
+     "period": {
+      "start": "2024-11-19",
+      "end": "2026-10-09",
+      "years": 1.89
+     },
+     "trades": 160,
+     "winRate": 0.25,
+     "profitFactor": 0.7981290004923683,
+     "netProfit": -54.76,
+     "totalReturn": -0.5476299999999765,
+     "cagr": -0.3430122824082119,
+     "maxDrawdown": 0.6135645340394634,
+     "avgR": -0.053456250000000004,
+     "expectancy": -0.3422687499999853,
+     "tradesPerWeek": 1.629469366782956,
+     "worstLosingStreak": 20,
+     "skippedMinSize": 115,
+     "blown": true,
+     "finalEquity": 45.24,
+     "medianMonth": 0.0,
+     "avgMonth": -0.02852648374217509,
+     "positiveMonths": 0.20833333333333334,
+     "bestMonth": 0.18017514440096893,
+     "worstMonth": -0.2127928180670502,
+     "monthsAbove30pct": 0
+    },
+    "1000": {
+     "period": {
+      "start": "2024-11-19",
+      "end": "2026-10-09",
+      "years": 1.89
+     },
+     "trades": 470,
+     "winRate": 0.24468085106382978,
+     "profitFactor": 0.9085918504150948,
+     "netProfit": -270.65,
+     "totalReturn": -0.27065399999996986,
+     "cagr": -0.15391749414712008,
+     "maxDrawdown": 0.3954207519743725,
+     "avgR": -0.05028936170212766,
+     "expectancy": -0.575859574468021,
+     "tradesPerWeek": 4.786566264924933,
+     "worstLosingStreak": 27,
+     "skippedMinSize": 1,
+     "blown": false,
+     "finalEquity": 729.35,
+     "medianMonth": -0.0179985227994246,
+     "avgMonth": -0.010731934606965874,
+     "positiveMonths": 0.4166666666666667,
+     "bestMonth": 0.14400610543618653,
+     "worstMonth": -0.14397708427559175,
+     "monthsAbove30pct": 0
+    }
+   },
+   "riskSimulation": [
+    {
+     "riskPct": 0.5,
+     "medianMonthly": -0.006590481647031798,
+     "p10Monthly": -0.018979514395275454,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 1,
+     "medianMonthly": -0.012266214023639366,
+     "p10Monthly": -0.03734441056186244,
+     "probHalved": 0.027,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 2,
+     "medianMonthly": -0.031578180241381815,
+     "p10Monthly": -0.07985470290897512,
+     "probHalved": 0.531,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 3,
+     "medianMonthly": -0.05179587839008892,
+     "p10Monthly": -0.11782203461857943,
+     "probHalved": 0.86,
+     "probRuin": 0.0095
+    },
+    {
+     "riskPct": 5,
+     "medianMonthly": -0.10766011420337729,
+     "p10Monthly": -1.0,
+     "probHalved": 0.9935,
+     "probRuin": 0.284
+    },
+    {
+     "riskPct": 10,
+     "medianMonthly": -1.0,
+     "p10Monthly": -1.0,
+     "probHalved": 1.0,
+     "probRuin": 0.8795
+    },
+    {
+     "riskPct": 20,
+     "medianMonthly": -1.0,
+     "p10Monthly": -1.0,
+     "probHalved": 1.0,
+     "probRuin": 0.9965
+    }
+   ],
+   "highestWinRate": [
+    {
+     "params": {
+      "or_minutes": 15,
+      "rr": 1.0
+     },
+     "isWin": 0.4090909090909091,
+     "isPF": 0.6533043161797439,
+     "oosWin": 0.44680851063829785,
+     "oosPF": 0.7996430906020341,
+     "oosTrades": 141
+    },
+    {
+     "params": {
+      "or_minutes": 5,
+      "rr": 1.0
+     },
+     "isWin": 0.4298245614035088,
+     "isPF": 0.7075758063996391,
+     "oosWin": 0.4041095890410959,
+     "oosPF": 0.65755797045883,
+     "oosTrades": 146
+    },
+    {
+     "params": {
+      "or_minutes": 15,
+      "rr": 2.0
+     },
+     "isWin": 0.29393939393939394,
+     "isPF": 0.7795721590472603,
+     "oosWin": 0.3333333333333333,
+     "oosPF": 0.9716029268850396,
+     "oosTrades": 141
+    },
+    {
+     "params": {
+      "or_minutes": 5,
+      "rr": 2.0
+     },
+     "isWin": 0.28654970760233917,
+     "isPF": 0.7620662118138167,
+     "oosWin": 0.273972602739726,
+     "oosPF": 0.7452296291669641,
+     "oosTrades": 146
+    },
+    {
+     "params": {
+      "or_minutes": 15,
+      "rr": 3.0
+     },
+     "isWin": 0.23636363636363636,
+     "isPF": 0.8680383957664899,
+     "oosWin": 0.2624113475177305,
+     "oosPF": 1.0176962540747954,
+     "oosTrades": 141
+    }
+   ],
+   "gridSize": 6
+  }
+ }
+}
