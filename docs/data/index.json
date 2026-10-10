@@ -1,0 +1,141 @@
+[
+ {
+  "file": "trades-nas100-1m.json",
+  "symbol": "NAS100",
+  "tf": 1,
+  "strategies": [
+   "orb_fvg"
+  ]
+ },
+ {
+  "file": "trades-nas100-5m.json",
+  "symbol": "NAS100",
+  "tf": 5,
+  "strategies": [
+   "ny_orb",
+   "ema_rsi_scalp",
+   "orb_fvg",
+   "supply_demand",
+   "silver_bullet",
+   "rsi2_highwin",
+   "asian_breakout",
+   "trend_pullback",
+   "ut_bot",
+   "pdhl_rejection",
+   "three_line_strike",
+   "range4h_fade",
+   "orb_retest",
+   "fib_pullback",
+   "bias_orb",
+   "heikin_ashi_trend"
+  ]
+ },
+ {
+  "file": "trades-nas100-60m.json",
+  "symbol": "NAS100",
+  "tf": 60,
+  "strategies": [
+   "ema_rsi_scalp",
+   "rsi2_highwin",
+   "asian_breakout",
+   "trend_pullback",
+   "asia_session_drift"
+  ]
+ },
+ {
+  "file": "trades-us30-5m.json",
+  "symbol": "US30",
+  "tf": 5,
+  "strategies": [
+   "ny_orb",
+   "ema_rsi_scalp",
+   "orb_fvg",
+   "silver_bullet",
+   "rsi2_highwin",
+   "asian_breakout",
+   "trend_pullback",
+   "ut_bot",
+   "pdhl_rejection",
+   "supply_demand",
+   "three_line_strike",
+   "range4h_fade",
+   "orb_retest",
+   "fib_pullback",
+   "bias_orb",
+   "heikin_ashi_trend"
+  ]
+ },
+ {
+  "file": "trades-us30-60m.json",
+  "symbol": "US30",
+  "tf": 60,
+  "strategies": [
+   "ema_rsi_scalp",
+   "rsi2_highwin",
+   "asian_breakout",
+   "trend_pullback",
+   "asia_session_drift"
+  ]
+ },
+ {
+  "file": "trades-xauusd-1m.json",
+  "symbol": "XAUUSD",
+  "tf": 1,
+  "strategies": [
+   "orb_fvg"
+  ]
+ },
+ {
+  "file": "trades-xauusd-5m.json",
+  "symbol": "XAUUSD",
+  "tf": 5,
+  "strategies": [
+   "ny_orb",
+   "ema_rsi_scalp",
+   "rsi2_highwin",
+   "asian_breakout",
+   "trend_pullback",
+   "asia_session_drift",
+   "ut_bot",
+   "pdhl_rejection",
+   "supply_demand",
+   "three_line_strike",
+   "range4h_fade",
+   "orb_retest",
+   "fib_pullback",
+   "bias_orb",
+   "heikin_ashi_trend",
+   "orb_fvg",
+   "silver_bullet"
+  ]
+ },
+ {
+  "file": "trades-xauusd-15m.json",
+  "symbol": "XAUUSD",
+  "tf": 15,
+  "strategies": [
+   "ny_orb",
+   "ema_rsi_scalp",
+   "rsi2_highwin",
+   "asian_breakout",
+   "trend_pullback",
+   "asia_session_drift"
+  ]
+ },
+ {
+  "file": "trades-xauusd-60m.json",
+  "symbol": "XAUUSD",
+  "tf": 60,
+  "strategies": [
+   "ema_rsi_scalp",
+   "rsi2_highwin",
+   "asian_breakout",
+   "trend_pullback",
+   "asia_session_drift",
+   "supply_demand",
+   "three_line_strike",
+   "fib_pullback",
+   "heikin_ashi_trend"
+  ]
+ }
+]
