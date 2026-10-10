@@ -21,8 +21,8 @@ from __future__ import annotations
 
 import csv
 import math
-from dataclasses import dataclass
-from datetime import datetime, timezone
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
@@ -103,6 +103,11 @@ class Features:
     asia_lo: list[float | None]
     ny_close_hour: list[int]      # New York hour at which the bar closes (DST-aware)
     ny_weekday: list[int]
+    ny_min: list[int] = field(default_factory=list)    # New York minutes since midnight at the bar's START
+    ny_date: list[int] = field(default_factory=list)   # New York calendar date (ordinal) of the bar's start
+    step_min: int = 60
+    cache: dict = field(default_factory=dict)          # per-run memo for strategy-specific series
+    rollover: list[bool] = field(default_factory=list)  # bar closes at/after a 17:00 New York rollover
 
 
 def features(bars: Bars) -> Features:
@@ -113,8 +118,10 @@ def features(bars: Bars) -> Features:
         hour.append(d.hour)
         day.append(b["t"] // 86400)
         wd.append(d.weekday())
-    step = bars[1]["t"] - bars[0]["t"] if len(bars) > 1 else 3600
+    diffs = [bars[k + 1]["t"] - bars[k]["t"] for k in range(min(len(bars) - 1, 200))]
+    step = min((d for d in diffs if d > 0), default=3600)
     ny = [datetime.fromtimestamp(b["t"] + step, NY) for b in bars]
+    ny_start = [datetime.fromtimestamp(b["t"], NY) for b in bars]
     asia_hi: list[float | None] = [None] * len(bars)
     asia_lo: list[float | None] = [None] * len(bars)
     cur_day, hi, lo, done = None, -math.inf, math.inf, False
@@ -133,7 +140,15 @@ def features(bars: Bars) -> Features:
         indicators.rsi(closes, 2), indicators.rsi(closes, 14), indicators.atr(bars, 14),
         asia_hi, asia_lo,
         [d.hour for d in ny], [d.weekday() for d in ny],
+        [d.hour * 60 + d.minute for d in ny_start], [d.toordinal() for d in ny_start], step // 60,
+        {}, _rollovers(ny),
     )
+
+
+def _rollovers(ny_end: list[datetime]) -> list[bool]:
+    """True for the bar whose close is the first at or after 17:00 New York (the daily rollover)."""
+    keys = [(d - timedelta(hours=17)).date() for d in ny_end]  # a bar ending exactly 17:00 holds through it
+    return [False] + [keys[k] != keys[k - 1] for k in range(1, len(keys))]
 
 
 # ----------------------------------------------------------------------------- strategies
@@ -214,6 +229,71 @@ def asia_session_drift(bars: Bars, f: Features, i: int, p: dict) -> Signal:
     return ("buy", p["sl_atr"] * a, p["tp_atr"] * a)
 
 
+def _opening_range(bars: Bars, f: Features, start: int, minutes: int):
+    """Per bar: the day's New York opening range [start, start+minutes) once it is complete,
+    and the index of the first bar that closed outside it (None until it happens)."""
+    key = ("orb", start, minutes)
+    if key in f.cache:
+        return f.cache[key]
+    n = len(bars)
+    hi: list[float | None] = [None] * n
+    lo: list[float | None] = [None] * n
+    first_break: list[int | None] = [None] * n
+    day, rh, rl, done, broke = None, -math.inf, math.inf, False, None
+    for i, b in enumerate(bars):
+        if f.ny_date[i] != day:
+            day, rh, rl, done, broke = f.ny_date[i], -math.inf, math.inf, False, None
+        m = f.ny_min[i]
+        if start <= m < start + minutes:
+            rh, rl = max(rh, b["h"]), min(rl, b["l"])
+        elif m >= start + minutes and rh > -math.inf:
+            done = True
+        if done:
+            hi[i], lo[i] = rh, rl
+            if broke is None and (b["c"] > rh or b["c"] < rl):
+                broke = i
+            first_break[i] = broke
+    f.cache[key] = (hi, lo, first_break)
+    return f.cache[key]
+
+
+def ny_orb(bars: Bars, f: Features, i: int, p: dict) -> Signal:
+    """New York opening-range breakout: the range of the first ``or_minutes`` after ``or_start``
+    (minutes after midnight New York, 570 = 09:30); trade the FIRST close outside it before
+    ``entry_until``. Stop ``sl_frac`` of the range back from the breakout edge (1 = other side,
+    0.5 = middle); target ``rr`` times the stop. One trade a day."""
+    hi, lo, first = _opening_range(bars, f, int(p["or_start"]), int(p["or_minutes"]))
+    h, l = hi[i], lo[i]
+    if h is None or first[i] != i or f.ny_min[i] >= p["entry_until"] or f.ny_weekday[i] > 4:
+        return None
+    rng = h - l
+    a = f.atr[i]
+    if rng <= 0 or (a and p.get("max_range_atr") and rng > p["max_range_atr"] * a):
+        return None
+    c = bars[i]["c"]
+    if c > h:
+        sd = (c - h) + p["sl_frac"] * rng
+        return ("buy", sd, p["rr"] * sd)
+    sd = (l - c) + p["sl_frac"] * rng
+    return ("sell", sd, p["rr"] * sd)
+
+
+def ema_rsi_scalp(bars: Bars, f: Features, i: int, p: dict) -> Signal:
+    """Trend scalp: with price on the trend side of the 200 EMA, enter when RSI(14) turns back
+    up through ``rsi_low`` (down through 100 - rsi_low for shorts). Stop ``sl_atr`` x ATR,
+    target ``rr`` x stop. Only between ``sess_start`` and ``sess_end`` New York time."""
+    a, e200, r, r0 = f.atr[i], f.ema200[i], f.rsi14[i], f.rsi14[i - 1] if i else None
+    if None in (a, e200, r, r0) or not (p["sess_start"] <= f.ny_min[i] < p["sess_end"]):
+        return None
+    c = bars[i]["c"]
+    sd = p["sl_atr"] * a
+    if c > e200 and r0 < p["rsi_low"] <= r:
+        return ("buy", sd, p["rr"] * sd)
+    if c < e200 and r0 > 100 - p["rsi_low"] >= r:
+        return ("sell", sd, p["rr"] * sd)
+    return None
+
+
 STRATEGIES: dict[str, dict[str, Any]] = {
     "trend_pullback": {
         "fn": trend_pullback, "label": "Trend pullback (EMA 20/50/200)",
@@ -231,6 +311,15 @@ STRATEGIES: dict[str, dict[str, Any]] = {
         "fn": asia_session_drift, "label": "Asian-hours drift (long from the 18:00 New York reopen, ~9 hours)",
         "params": {"ny_signal_hour": 17, "max_bars": 8, "sl_atr": 3.0, "tp_atr": 20.0, "trend_filter": 0, "flat_hour": -1},
     },
+    "ny_orb": {
+        "fn": ny_orb, "label": "New York opening-range breakout (09:30)",
+        "params": {"or_start": 570, "or_minutes": 15, "sl_frac": 1.0, "rr": 1.0, "entry_until": 690,
+                   "max_range_atr": 0, "max_bars": 0, "flat_ny": 945, "flat_hour": -1},
+    },
+    "ema_rsi_scalp": {
+        "fn": ema_rsi_scalp, "label": "EMA-200 trend + RSI pullback scalp (1:2)",
+        "params": {"rsi_low": 30, "sl_atr": 1.0, "rr": 2.0, "sess_start": 180, "sess_end": 720, "max_bars": 0, "flat_ny": 945, "flat_hour": -1},
+    },
     "rsi2_highwin": {
         "fn": rsi2_highwin, "label": "RSI(2) dip, small target / wide stop (high win rate)",
         "params": {"rsi_entry": 10, "tp_atr": 0.5, "sl_atr": 3.0, "session_start": 7, "session_end": 20, "max_bars": 24},
@@ -245,6 +334,8 @@ class Costs:
     leverage: float = 100.0
     min_qty: float = 1.0        # 0.01 lot of gold = 1 oz
     qty_step: float = 1.0
+    swap_long: float = 0.0      # financing cost per unit per night held through 17:00 New York
+    swap_short: float = 0.0
 
 
 def run_intraday(
@@ -270,6 +361,8 @@ def run_intraday(
     max_bars = int(p.get("max_bars") or 0)
     if "flat_hour" in p:  # a strategy can set its own daily flat time; negative = hold overnight
         flat_hour = None if p["flat_hour"] is None or p["flat_hour"] < 0 else int(p["flat_hour"])
+    flat_ny = p.get("flat_ny")  # minutes after midnight New York; close at the bar that ends there
+    flat_ny = None if flat_ny is None or flat_ny < 0 else int(flat_ny)
 
     equity = cash = float(capital)
     pos: dict[str, Any] | None = None
@@ -285,10 +378,12 @@ def run_intraday(
         exit_px = price_bid if pos["side"] == "buy" else price_bid + spread
         pnl = (exit_px - pos["entry"]) * pos["qty"] * (1 if pos["side"] == "buy" else -1) - costs.commission * pos["qty"]
         cash += pnl
+        pnl -= pos.get("swap", 0.0)  # already taken from cash night by night
         trades.append({
             "entryTime": bars[pos["i"]]["t"], "exitTime": bars[i]["t"], "side": pos["side"], "qty": pos["qty"],
             "entry": round(pos["entry"], 3), "exit": round(exit_px, 3), "sl": round(pos["sl"], 3), "tp": round(pos["tp"], 3),
             "pnl": round(pnl, 2), "r": round(pnl / pos["risk"], 3) if pos["risk"] else 0.0, "reason": reason, "bars": i - pos["i"],
+            "swap": round(pos.get("swap", 0.0), 2),
         })
         pos = None
 
@@ -335,10 +430,16 @@ def run_intraday(
                     close(i, b["o"], "target (gap)")
                 elif ask_l <= pos["tp"]:
                     close(i, pos["tp"] - spread, "target")
+        if pos and f.rollover[i] and (costs.swap_long or costs.swap_short):
+            fee = (costs.swap_long if pos["side"] == "buy" else costs.swap_short) * pos["qty"]
+            cash -= fee
+            pos["swap"] = pos.get("swap", 0.0) + fee
         if pos and max_bars and i - pos["i"] >= max_bars:
             close(i, b["c"], "time")
         if pos and flat_hour is not None and f.hour[i] >= flat_hour:
             close(i, b["c"], "end of day")
+        if pos and flat_ny is not None and f.ny_min[i] + f.step_min >= flat_ny:
+            close(i, b["c"], "end of session")
         # 3) mark to market
         unreal = 0.0
         if pos:
@@ -350,7 +451,8 @@ def run_intraday(
         if equity <= 0:
             blown = True
         # 4) new signal on this bar's close
-        if pos is None and not blown and (flat_hour is None or f.hour[i] < flat_hour - 1):
+        late = flat_ny is not None and f.ny_min[i] + 2 * f.step_min > flat_ny
+        if pos is None and not blown and not late and (flat_hour is None or f.hour[i] < flat_hour - 1):
             sig = fn(bars, f, i, p)
             if sig and sig[1] > 0 and sig[2] > 0:
                 pending = sig
@@ -383,6 +485,17 @@ def summarize(trades, curve, capital, final, bars, start_index, skipped, blown, 
         row["trades"] += 1
         row["wins"] += t["pnl"] > 0
         row["pnl"] = round(row["pnl"] + t["pnl"], 2)
+    months: list[dict[str, Any]] = []
+    prev_eq, cur_key, last_eq = capital, None, capital
+    for t, e in curve:
+        key = datetime.fromtimestamp(t, timezone.utc).strftime("%Y-%m")
+        if cur_key and key != cur_key:
+            months.append({"month": cur_key, "return": last_eq / prev_eq - 1 if prev_eq > 0 else 0.0})
+            prev_eq = last_eq
+        cur_key, last_eq = key, e
+    if cur_key:
+        months.append({"month": cur_key, "return": final / prev_eq - 1 if prev_eq > 0 else 0.0})
+    mrets = sorted(m["return"] for m in months)
     step = max(1, len(curve) // 800)
     return {
         "strategy": strategy, "label": STRATEGIES[strategy]["label"], "params": params,
@@ -399,9 +512,16 @@ def summarize(trades, curve, capital, final, bars, start_index, skipped, blown, 
             "avgR": sum(t["r"] for t in trades) / len(trades) if trades else None,
             "tradesPerWeek": len(trades) / (years * 52), "worstLosingStreak": worst_streak,
             "skippedMinSize": skipped, "blown": blown,
+            "medianMonth": mrets[len(mrets) // 2] if mrets else None,
+            "avgMonth": sum(mrets) / len(mrets) if mrets else None,
+            "positiveMonths": sum(1 for r in mrets if r > 0) / len(mrets) if mrets else None,
+            "bestMonth": mrets[-1] if mrets else None, "worstMonth": mrets[0] if mrets else None,
+            "monthsAbove30pct": sum(1 for r in mrets if r >= 0.30),
         },
+        "monthly": months,
         "yearly": [dict(r, winRate=r["wins"] / r["trades"]) for r in sorted(yearly.values(), key=lambda r: r["year"])],
         "curve": curve[::step] + ([curve[-1]] if curve and curve[-1] not in curve[::step] else []),
+        "rs": [t["r"] for t in trades],
         "trades": trades[-200:],
     }
 
@@ -412,3 +532,48 @@ def latest_signal(bars: Bars, strategy: str, params: dict[str, Any] | None = Non
     p = {**spec["params"], **(params or {})}
     f = features(bars)
     return spec["fn"](bars, f, len(bars) - 1, p)
+
+
+# ----------------------------------------------------------------------------- instruments
+INSTRUMENTS: dict[str, dict[str, Any]] = {
+    # data = Dukascopy symbol for history; live = Yahoo symbol the paper bot trades
+    # Swap figures are rough 2025-26 retail estimates per unit per night; check your broker's.
+    "XAUUSD": {"data": "XAUUSD", "live": "GC=F", "unit": "oz",
+               "costs": Costs(spread=0.30, commission=0.035, leverage=100, min_qty=1.0, qty_step=1.0, swap_long=0.60, swap_short=0.20)},
+    "US30": {"data": "USA30IDXUSD", "live": "YM=F", "unit": "$1/point",
+             "costs": Costs(spread=2.0, commission=0.0, leverage=100, min_qty=0.1, qty_step=0.1, swap_long=6.0, swap_short=2.0)},
+    "NAS100": {"data": "USATECHIDXUSD", "live": "NQ=F", "unit": "$1/point",
+               "costs": Costs(spread=1.0, commission=0.0, leverage=100, min_qty=0.1, qty_step=0.1, swap_long=3.0, swap_short=1.0)},
+}
+
+
+def risk_simulation(r_multiples: Sequence[float], trades_per_month: float, risk_levels=(0.5, 1, 2, 3, 5, 10, 20),
+                    months: int = 12, sims: int = 2000, seed: int = 7) -> list[dict[str, Any]]:
+    """Bootstrap the strategy's own trade results (in R, costs included) at different risk per
+    trade. Returns, per risk level, the median monthly return and how often the account halved
+    or was wiped out (below 10% of the start) within ``months``. Ignores minimum-size limits."""
+    import random
+    rng = random.Random(seed)
+    rs = list(r_multiples)
+    n_trades = max(1, round(trades_per_month * months))
+    out = []
+    for risk in risk_levels:
+        f = risk / 100
+        monthly, halved, ruined = [], 0, 0
+        for _ in range(sims):
+            eq, peak, hit_half, dead = 1.0, 1.0, False, False
+            for _k in range(n_trades):
+                eq *= max(0.0, 1 + f * rng.choice(rs))
+                peak = max(peak, eq)
+                if eq <= 0.5 * peak:
+                    hit_half = True
+                if eq < 0.1:
+                    dead = True
+                    break
+            halved += hit_half
+            ruined += dead
+            monthly.append((max(eq, 1e-9)) ** (1 / months) - 1 if not dead else -1.0)
+        monthly.sort()
+        out.append({"riskPct": risk, "medianMonthly": monthly[len(monthly) // 2], "p10Monthly": monthly[len(monthly) // 10],
+                    "probHalved": halved / sims, "probRuin": ruined / sims})
+    return out

@@ -746,10 +746,15 @@ async function loadScalp() {
     scalpCatalog = await api("/api/intraday/strategies");
     $("#sc-strategy").innerHTML = scalpCatalog.strategies.map((s) => `<option value="${esc(s.id)}">${esc(s.label)}</option>`).join("");
     renderScalpParams();
-    const h = scalpCatalog.history;
-    const line = (tf, label) => h[tf] && h[tf].files ? `${label}: ${h[tf].files} files, ${esc(h[tf].from)} → ${esc(h[tf].to)}` : `${label}: none downloaded yet`;
-    $("#sc-avail").innerHTML = `Local XAUUSD history (Dukascopy spot). ${line("60m", "Hourly")} · ${line("15m", "Minute")}. Fetch more with <code>python scripts/fetch_dukascopy.py</code>.`;
-  } catch (e) { $("#sc-avail").textContent = "Gold history: " + e.message; }
+    renderScalpAvail();
+  } catch (e) { $("#sc-avail").textContent = "History: " + e.message; }
+}
+function renderScalpAvail() {
+  const sym = $("#sc-symbol").value;
+  const h = (scalpCatalog.history || {})[sym] || {};
+  const inst = (scalpCatalog.instruments || {})[sym] || {};
+  const line = (tf, label) => h[tf] && h[tf].files ? `${label}: ${h[tf].files} files, ${esc(h[tf].from)} → ${esc(h[tf].to)}` : `${label}: none downloaded yet`;
+  $("#sc-avail").innerHTML = `${esc(sym)} history (Dukascopy). ${line("60m", "Hourly")} · ${line("minute", "Minute")}. Default spread ${inst.spread ?? "?"}, minimum size ${inst.minQty ?? "?"} (${esc(inst.unit || "")}), live paper symbol ${esc(inst.live || "?")}. Fetch more with <code>python scripts/fetch_dukascopy.py</code>.`;
 }
 function renderScalpParams() {
   const spec = scalpCatalog.strategies.find((s) => s.id === $("#sc-strategy").value);
@@ -758,19 +763,20 @@ function renderScalpParams() {
     `<label>${esc(k.replace(/_/g, " "))}<input data-sparam="${esc(k)}" type="number" step="any" value="${v}"></label>`).join("");
 }
 $("#sc-strategy").addEventListener("change", renderScalpParams);
+$("#sc-symbol").addEventListener("change", renderScalpAvail);
 
 $("#sc-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const f = new FormData(e.target);
   const body = {
-    strategy: f.get("strategy"), timeframe: f.get("timeframe"), years: Number(f.get("years")),
+    symbol: f.get("symbol"), strategy: f.get("strategy"), timeframe: f.get("timeframe"), years: Number(f.get("years")),
     capital: Number(f.get("capital")), riskPct: Number(f.get("riskPct")), maxRiskPct: Number(f.get("maxRiskPct")),
-    spread: Number(f.get("spread")), leverage: Number(f.get("leverage")),
+    spread: f.get("spread") === "" ? null : Number(f.get("spread")), leverage: Number(f.get("leverage")),
     params: Object.fromEntries($$("#sc-params [data-sparam]").map((i) => [i.dataset.sparam, Number(i.value)])),
   };
   const out = $("#sc-out");
   $("#sc-run").disabled = true;
-  out.innerHTML = '<p class="muted typing">Running gold backtest </p>';
+  out.innerHTML = '<p class="muted typing">Running backtest </p>';
   try {
     const r = await api("/api/intraday/backtest", { method: "POST", body });
     const m = r.metrics;
@@ -778,12 +784,12 @@ $("#sc-form").addEventListener("submit", async (e) => {
     const row = (k, v, c = "") => `<tr><td>${k}</td><td class="${c}">${v}</td></tr>`;
     out.innerHTML = `
       <div class="verdict ${good ? "good" : "bad"}">
-        <b>XAUUSD ${esc(r.timeframe)} · ${esc(r.label)}</b> · ${esc(r.period.start)} → ${esc(r.period.end)} (${r.period.years} years)<br>
+        <b>${esc(r.symbol)} ${esc(r.timeframe)} · ${esc(r.label)}</b> · ${esc(r.period.start)} → ${esc(r.period.end)} (${r.period.years} years)<br>
         ${money(r.assumptions.capital)} became <b>${money(m.finalEquity)}</b> (${pct(m.totalReturn * 100, 1)}) over ${m.trades} trades.
         Win rate <b>${fmtPct(m.winRate)}</b>, profit factor <b>${fmtNum(m.profitFactor)}</b>, worst drawdown <b>${fmtPct(m.maxDrawdown)}</b>.
         ${m.winRate >= 0.85 && !good ? '<br><span class="down">High win rate but it loses money: the few losses are much bigger than the many wins.</span>' : ""}
         ${m.blown ? '<br><span class="down">The account ran out of margin and stopped trading.</span>' : ""}
-        ${m.skippedMinSize ? `<br><span class="down">${m.skippedMinSize} signals skipped: the minimum size (1 oz) would have risked more than ${r.assumptions.riskPct > 0 ? body.maxRiskPct : "?"}% of the account.</span>` : ""}
+        ${m.skippedMinSize ? `<br><span class="down">${m.skippedMinSize} signals skipped: the broker's minimum size would have risked more than ${r.assumptions.riskPct > 0 ? body.maxRiskPct : "?"}% of the account.</span>` : ""}
       </div>
       <table class="bt-metrics"><tbody>
         ${row("Net profit", money(m.netProfit), cls(m.netProfit))}
@@ -794,11 +800,20 @@ $("#sc-form").addEventListener("submit", async (e) => {
         ${row("Expectancy per trade", money(m.expectancy), cls(m.expectancy))}
         ${row("Average result in R (risk units)", fmtNum(m.avgR), cls(m.avgR))}
         ${row("Worst losing streak", m.worstLosingStreak)}
+        ${row("Typical month (median) / average", `${m.medianMonth === null ? "—" : pct(m.medianMonth * 100, 1)} / ${m.avgMonth === null ? "—" : pct(m.avgMonth * 100, 1)}`, cls(m.medianMonth))}
+        ${row("Best / worst month", `${m.bestMonth === null ? "—" : pct(m.bestMonth * 100, 1)} / ${m.worstMonth === null ? "—" : pct(m.worstMonth * 100, 1)}`)}
+        ${row("Profitable months", fmtPct(m.positiveMonths))}
+        ${row("Months of +30% or more", m.monthsAbove30pct)}
         ${row("Costs modelled", `spread $${r.assumptions.spread}/oz, commission $${r.assumptions.commissionPerUnitSide}/oz/side, 1:${r.assumptions.leverage}, min ${r.assumptions.minQty} oz`)}
       </tbody></table>
       <div id="sc-chart" class="bt-chart"></div>
       <div class="row gap"><button class="btn push" id="sc-bot">RUN AS PAPER BOT</button>
-        <span class="muted small">Trades gold futures (GC=F) live on the paper CFD account with these settings.</span></div>
+        <span class="muted small">Trades ${esc(r.live)} live on a paper CFD account with these settings.</span></div>
+      <h4>WHAT HIGHER RISK DOES <span class="muted">· 2,000 simulated years from this strategy's own trades</span></h4>
+      <table class="bt-metrics"><thead><tr><th>RISK / TRADE</th><th>TYPICAL MONTH</th><th>BAD CASE (1 IN 10)</th><th>HALVES IN A YEAR</th><th>WIPED OUT</th></tr></thead><tbody>
+        ${(r.riskSimulation || []).map((x) => `<tr><td>${x.riskPct}%</td><td class="${cls(x.medianMonthly)}">${pct(x.medianMonthly * 100, 1)}</td><td class="${cls(x.p10Monthly)}">${pct(x.p10Monthly * 100, 1)}</td><td class="${x.probHalved > 0.2 ? "down" : ""}">${fmtPct(x.probHalved)}</td><td class="${x.probRuin > 0.01 ? "down" : ""}">${fmtPct(x.probRuin)}</td></tr>`).join("")}
+      </tbody></table>
+      <p class="muted small">Ignores minimum-size limits. "Halves" = the account falls 50% from a peak at some point in the year.</p>
       <h4>YEAR BY YEAR</h4>
       <table class="bt-metrics"><thead><tr><th>YEAR</th><th>TRADES</th><th>WIN RATE</th><th>PROFIT</th></tr></thead><tbody>
         ${r.yearly.slice().reverse().map((y) => `<tr><td>${y.year}</td><td>${y.trades}</td><td>${fmtPct(y.winRate)}</td><td class="${cls(y.pnl)}">${money(y.pnl)}</td></tr>`).join("") || '<tr><td colspan="4" class="muted">No trades</td></tr>'}
@@ -817,15 +832,16 @@ $("#sc-form").addEventListener("submit", async (e) => {
       ch.addLineSeries({ color: "#ffb000", lineWidth: 2, title: "equity" }).setData(r.curve.map(([t, v]) => ({ time: t, value: v })));
       ch.timeScale().fitContent();
     }
-    $("#sc-bot").onclick = () => createScalpBot(body);
+    $("#sc-bot").onclick = () => createScalpBot(body, r.live);
   } catch (err) { out.innerHTML = `<p class="down">${esc(err.message)}</p>`; }
   finally { $("#sc-run").disabled = false; }
 });
 
-function createScalpBot(body) {
-  const id = ("gold-" + body.strategy).replace(/_/g, "-").slice(0, 40);
-  modal("RUN GOLD STRATEGY AS PAPER BOT", `
-    <p>Bot <b>${esc(id)}</b> will trade <b>GC=F</b> (gold futures, Yahoo, delayed) on the <b>paper-gold</b> CFD account with
+function createScalpBot(body, live) {
+  const account = { XAUUSD: "paper-gold", NAS100: "paper-nas100", US30: "paper-us30" }[body.symbol];
+  const id = (body.symbol.toLowerCase() + "-" + body.strategy).replace(/_/g, "-").slice(0, 40);
+  modal("RUN STRATEGY AS PAPER BOT", `
+    <p>Bot <b>${esc(id)}</b> will trade <b>${esc(live)}</b> (futures, Yahoo, delayed) on the <b>${esc(account)}</b> CFD account with
     ${esc(body.strategy)} on ${esc(body.timeframe)} bars, risking ${body.riskPct}% per trade (max ${body.maxRiskPct}% with the 1 oz minimum),
     stop-loss and take-profit on every order.</p>
     <p class="muted small">It checks every minute, enters on the last completed bar, exits on stop-loss, take-profit, time limit or 21:00 UTC.
@@ -834,8 +850,8 @@ function createScalpBot(body) {
     { label: "CANCEL", className: "ghost", onClick: async () => {} },
     { label: "CREATE BOT", className: "btn push", onClick: async () => {
       await api(`/api/automation/bots/${id}`, { method: "PUT", body: {
-        id, type: "intraday", enabled: $("#sc-enable").checked, account: "paper-gold", strategy: body.strategy, params: body.params,
-        symbols: ["GC=F"], timeframe: body.timeframe, riskPct: body.riskPct, maxRiskPct: body.maxRiskPct,
+        id, type: "intraday", enabled: $("#sc-enable").checked, account, strategy: body.strategy, params: body.params,
+        symbols: [live], timeframe: body.timeframe, riskPct: body.riskPct, maxRiskPct: body.maxRiskPct,
         allocationPerSymbol: 1000, intervalMinutes: 1, maxDailyLossPct: 5, respectMarketHours: true,
       } });
       toast(`Bot ${id} created`);

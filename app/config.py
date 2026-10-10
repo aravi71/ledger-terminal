@@ -75,7 +75,7 @@ class BotConfig(BaseModel):
     id: str = Field(pattern=r"^[a-z0-9][a-z0-9-]{1,40}$")
     type: Literal["strategy", "intraday", "ai"] = "strategy"
     timeframe: Literal["5m", "15m", "30m", "60m"] = "15m"
-    riskPct: float = Field(default=1.0, gt=0, le=10)
+    riskPct: float = Field(default=1.0, gt=0, le=25)
     maxRiskPct: float = Field(default=5.0, gt=0, le=25)
     enabled: bool = False
     account: str = "paper-main"
@@ -130,6 +130,36 @@ DEFAULTS: dict[str, dict[str, Any]] = {
                     "allowShort": True,
                 },
                 "brokerConfig": {"startingCash": 1000, "leverage": 100, "spread": 0.30, "commissionPerUnitSide": 0.035, "minQty": 1},
+            },
+            {
+                "id": "paper-nas100",
+                "type": "cfd",
+                "label": "Paper CFD · NAS100, $1,000, 1:100",
+                "enabled": True,
+                "guards": {
+                    "maxOrderValue": 500000,
+                    "maxPositionValue": 1000000,
+                    "cooldownSeconds": 0,
+                    "maxOrdersPerDay": 60,
+                    "symbolWhitelist": ["NQ=F"],
+                    "allowShort": True,
+                },
+                "brokerConfig": {"startingCash": 1000, "leverage": 100, "spread": 1.0, "commissionPerUnitSide": 0, "minQty": 0.1},
+            },
+            {
+                "id": "paper-us30",
+                "type": "cfd",
+                "label": "Paper CFD · US30, $1,000, 1:100",
+                "enabled": True,
+                "guards": {
+                    "maxOrderValue": 500000,
+                    "maxPositionValue": 1000000,
+                    "cooldownSeconds": 0,
+                    "maxOrdersPerDay": 60,
+                    "symbolWhitelist": ["YM=F"],
+                    "allowShort": True,
+                },
+                "brokerConfig": {"startingCash": 1000, "leverage": 100, "spread": 2.0, "commissionPerUnitSide": 0, "minQty": 0.1},
             },
             {
                 "id": "alpaca-paper",

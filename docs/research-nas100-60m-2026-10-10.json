@@ -1,0 +1,4353 @@
+{
+ "generated": "2026-10-10",
+ "symbol": "NAS100",
+ "timeframeMinutes": 60,
+ "costs": {
+  "spread": 1.0,
+  "commission": 0.0,
+  "leverage": 100,
+  "min_qty": 0.1,
+  "qty_step": 0.1,
+  "swap_long": 3.0,
+  "swap_short": 1.0
+ },
+ "riskPerTradePct": 1.0,
+ "results": {
+  "ny_orb": {
+   "label": "New York opening-range breakout (09:30)",
+   "chosen": {
+    "or_minutes": 5,
+    "sl_frac": 0.5,
+    "rr": 0.5,
+    "entry_until": 660
+   },
+   "inSample": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2023-11-30",
+     "years": 7.09
+    },
+    "trades": 0,
+    "winRate": null,
+    "profitFactor": null,
+    "netProfit": 0.0,
+    "totalReturn": 0.0,
+    "cagr": 0.0,
+    "maxDrawdown": 0.0,
+    "avgR": null,
+    "expectancy": null,
+    "tradesPerWeek": 0.0,
+    "worstLosingStreak": 0,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 10000.0,
+    "medianMonth": 0.0,
+    "avgMonth": 0.0,
+    "positiveMonths": 0.0,
+    "bestMonth": 0.0,
+    "worstMonth": 0.0,
+    "monthsAbove30pct": 0
+   },
+   "outOfSample": {
+    "period": {
+     "start": "2023-11-30",
+     "end": "2026-09-30",
+     "years": 2.84
+    },
+    "trades": 0,
+    "winRate": null,
+    "profitFactor": null,
+    "netProfit": 0.0,
+    "totalReturn": 0.0,
+    "cagr": 0.0,
+    "maxDrawdown": 0.0,
+    "avgR": null,
+    "expectancy": null,
+    "tradesPerWeek": 0.0,
+    "worstLosingStreak": 0,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 10000.0,
+    "medianMonth": 0.0,
+    "avgMonth": 0.0,
+    "positiveMonths": 0.0,
+    "bestMonth": 0.0,
+    "worstMonth": 0.0,
+    "monthsAbove30pct": 0
+   },
+   "full": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2026-09-30",
+     "years": 9.93
+    },
+    "trades": 0,
+    "winRate": null,
+    "profitFactor": null,
+    "netProfit": 0.0,
+    "totalReturn": 0.0,
+    "cagr": 0.0,
+    "maxDrawdown": 0.0,
+    "avgR": null,
+    "expectancy": null,
+    "tradesPerWeek": 0.0,
+    "worstLosingStreak": 0,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 10000.0,
+    "medianMonth": 0.0,
+    "avgMonth": 0.0,
+    "positiveMonths": 0.0,
+    "bestMonth": 0.0,
+    "worstMonth": 0.0,
+    "monthsAbove30pct": 0
+   },
+   "monthly": [
+    {
+     "month": "2016-10",
+     "return": 0.0
+    },
+    {
+     "month": "2016-11",
+     "return": 0.0
+    },
+    {
+     "month": "2016-12",
+     "return": 0.0
+    },
+    {
+     "month": "2017-01",
+     "return": 0.0
+    },
+    {
+     "month": "2017-02",
+     "return": 0.0
+    },
+    {
+     "month": "2017-03",
+     "return": 0.0
+    },
+    {
+     "month": "2017-04",
+     "return": 0.0
+    },
+    {
+     "month": "2017-05",
+     "return": 0.0
+    },
+    {
+     "month": "2017-06",
+     "return": 0.0
+    },
+    {
+     "month": "2017-07",
+     "return": 0.0
+    },
+    {
+     "month": "2017-08",
+     "return": 0.0
+    },
+    {
+     "month": "2017-09",
+     "return": 0.0
+    },
+    {
+     "month": "2017-10",
+     "return": 0.0
+    },
+    {
+     "month": "2017-11",
+     "return": 0.0
+    },
+    {
+     "month": "2017-12",
+     "return": 0.0
+    },
+    {
+     "month": "2018-01",
+     "return": 0.0
+    },
+    {
+     "month": "2018-02",
+     "return": 0.0
+    },
+    {
+     "month": "2018-03",
+     "return": 0.0
+    },
+    {
+     "month": "2018-04",
+     "return": 0.0
+    },
+    {
+     "month": "2018-05",
+     "return": 0.0
+    },
+    {
+     "month": "2018-06",
+     "return": 0.0
+    },
+    {
+     "month": "2018-07",
+     "return": 0.0
+    },
+    {
+     "month": "2018-08",
+     "return": 0.0
+    },
+    {
+     "month": "2018-09",
+     "return": 0.0
+    },
+    {
+     "month": "2018-10",
+     "return": 0.0
+    },
+    {
+     "month": "2018-11",
+     "return": 0.0
+    },
+    {
+     "month": "2018-12",
+     "return": 0.0
+    },
+    {
+     "month": "2019-01",
+     "return": 0.0
+    },
+    {
+     "month": "2019-02",
+     "return": 0.0
+    },
+    {
+     "month": "2019-03",
+     "return": 0.0
+    },
+    {
+     "month": "2019-04",
+     "return": 0.0
+    },
+    {
+     "month": "2019-05",
+     "return": 0.0
+    },
+    {
+     "month": "2019-06",
+     "return": 0.0
+    },
+    {
+     "month": "2019-07",
+     "return": 0.0
+    },
+    {
+     "month": "2019-08",
+     "return": 0.0
+    },
+    {
+     "month": "2019-09",
+     "return": 0.0
+    },
+    {
+     "month": "2019-10",
+     "return": 0.0
+    },
+    {
+     "month": "2019-11",
+     "return": 0.0
+    },
+    {
+     "month": "2019-12",
+     "return": 0.0
+    },
+    {
+     "month": "2020-01",
+     "return": 0.0
+    },
+    {
+     "month": "2020-02",
+     "return": 0.0
+    },
+    {
+     "month": "2020-03",
+     "return": 0.0
+    },
+    {
+     "month": "2020-04",
+     "return": 0.0
+    },
+    {
+     "month": "2020-05",
+     "return": 0.0
+    },
+    {
+     "month": "2020-06",
+     "return": 0.0
+    },
+    {
+     "month": "2020-07",
+     "return": 0.0
+    },
+    {
+     "month": "2020-08",
+     "return": 0.0
+    },
+    {
+     "month": "2020-09",
+     "return": 0.0
+    },
+    {
+     "month": "2020-10",
+     "return": 0.0
+    },
+    {
+     "month": "2020-11",
+     "return": 0.0
+    },
+    {
+     "month": "2020-12",
+     "return": 0.0
+    },
+    {
+     "month": "2021-01",
+     "return": 0.0
+    },
+    {
+     "month": "2021-02",
+     "return": 0.0
+    },
+    {
+     "month": "2021-03",
+     "return": 0.0
+    },
+    {
+     "month": "2021-04",
+     "return": 0.0
+    },
+    {
+     "month": "2021-05",
+     "return": 0.0
+    },
+    {
+     "month": "2021-06",
+     "return": 0.0
+    },
+    {
+     "month": "2021-07",
+     "return": 0.0
+    },
+    {
+     "month": "2021-08",
+     "return": 0.0
+    },
+    {
+     "month": "2021-09",
+     "return": 0.0
+    },
+    {
+     "month": "2021-10",
+     "return": 0.0
+    },
+    {
+     "month": "2021-11",
+     "return": 0.0
+    },
+    {
+     "month": "2021-12",
+     "return": 0.0
+    },
+    {
+     "month": "2022-01",
+     "return": 0.0
+    },
+    {
+     "month": "2022-02",
+     "return": 0.0
+    },
+    {
+     "month": "2022-03",
+     "return": 0.0
+    },
+    {
+     "month": "2022-04",
+     "return": 0.0
+    },
+    {
+     "month": "2022-05",
+     "return": 0.0
+    },
+    {
+     "month": "2022-06",
+     "return": 0.0
+    },
+    {
+     "month": "2022-07",
+     "return": 0.0
+    },
+    {
+     "month": "2022-08",
+     "return": 0.0
+    },
+    {
+     "month": "2022-09",
+     "return": 0.0
+    },
+    {
+     "month": "2022-10",
+     "return": 0.0
+    },
+    {
+     "month": "2022-11",
+     "return": 0.0
+    },
+    {
+     "month": "2022-12",
+     "return": 0.0
+    },
+    {
+     "month": "2023-01",
+     "return": 0.0
+    },
+    {
+     "month": "2023-02",
+     "return": 0.0
+    },
+    {
+     "month": "2023-03",
+     "return": 0.0
+    },
+    {
+     "month": "2023-04",
+     "return": 0.0
+    },
+    {
+     "month": "2023-05",
+     "return": 0.0
+    },
+    {
+     "month": "2023-06",
+     "return": 0.0
+    },
+    {
+     "month": "2023-07",
+     "return": 0.0
+    },
+    {
+     "month": "2023-08",
+     "return": 0.0
+    },
+    {
+     "month": "2023-09",
+     "return": 0.0
+    },
+    {
+     "month": "2023-10",
+     "return": 0.0
+    },
+    {
+     "month": "2023-11",
+     "return": 0.0
+    },
+    {
+     "month": "2023-12",
+     "return": 0.0
+    },
+    {
+     "month": "2024-01",
+     "return": 0.0
+    },
+    {
+     "month": "2024-02",
+     "return": 0.0
+    },
+    {
+     "month": "2024-03",
+     "return": 0.0
+    },
+    {
+     "month": "2024-04",
+     "return": 0.0
+    },
+    {
+     "month": "2024-05",
+     "return": 0.0
+    },
+    {
+     "month": "2024-06",
+     "return": 0.0
+    },
+    {
+     "month": "2024-07",
+     "return": 0.0
+    },
+    {
+     "month": "2024-08",
+     "return": 0.0
+    },
+    {
+     "month": "2024-09",
+     "return": 0.0
+    },
+    {
+     "month": "2024-10",
+     "return": 0.0
+    },
+    {
+     "month": "2024-11",
+     "return": 0.0
+    },
+    {
+     "month": "2024-12",
+     "return": 0.0
+    },
+    {
+     "month": "2025-01",
+     "return": 0.0
+    },
+    {
+     "month": "2025-02",
+     "return": 0.0
+    },
+    {
+     "month": "2025-03",
+     "return": 0.0
+    },
+    {
+     "month": "2025-04",
+     "return": 0.0
+    },
+    {
+     "month": "2025-05",
+     "return": 0.0
+    },
+    {
+     "month": "2025-06",
+     "return": 0.0
+    },
+    {
+     "month": "2025-07",
+     "return": 0.0
+    },
+    {
+     "month": "2025-08",
+     "return": 0.0
+    },
+    {
+     "month": "2025-09",
+     "return": 0.0
+    },
+    {
+     "month": "2025-10",
+     "return": 0.0
+    },
+    {
+     "month": "2025-11",
+     "return": 0.0
+    },
+    {
+     "month": "2025-12",
+     "return": 0.0
+    },
+    {
+     "month": "2026-01",
+     "return": 0.0
+    },
+    {
+     "month": "2026-02",
+     "return": 0.0
+    },
+    {
+     "month": "2026-03",
+     "return": 0.0
+    },
+    {
+     "month": "2026-04",
+     "return": 0.0
+    },
+    {
+     "month": "2026-05",
+     "return": 0.0
+    },
+    {
+     "month": "2026-06",
+     "return": 0.0
+    },
+    {
+     "month": "2026-07",
+     "return": 0.0
+    },
+    {
+     "month": "2026-08",
+     "return": 0.0
+    },
+    {
+     "month": "2026-09",
+     "return": 0.0
+    }
+   ],
+   "capitals": {
+    "100": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 0,
+     "winRate": null,
+     "profitFactor": null,
+     "netProfit": 0.0,
+     "totalReturn": 0.0,
+     "cagr": 0.0,
+     "maxDrawdown": 0.0,
+     "avgR": null,
+     "expectancy": null,
+     "tradesPerWeek": 0.0,
+     "worstLosingStreak": 0,
+     "skippedMinSize": 0,
+     "blown": false,
+     "finalEquity": 100.0,
+     "medianMonth": 0.0,
+     "avgMonth": 0.0,
+     "positiveMonths": 0.0,
+     "bestMonth": 0.0,
+     "worstMonth": 0.0,
+     "monthsAbove30pct": 0
+    },
+    "1000": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 0,
+     "winRate": null,
+     "profitFactor": null,
+     "netProfit": 0.0,
+     "totalReturn": 0.0,
+     "cagr": 0.0,
+     "maxDrawdown": 0.0,
+     "avgR": null,
+     "expectancy": null,
+     "tradesPerWeek": 0.0,
+     "worstLosingStreak": 0,
+     "skippedMinSize": 0,
+     "blown": false,
+     "finalEquity": 1000.0,
+     "medianMonth": 0.0,
+     "avgMonth": 0.0,
+     "positiveMonths": 0.0,
+     "bestMonth": 0.0,
+     "worstMonth": 0.0,
+     "monthsAbove30pct": 0
+    }
+   },
+   "riskSimulation": [],
+   "highestWinRate": [],
+   "gridSize": 48
+  },
+  "ema_rsi_scalp": {
+   "label": "EMA-200 trend + RSI pullback scalp (1:2)",
+   "chosen": {
+    "rsi_low": 30,
+    "sl_atr": 2.0,
+    "rr": 0.5
+   },
+   "inSample": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2023-11-30",
+     "years": 7.09
+    },
+    "trades": 67,
+    "winRate": 0.7164179104477612,
+    "profitFactor": 1.5032826073478047,
+    "netProfit": 730.57,
+    "totalReturn": 0.0730573252167892,
+    "cagr": 0.009988245997380574,
+    "maxDrawdown": 0.026532416493156165,
+    "avgR": 0.11034328358208954,
+    "expectancy": 10.904078390565537,
+    "tradesPerWeek": 0.18160943282341535,
+    "worstLosingStreak": 2,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 10730.57,
+    "medianMonth": 0.0,
+    "avgMonth": 0.0008378724901708811,
+    "positiveMonths": 0.3372093023255814,
+    "bestMonth": 0.018379215419661143,
+    "worstMonth": -0.018996701511724057,
+    "monthsAbove30pct": 0
+   },
+   "outOfSample": {
+    "period": {
+     "start": "2023-11-30",
+     "end": "2026-09-30",
+     "years": 2.84
+    },
+    "trades": 19,
+    "winRate": 0.5789473684210527,
+    "profitFactor": 0.7803866541939508,
+    "netProfit": -140.86,
+    "totalReturn": -0.014086397221208635,
+    "cagr": -0.004989494516337345,
+    "maxDrawdown": 0.03810036129909149,
+    "avgR": -0.07957894736842105,
+    "expectancy": -7.41389327432032,
+    "tradesPerWeek": 0.1288296009356262,
+    "worstLosingStreak": 3,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 9859.14,
+    "medianMonth": 0.0,
+    "avgMonth": -0.0003921529113791955,
+    "positiveMonths": 0.2571428571428571,
+    "bestMonth": 0.00905715503073834,
+    "worstMonth": -0.01675970382947367,
+    "monthsAbove30pct": 0
+   },
+   "full": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2026-09-30",
+     "years": 9.93
+    },
+    "trades": 86,
+    "winRate": 0.686046511627907,
+    "profitFactor": 1.265427013818828,
+    "netProfit": 573.57,
+    "totalReturn": 0.0573574129424288,
+    "cagr": 0.005631838406570999,
+    "maxDrawdown": 0.03984639314677113,
+    "avgR": 0.06838372093023257,
+    "expectancy": 6.669466621212662,
+    "tradesPerWeek": 0.1665339771939048,
+    "worstLosingStreak": 3,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 10573.57,
+    "medianMonth": 0.0,
+    "avgMonth": 0.00048185926132581213,
+    "positiveMonths": 0.30833333333333335,
+    "bestMonth": 0.018379215419661143,
+    "worstMonth": -0.018996701511724057,
+    "monthsAbove30pct": 0
+   },
+   "monthly": [
+    {
+     "month": "2016-10",
+     "return": -0.009409
+    },
+    {
+     "month": "2016-11",
+     "return": 0.0
+    },
+    {
+     "month": "2016-12",
+     "return": 0.0
+    },
+    {
+     "month": "2017-01",
+     "return": 0.008071948967838471
+    },
+    {
+     "month": "2017-02",
+     "return": 0.004720670307143848
+    },
+    {
+     "month": "2017-03",
+     "return": 0.0
+    },
+    {
+     "month": "2017-04",
+     "return": 0.0
+    },
+    {
+     "month": "2017-05",
+     "return": -0.009547483756121133
+    },
+    {
+     "month": "2017-06",
+     "return": 0.0
+    },
+    {
+     "month": "2017-07",
+     "return": 0.0
+    },
+    {
+     "month": "2017-08",
+     "return": 0.0
+    },
+    {
+     "month": "2017-09",
+     "return": 0.004738749871694425
+    },
+    {
+     "month": "2017-10",
+     "return": -0.00939273720467404
+    },
+    {
+     "month": "2017-11",
+     "return": 0.0
+    },
+    {
+     "month": "2017-12",
+     "return": -0.0070997206418665915
+    },
+    {
+     "month": "2018-01",
+     "return": -0.0019938270787785983
+    },
+    {
+     "month": "2018-02",
+     "return": 0.0
+    },
+    {
+     "month": "2018-03",
+     "return": 0.0
+    },
+    {
+     "month": "2018-04",
+     "return": 0.009417665826933375
+    },
+    {
+     "month": "2018-05",
+     "return": 0.0
+    },
+    {
+     "month": "2018-06",
+     "return": 0.00484381428136782
+    },
+    {
+     "month": "2018-07",
+     "return": 0.009450807015426
+    },
+    {
+     "month": "2018-08",
+     "return": 0.0
+    },
+    {
+     "month": "2018-09",
+     "return": -0.018996701511724057
+    },
+    {
+     "month": "2018-10",
+     "return": 0.0
+    },
+    {
+     "month": "2018-11",
+     "return": 0.009580192335236548
+    },
+    {
+     "month": "2018-12",
+     "return": 0.0
+    },
+    {
+     "month": "2019-01",
+     "return": 0.0
+    },
+    {
+     "month": "2019-02",
+     "return": 0.0
+    },
+    {
+     "month": "2019-03",
+     "return": 0.0
+    },
+    {
+     "month": "2019-04",
+     "return": 0.0
+    },
+    {
+     "month": "2019-05",
+     "return": 0.0
+    },
+    {
+     "month": "2019-06",
+     "return": 0.004847775034260371
+    },
+    {
+     "month": "2019-07",
+     "return": 0.009641765697783855
+    },
+    {
+     "month": "2019-08",
+     "return": 0.0
+    },
+    {
+     "month": "2019-09",
+     "return": 0.0047664149240558285
+    },
+    {
+     "month": "2019-10",
+     "return": -0.009430358568804476
+    },
+    {
+     "month": "2019-11",
+     "return": 0.0
+    },
+    {
+     "month": "2019-12",
+     "return": -0.0057933929014495344
+    },
+    {
+     "month": "2020-01",
+     "return": 0.0
+    },
+    {
+     "month": "2020-02",
+     "return": 0.004785801554107572
+    },
+    {
+     "month": "2020-03",
+     "return": 0.0
+    },
+    {
+     "month": "2020-04",
+     "return": 0.0
+    },
+    {
+     "month": "2020-05",
+     "return": 0.009743465952731123
+    },
+    {
+     "month": "2020-06",
+     "return": 0.0
+    },
+    {
+     "month": "2020-07",
+     "return": 0.0
+    },
+    {
+     "month": "2020-08",
+     "return": 0.004903752496824065
+    },
+    {
+     "month": "2020-09",
+     "return": 0.004846399606782903
+    },
+    {
+     "month": "2020-10",
+     "return": -0.0042311530258858365
+    },
+    {
+     "month": "2020-11",
+     "return": 0.004622465871858106
+    },
+    {
+     "month": "2020-12",
+     "return": 0.004789938976685892
+    },
+    {
+     "month": "2021-01",
+     "return": -0.018863058149335532
+    },
+    {
+     "month": "2021-02",
+     "return": 0.004581991256620066
+    },
+    {
+     "month": "2021-03",
+     "return": 0.004736860815091726
+    },
+    {
+     "month": "2021-04",
+     "return": 0.0
+    },
+    {
+     "month": "2021-05",
+     "return": 0.0
+    },
+    {
+     "month": "2021-06",
+     "return": -0.0014771600394303253
+    },
+    {
+     "month": "2021-07",
+     "return": 0.009215641886239245
+    },
+    {
+     "month": "2021-08",
+     "return": -0.0014697377391007516
+    },
+    {
+     "month": "2021-09",
+     "return": 0.004846431982935107
+    },
+    {
+     "month": "2021-10",
+     "return": 0.0
+    },
+    {
+     "month": "2021-11",
+     "return": 0.0
+    },
+    {
+     "month": "2021-12",
+     "return": 0.0
+    },
+    {
+     "month": "2022-01",
+     "return": 0.0
+    },
+    {
+     "month": "2022-02",
+     "return": 0.0
+    },
+    {
+     "month": "2022-03",
+     "return": 0.0
+    },
+    {
+     "month": "2022-04",
+     "return": 0.004948445190939399
+    },
+    {
+     "month": "2022-05",
+     "return": 0.0
+    },
+    {
+     "month": "2022-06",
+     "return": 0.003842735122095986
+    },
+    {
+     "month": "2022-07",
+     "return": 0.0
+    },
+    {
+     "month": "2022-08",
+     "return": 0.009558982225168489
+    },
+    {
+     "month": "2022-09",
+     "return": 0.009432206552248301
+    },
+    {
+     "month": "2022-10",
+     "return": 0.0
+    },
+    {
+     "month": "2022-11",
+     "return": -0.008449657551083734
+    },
+    {
+     "month": "2022-12",
+     "return": 0.018379215419661143
+    },
+    {
+     "month": "2023-01",
+     "return": 0.004903493774426337
+    },
+    {
+     "month": "2023-02",
+     "return": 0.0
+    },
+    {
+     "month": "2023-03",
+     "return": 0.0
+    },
+    {
+     "month": "2023-04",
+     "return": 0.0
+    },
+    {
+     "month": "2023-05",
+     "return": -0.009375253319121146
+    },
+    {
+     "month": "2023-06",
+     "return": 0.0
+    },
+    {
+     "month": "2023-07",
+     "return": -0.009274926659323834
+    },
+    {
+     "month": "2023-08",
+     "return": 0.009353211914996828
+    },
+    {
+     "month": "2023-09",
+     "return": 0.0
+    },
+    {
+     "month": "2023-10",
+     "return": 0.009290054365206357
+    },
+    {
+     "month": "2023-11",
+     "return": 0.0
+    },
+    {
+     "month": "2023-12",
+     "return": 0.0
+    },
+    {
+     "month": "2024-01",
+     "return": 0.004721091237464448
+    },
+    {
+     "month": "2024-02",
+     "return": 0.004787950910981387
+    },
+    {
+     "month": "2024-03",
+     "return": -0.009738896043054224
+    },
+    {
+     "month": "2024-04",
+     "return": 0.0
+    },
+    {
+     "month": "2024-05",
+     "return": 0.004689881471192647
+    },
+    {
+     "month": "2024-06",
+     "return": -0.009753508646589193
+    },
+    {
+     "month": "2024-07",
+     "return": 0.0
+    },
+    {
+     "month": "2024-08",
+     "return": 0.0
+    },
+    {
+     "month": "2024-09",
+     "return": 0.004956645746935662
+    },
+    {
+     "month": "2024-10",
+     "return": 0.0
+    },
+    {
+     "month": "2024-11",
+     "return": -0.009754378375153028
+    },
+    {
+     "month": "2024-12",
+     "return": 0.0
+    },
+    {
+     "month": "2025-01",
+     "return": 0.0
+    },
+    {
+     "month": "2025-02",
+     "return": 0.0
+    },
+    {
+     "month": "2025-03",
+     "return": -0.008580316774034369
+    },
+    {
+     "month": "2025-04",
+     "return": 0.004622168363930923
+    },
+    {
+     "month": "2025-05",
+     "return": 0.009744421630574207
+    },
+    {
+     "month": "2025-06",
+     "return": 0.0
+    },
+    {
+     "month": "2025-07",
+     "return": -0.00030707470153845673
+    },
+    {
+     "month": "2025-08",
+     "return": 0.0
+    },
+    {
+     "month": "2025-09",
+     "return": 0.0
+    },
+    {
+     "month": "2025-10",
+     "return": 0.00422544708077055
+    },
+    {
+     "month": "2025-11",
+     "return": -0.018734006759126065
+    },
+    {
+     "month": "2025-12",
+     "return": -0.0047479707556932205
+    },
+    {
+     "month": "2026-01",
+     "return": 0.0
+    },
+    {
+     "month": "2026-02",
+     "return": 0.0
+    },
+    {
+     "month": "2026-03",
+     "return": 0.0
+    },
+    {
+     "month": "2026-04",
+     "return": 0.004806907279399253
+    },
+    {
+     "month": "2026-05",
+     "return": 0.0
+    },
+    {
+     "month": "2026-06",
+     "return": 0.0
+    },
+    {
+     "month": "2026-07",
+     "return": 0.0
+    },
+    {
+     "month": "2026-08",
+     "return": 0.0
+    },
+    {
+     "month": "2026-09",
+     "return": 0.004828018613377338
+    }
+   ],
+   "capitals": {
+    "100": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 25,
+     "winRate": 0.64,
+     "profitFactor": 1.247711088504578,
+     "netProfit": 4.88,
+     "totalReturn": 0.0487869579138549,
+     "cagr": 0.004808047575472152,
+     "maxDrawdown": 0.08072683943997613,
+     "avgR": 0.011800000000000001,
+     "expectancy": 0.19514783165541985,
+     "tradesPerWeek": 0.04841103988194907,
+     "worstLosingStreak": 2,
+     "skippedMinSize": 62,
+     "blown": false,
+     "finalEquity": 104.88,
+     "medianMonth": 0.0,
+     "avgMonth": 0.0004426003306406264,
+     "positiveMonths": 0.09166666666666666,
+     "bestMonth": 0.033016962843295694,
+     "worstMonth": -0.058694787107043345,
+     "monthsAbove30pct": 0
+    },
+    "1000": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 86,
+     "winRate": 0.686046511627907,
+     "profitFactor": 1.3673886590411293,
+     "netProfit": 75.47,
+     "totalReturn": 0.07547358887497979,
+     "cagr": 0.00735358328489899,
+     "maxDrawdown": 0.03967414110821216,
+     "avgR": 0.06838372093023257,
+     "expectancy": 0.8775998706393011,
+     "tradesPerWeek": 0.1665339771939048,
+     "worstLosingStreak": 3,
+     "skippedMinSize": 0,
+     "blown": false,
+     "finalEquity": 1075.47,
+     "medianMonth": 0.0,
+     "avgMonth": 0.0006250388175072091,
+     "positiveMonths": 0.30833333333333335,
+     "bestMonth": 0.017205009887936606,
+     "worstMonth": -0.030562224433348217,
+     "monthsAbove30pct": 0
+    }
+   },
+   "riskSimulation": [
+    {
+     "riskPct": 0.5,
+     "medianMonthly": 0.0003541432065550243,
+     "p10Monthly": -0.0007540103057831482,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 1,
+     "medianMonthly": 0.0006769261346042388,
+     "p10Monthly": -0.0015661765233535574,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 2,
+     "medianMonthly": 0.0013168600142887676,
+     "p10Monthly": -0.0032976965959423676,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 3,
+     "medianMonthly": 0.002002875431078799,
+     "p10Monthly": -0.004879463874326584,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 5,
+     "medianMonthly": 0.002980998090818865,
+     "p10Monthly": -0.00843926245033999,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 10,
+     "medianMonthly": 0.005768899921021919,
+     "p10Monthly": -0.01792013016327132,
+     "probHalved": 0.0005,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 20,
+     "medianMonthly": 0.0054261005441536,
+     "p10Monthly": -0.04160027748270967,
+     "probHalved": 0.104,
+     "probRuin": 0.0
+    }
+   ],
+   "highestWinRate": [
+    {
+     "params": {
+      "rsi_low": 35,
+      "sl_atr": 1.5,
+      "rr": 0.5
+     },
+     "isWin": 0.6358381502890174,
+     "isPF": 0.9080682870880938,
+     "oosWin": 0.6119402985074627,
+     "oosPF": 0.8942672599128826,
+     "oosTrades": 67
+    },
+    {
+     "params": {
+      "rsi_low": 35,
+      "sl_atr": 1.0,
+      "rr": 0.5
+     },
+     "isWin": 0.6256983240223464,
+     "isPF": 0.8378064368117463,
+     "oosWin": 0.5942028985507246,
+     "oosPF": 0.7500609128278486,
+     "oosTrades": 69
+    },
+    {
+     "params": {
+      "rsi_low": 35,
+      "sl_atr": 2.0,
+      "rr": 0.5
+     },
+     "isWin": 0.5895953757225434,
+     "isPF": 0.806997052116358,
+     "oosWin": 0.5873015873015873,
+     "oosPF": 0.8959222059006869,
+     "oosTrades": 63
+    },
+    {
+     "params": {
+      "rsi_low": 35,
+      "sl_atr": 1.0,
+      "rr": 1.0
+     },
+     "isWin": 0.4438202247191011,
+     "isPF": 0.8011673272601735,
+     "oosWin": 0.5074626865671642,
+     "oosPF": 1.036521574624395,
+     "oosTrades": 67
+    },
+    {
+     "params": {
+      "rsi_low": 35,
+      "sl_atr": 1.5,
+      "rr": 1.0
+     },
+     "isWin": 0.4624277456647399,
+     "isPF": 0.860302375345152,
+     "oosWin": 0.4925373134328358,
+     "oosPF": 1.0255211856589386,
+     "oosTrades": 67
+    }
+   ],
+   "gridSize": 27
+  },
+  "rsi2_highwin": {
+   "label": "RSI(2) dip, small target / wide stop (high win rate)",
+   "chosen": {
+    "tp_atr": 0.3,
+    "sl_atr": 6.0,
+    "rsi_entry": 5
+   },
+   "inSample": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2023-11-30",
+     "years": 7.09
+    },
+    "trades": 831,
+    "winRate": 0.9061371841155235,
+    "profitFactor": 0.9746051859128241,
+    "netProfit": -87.42,
+    "totalReturn": -0.008741638725400347,
+    "cagr": -0.0012367908568632346,
+    "maxDrawdown": 0.04630538966305396,
+    "avgR": -0.0016040914560770134,
+    "expectancy": -0.10519420848857158,
+    "tradesPerWeek": 2.252499084720271,
+    "worstLosingStreak": 3,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 9912.58,
+    "medianMonth": 0.0013717434750306623,
+    "avgMonth": -8.973153267531716e-05,
+    "positiveMonths": 0.5581395348837209,
+    "bestMonth": 0.008425002721845765,
+    "worstMonth": -0.018280945802454762,
+    "monthsAbove30pct": 0
+   },
+   "outOfSample": {
+    "period": {
+     "start": "2023-11-30",
+     "end": "2026-09-30",
+     "years": 2.84
+    },
+    "trades": 359,
+    "winRate": 0.9164345403899722,
+    "profitFactor": 1.0843193689372135,
+    "netProfit": 102.77,
+    "totalReturn": 0.010277177530923387,
+    "cagr": 0.0036116043904446116,
+    "maxDrawdown": 0.03972364767477426,
+    "avgR": 0.0071727019498607275,
+    "expectancy": 0.28627235462181866,
+    "tradesPerWeek": 2.434201407152095,
+    "worstLosingStreak": 2,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 10102.77,
+    "medianMonth": 0.0029681111681261196,
+    "avgMonth": 0.00031039681911504733,
+    "positiveMonths": 0.6571428571428571,
+    "bestMonth": 0.00633842112578753,
+    "worstMonth": -0.02248133655149176,
+    "monthsAbove30pct": 0
+   },
+   "full": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2026-09-30",
+     "years": 9.93
+    },
+    "trades": 1190,
+    "winRate": 0.9092436974789916,
+    "profitFactor": 0.9997725512242537,
+    "netProfit": -1.16,
+    "totalReturn": -0.00011577207387380994,
+    "cagr": -1.1658271599768177e-05,
+    "maxDrawdown": 0.06464351544643512,
+    "avgR": 0.001043697478991599,
+    "expectancy": -0.0009728745703681806,
+    "tradesPerWeek": 2.304365498380776,
+    "worstLosingStreak": 3,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 9998.84,
+    "medianMonth": 0.002016478189986959,
+    "avgMonth": 1.333699433232564e-05,
+    "positiveMonths": 0.5916666666666667,
+    "bestMonth": 0.008425002721845765,
+    "worstMonth": -0.02267905716279195,
+    "monthsAbove30pct": 0
+   },
+   "monthly": [
+    {
+     "month": "2016-10",
+     "return": 0.0018860000000000543
+    },
+    {
+     "month": "2016-11",
+     "return": -0.0020191918042573587
+    },
+    {
+     "month": "2016-12",
+     "return": 0.004453610144589781
+    },
+    {
+     "month": "2017-01",
+     "return": 0.004303426411607525
+    },
+    {
+     "month": "2017-02",
+     "return": 0.004791610072196306
+    },
+    {
+     "month": "2017-03",
+     "return": -0.0012126642005542143
+    },
+    {
+     "month": "2017-04",
+     "return": -0.0013010722732310631
+    },
+    {
+     "month": "2017-05",
+     "return": -0.0074347750822266745
+    },
+    {
+     "month": "2017-06",
+     "return": -0.006454994922309942
+    },
+    {
+     "month": "2017-07",
+     "return": 0.004177817544225748
+    },
+    {
+     "month": "2017-08",
+     "return": -0.018280945802454762
+    },
+    {
+     "month": "2017-09",
+     "return": -0.002654670959181593
+    },
+    {
+     "month": "2017-10",
+     "return": 0.0023577133751007118
+    },
+    {
+     "month": "2017-11",
+     "return": 0.0002961838090256297
+    },
+    {
+     "month": "2017-12",
+     "return": 0.008425002721845765
+    },
+    {
+     "month": "2018-01",
+     "return": 0.00428123571618122
+    },
+    {
+     "month": "2018-02",
+     "return": 0.003665182374973819
+    },
+    {
+     "month": "2018-03",
+     "return": 0.0033634980379595447
+    },
+    {
+     "month": "2018-04",
+     "return": 0.005033322691355924
+    },
+    {
+     "month": "2018-05",
+     "return": 0.00717515498354615
+    },
+    {
+     "month": "2018-06",
+     "return": -0.005337115473889487
+    },
+    {
+     "month": "2018-07",
+     "return": 0.006143613911520074
+    },
+    {
+     "month": "2018-08",
+     "return": -0.0069698181366939504
+    },
+    {
+     "month": "2018-09",
+     "return": -0.00018843579447003211
+    },
+    {
+     "month": "2018-10",
+     "return": -0.0059745405019885345
+    },
+    {
+     "month": "2018-11",
+     "return": -0.003538611379439671
+    },
+    {
+     "month": "2018-12",
+     "return": 0.006189023596403498
+    },
+    {
+     "month": "2019-01",
+     "return": 0.002016478189986959
+    },
+    {
+     "month": "2019-02",
+     "return": 0.0013717434750306623
+    },
+    {
+     "month": "2019-03",
+     "return": -0.003584858683759795
+    },
+    {
+     "month": "2019-04",
+     "return": 0.0019113701637110125
+    },
+    {
+     "month": "2019-05",
+     "return": 0.002816873419545285
+    },
+    {
+     "month": "2019-06",
+     "return": 0.00144559929453969
+    },
+    {
+     "month": "2019-07",
+     "return": 0.002037143487522153
+    },
+    {
+     "month": "2019-08",
+     "return": -0.008909070802576635
+    },
+    {
+     "month": "2019-09",
+     "return": -0.003574541849934887
+    },
+    {
+     "month": "2019-10",
+     "return": 0.004276243104970545
+    },
+    {
+     "month": "2019-11",
+     "return": 0.003263464528987736
+    },
+    {
+     "month": "2019-12",
+     "return": -0.0070276621165150654
+    },
+    {
+     "month": "2020-01",
+     "return": -0.002636286413830957
+    },
+    {
+     "month": "2020-02",
+     "return": 0.002319611387438192
+    },
+    {
+     "month": "2020-03",
+     "return": 0.004643481581522835
+    },
+    {
+     "month": "2020-04",
+     "return": -0.00019005504630975611
+    },
+    {
+     "month": "2020-05",
+     "return": 0.002423413659294882
+    },
+    {
+     "month": "2020-06",
+     "return": -0.017261441438579217
+    },
+    {
+     "month": "2020-07",
+     "return": -0.005621167271147476
+    },
+    {
+     "month": "2020-08",
+     "return": 0.004484560068111598
+    },
+    {
+     "month": "2020-09",
+     "return": -0.00841323785249004
+    },
+    {
+     "month": "2020-10",
+     "return": -0.0041892688619104
+    },
+    {
+     "month": "2020-11",
+     "return": 0.005311112363060921
+    },
+    {
+     "month": "2020-12",
+     "return": -0.004839827192696489
+    },
+    {
+     "month": "2021-01",
+     "return": 0.0037668042060430285
+    },
+    {
+     "month": "2021-02",
+     "return": 0.004724751598632837
+    },
+    {
+     "month": "2021-03",
+     "return": -0.0004751264211915185
+    },
+    {
+     "month": "2021-04",
+     "return": -0.0006967770506423054
+    },
+    {
+     "month": "2021-05",
+     "return": 0.0005580135935769892
+    },
+    {
+     "month": "2021-06",
+     "return": -0.0035504004485998886
+    },
+    {
+     "month": "2021-07",
+     "return": 0.003051276326561103
+    },
+    {
+     "month": "2021-08",
+     "return": -0.002460630921623741
+    },
+    {
+     "month": "2021-09",
+     "return": 0.0011645761014311695
+    },
+    {
+     "month": "2021-10",
+     "return": 0.003334975209033919
+    },
+    {
+     "month": "2021-11",
+     "return": 0.0026889327746519864
+    },
+    {
+     "month": "2021-12",
+     "return": -0.0027090347015409355
+    },
+    {
+     "month": "2022-01",
+     "return": 0.004706521981689082
+    },
+    {
+     "month": "2022-02",
+     "return": 0.0026350168499735815
+    },
+    {
+     "month": "2022-03",
+     "return": -0.00014701203082012615
+    },
+    {
+     "month": "2022-04",
+     "return": 0.0018530267782510546
+    },
+    {
+     "month": "2022-05",
+     "return": 0.0027934982559483235
+    },
+    {
+     "month": "2022-06",
+     "return": 0.0031816710088021782
+    },
+    {
+     "month": "2022-07",
+     "return": 0.0013639592990548621
+    },
+    {
+     "month": "2022-08",
+     "return": 0.004433565372886417
+    },
+    {
+     "month": "2022-09",
+     "return": 0.0013441674755183541
+    },
+    {
+     "month": "2022-10",
+     "return": -0.008478813878824099
+    },
+    {
+     "month": "2022-11",
+     "return": 0.004888040361104462
+    },
+    {
+     "month": "2022-12",
+     "return": -0.0044490337690423765
+    },
+    {
+     "month": "2023-01",
+     "return": -0.001368280497502039
+    },
+    {
+     "month": "2023-02",
+     "return": -0.006326952295961585
+    },
+    {
+     "month": "2023-03",
+     "return": 0.0044813579139408866
+    },
+    {
+     "month": "2023-04",
+     "return": -0.00448946170611586
+    },
+    {
+     "month": "2023-05",
+     "return": 0.004147842617848063
+    },
+    {
+     "month": "2023-06",
+     "return": 0.0035344414809521663
+    },
+    {
+     "month": "2023-07",
+     "return": -0.0012433506248762383
+    },
+    {
+     "month": "2023-08",
+     "return": -0.0045809860036555294
+    },
+    {
+     "month": "2023-09",
+     "return": -0.003663342727293739
+    },
+    {
+     "month": "2023-10",
+     "return": -0.003052733625512394
+    },
+    {
+     "month": "2023-11",
+     "return": 0.004072983488260684
+    },
+    {
+     "month": "2023-12",
+     "return": -0.006397930710269173
+    },
+    {
+     "month": "2024-01",
+     "return": 0.004075474456704864
+    },
+    {
+     "month": "2024-02",
+     "return": -0.02267905716279195
+    },
+    {
+     "month": "2024-03",
+     "return": 0.004359018398306436
+    },
+    {
+     "month": "2024-04",
+     "return": -0.014265773167201456
+    },
+    {
+     "month": "2024-05",
+     "return": 0.0034299437643894315
+    },
+    {
+     "month": "2024-06",
+     "return": -0.004743013844726085
+    },
+    {
+     "month": "2024-07",
+     "return": 0.005059674862258445
+    },
+    {
+     "month": "2024-08",
+     "return": -0.003200649708984482
+    },
+    {
+     "month": "2024-09",
+     "return": 0.0029957507969866626
+    },
+    {
+     "month": "2024-10",
+     "return": 0.003199253507514932
+    },
+    {
+     "month": "2024-11",
+     "return": 0.003125726671760365
+    },
+    {
+     "month": "2024-12",
+     "return": 0.004871122738425715
+    },
+    {
+     "month": "2025-01",
+     "return": -0.004345972354672378
+    },
+    {
+     "month": "2025-02",
+     "return": 0.004924523735149178
+    },
+    {
+     "month": "2025-03",
+     "return": 0.004594696131459575
+    },
+    {
+     "month": "2025-04",
+     "return": 0.004045003222273191
+    },
+    {
+     "month": "2025-05",
+     "return": 0.0007102279974733339
+    },
+    {
+     "month": "2025-06",
+     "return": 0.0023371943266952133
+    },
+    {
+     "month": "2025-07",
+     "return": 0.0063014074906786455
+    },
+    {
+     "month": "2025-08",
+     "return": 0.004436136517349976
+    },
+    {
+     "month": "2025-09",
+     "return": -0.003134256701059046
+    },
+    {
+     "month": "2025-10",
+     "return": 0.003689332739647666
+    },
+    {
+     "month": "2025-11",
+     "return": -0.0012172095320583942
+    },
+    {
+     "month": "2025-12",
+     "return": 0.0027355124100205686
+    },
+    {
+     "month": "2026-01",
+     "return": 0.0037194287166415485
+    },
+    {
+     "month": "2026-02",
+     "return": -0.0036115786671683248
+    },
+    {
+     "month": "2026-03",
+     "return": -0.00889645939396011
+    },
+    {
+     "month": "2026-04",
+     "return": 0.0025729135738163933
+    },
+    {
+     "month": "2026-05",
+     "return": 0.0047545984365620075
+    },
+    {
+     "month": "2026-06",
+     "return": 0.004729081284668091
+    },
+    {
+     "month": "2026-07",
+     "return": -0.004949122063993006
+    },
+    {
+     "month": "2026-08",
+     "return": 0.0032933529210521506
+    },
+    {
+     "month": "2026-09",
+     "return": 0.002799365682164101
+    }
+   ],
+   "capitals": {
+    "100": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 30,
+     "winRate": 0.9666666666666667,
+     "profitFactor": 140.6,
+     "netProfit": 6.98,
+     "totalReturn": 0.06976923699565751,
+     "cagr": 0.006814278503054272,
+     "maxDrawdown": 0.018922018348623892,
+     "avgR": 0.051133333333333336,
+     "expectancy": 0.23256412331885865,
+     "tradesPerWeek": 0.05809324785833889,
+     "worstLosingStreak": 1,
+     "skippedMinSize": 1549,
+     "blown": false,
+     "finalEquity": 106.98,
+     "medianMonth": 0.0,
+     "avgMonth": 0.0005650168206096484,
+     "positiveMonths": 0.1,
+     "bestMonth": 0.021764938662445665,
+     "worstMonth": -2.8755846272598973e-05,
+     "monthsAbove30pct": 0
+    },
+    "1000": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 1031,
+     "winRate": 0.9097963142580019,
+     "profitFactor": 0.9666666666666667,
+     "netProfit": -35.2,
+     "totalReturn": -0.035202492132233254,
+     "cagr": -0.0036021058146322726,
+     "maxDrawdown": 0.2016798581711441,
+     "avgR": -0.002250242483026186,
+     "expectancy": -0.03414402728635622,
+     "tradesPerWeek": 1.9964712847315798,
+     "worstLosingStreak": 3,
+     "skippedMinSize": 216,
+     "blown": false,
+     "finalEquity": 964.8,
+     "medianMonth": 0.003436046336390941,
+     "avgMonth": -0.00019538015533229942,
+     "positiveMonths": 0.5916666666666667,
+     "bestMonth": 0.018463019272417114,
+     "worstMonth": -0.05933087095925382,
+     "monthsAbove30pct": 0
+    }
+   },
+   "riskSimulation": [
+    {
+     "riskPct": 0.5,
+     "medianMonthly": 9.259866530753058e-05,
+     "p10Monthly": -0.0009901817592211648,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 1,
+     "medianMonthly": 0.00028442194012656685,
+     "p10Monthly": -0.0021574841263647393,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 2,
+     "medianMonthly": 0.0004515388855168556,
+     "p10Monthly": -0.004467692831775949,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 3,
+     "medianMonthly": 0.0005173207735527097,
+     "p10Monthly": -0.006436496668784875,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 5,
+     "medianMonthly": 0.0005853328927636348,
+     "p10Monthly": -0.010976370146182801,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 10,
+     "medianMonthly": 8.334004078003332e-05,
+     "p10Monthly": -0.022353632667616807,
+     "probHalved": 0.0075,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 20,
+     "medianMonthly": -0.0023124775983228707,
+     "p10Monthly": -0.05119218860545638,
+     "probHalved": 0.2175,
+     "probRuin": 0.0
+    }
+   ],
+   "highestWinRate": [
+    {
+     "params": {
+      "tp_atr": 0.3,
+      "sl_atr": 6.0,
+      "rsi_entry": 5
+     },
+     "isWin": 0.9061371841155235,
+     "isPF": 0.9746051859128241,
+     "oosWin": 0.9164345403899722,
+     "oosPF": 1.0843193689372135,
+     "oosTrades": 359
+    },
+    {
+     "params": {
+      "tp_atr": 0.3,
+      "sl_atr": 6.0,
+      "rsi_entry": 10
+     },
+     "isWin": 0.8825082508250826,
+     "isPF": 0.7670222694444844,
+     "oosWin": 0.9155354449472096,
+     "oosPF": 1.1390723266802105,
+     "oosTrades": 663
+    },
+    {
+     "params": {
+      "tp_atr": 0.3,
+      "sl_atr": 3.0,
+      "rsi_entry": 5
+     },
+     "isWin": 0.8825622775800712,
+     "isPF": 0.911996983699227,
+     "oosWin": 0.8915989159891599,
+     "oosPF": 1.0895811585444022,
+     "oosTrades": 369
+    },
+    {
+     "params": {
+      "tp_atr": 0.3,
+      "sl_atr": 3.0,
+      "rsi_entry": 10
+     },
+     "isWin": 0.859493670886076,
+     "isPF": 0.7556985225079058,
+     "oosWin": 0.8896952104499274,
+     "oosPF": 1.0967015099186415,
+     "oosTrades": 689
+    },
+    {
+     "params": {
+      "tp_atr": 0.5,
+      "sl_atr": 6.0,
+      "rsi_entry": 5
+     },
+     "isWin": 0.8409387222946545,
+     "isPF": 0.89364620310097,
+     "oosWin": 0.8827160493827161,
+     "oosPF": 1.1301618608386528,
+     "oosTrades": 324
+    }
+   ],
+   "gridSize": 18
+  },
+  "asian_breakout": {
+   "label": "Asian-range breakout at London open",
+   "chosen": {
+    "rr": 2.0,
+    "buffer_atr": 0.2,
+    "sl_cap_atr": 2.0
+   },
+   "inSample": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2023-11-30",
+     "years": 7.09
+    },
+    "trades": 1117,
+    "winRate": 0.341987466427932,
+    "profitFactor": 0.8710412771505605,
+    "netProfit": -4630.83,
+    "totalReturn": -0.46308305714711984,
+    "cagr": -0.08392666127294035,
+    "maxDrawdown": 0.6665616686635913,
+    "avgR": -0.04945389435989256,
+    "expectancy": -4.145774907315308,
+    "tradesPerWeek": 3.0277274099067903,
+    "worstLosingStreak": 13,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 5369.17,
+    "medianMonth": -0.0014863073691389062,
+    "avgMonth": -0.00656012249765953,
+    "positiveMonths": 0.37209302325581395,
+    "bestMonth": 0.0947299336021068,
+    "worstMonth": -0.10409035361756769,
+    "monthsAbove30pct": 0
+   },
+   "outOfSample": {
+    "period": {
+     "start": "2023-11-30",
+     "end": "2026-09-30",
+     "years": 2.84
+    },
+    "trades": 431,
+    "winRate": 0.35962877030162416,
+    "profitFactor": 0.93098069975515,
+    "netProfit": -1678.96,
+    "totalReturn": -0.16789570090703965,
+    "cagr": -0.06274929518120342,
+    "maxDrawdown": 0.3763269308725995,
+    "avgR": -0.032825986078886295,
+    "expectancy": -3.8954919003953514,
+    "tradesPerWeek": 2.9223977896449944,
+    "worstLosingStreak": 10,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 8321.04,
+    "medianMonth": 0.0,
+    "avgMonth": -0.003964553660178269,
+    "positiveMonths": 0.4857142857142857,
+    "bestMonth": 0.09880279941990855,
+    "worstMonth": -0.08899206149223227,
+    "monthsAbove30pct": 0
+   },
+   "full": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2026-09-30",
+     "years": 9.93
+    },
+    "trades": 1548,
+    "winRate": 0.34689922480620156,
+    "profitFactor": 0.8888878098752203,
+    "netProfit": -5377.43,
+    "totalReturn": -0.5377433237664826,
+    "cagr": -0.07475781517538327,
+    "maxDrawdown": 0.6665616686635913,
+    "avgR": -0.04482428940568474,
+    "expectancy": -3.473794081178828,
+    "tradesPerWeek": 2.997611589490287,
+    "worstLosingStreak": 13,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 4622.57,
+    "medianMonth": -0.0014863073691389062,
+    "avgMonth": -0.005589589593841301,
+    "positiveMonths": 0.4,
+    "bestMonth": 0.09992689261292265,
+    "worstMonth": -0.10409035361756769,
+    "monthsAbove30pct": 0
+   },
+   "monthly": [
+    {
+     "month": "2016-10",
+     "return": -0.028444000000000025
+    },
+    {
+     "month": "2016-11",
+     "return": -0.0004971406691945957
+    },
+    {
+     "month": "2016-12",
+     "return": 0.0
+    },
+    {
+     "month": "2017-01",
+     "return": 0.0
+    },
+    {
+     "month": "2017-02",
+     "return": 0.0
+    },
+    {
+     "month": "2017-03",
+     "return": -0.014685816617288183
+    },
+    {
+     "month": "2017-04",
+     "return": -0.054609473961447
+    },
+    {
+     "month": "2017-05",
+     "return": -0.003265672519597973
+    },
+    {
+     "month": "2017-06",
+     "return": -0.0249077480543074
+    },
+    {
+     "month": "2017-07",
+     "return": -0.04501393391343911
+    },
+    {
+     "month": "2017-08",
+     "return": -0.03254618998160974
+    },
+    {
+     "month": "2017-09",
+     "return": -0.01219573752448444
+    },
+    {
+     "month": "2017-10",
+     "return": -0.08942287918538783
+    },
+    {
+     "month": "2017-11",
+     "return": -0.017348825686390734
+    },
+    {
+     "month": "2017-12",
+     "return": 0.0
+    },
+    {
+     "month": "2018-01",
+     "return": 0.0
+    },
+    {
+     "month": "2018-02",
+     "return": 0.0
+    },
+    {
+     "month": "2018-03",
+     "return": -0.06471037243600286
+    },
+    {
+     "month": "2018-04",
+     "return": -0.0384591899801181
+    },
+    {
+     "month": "2018-05",
+     "return": -0.10409035361756769
+    },
+    {
+     "month": "2018-06",
+     "return": 0.019824146491573824
+    },
+    {
+     "month": "2018-07",
+     "return": -0.008375953334700759
+    },
+    {
+     "month": "2018-08",
+     "return": 0.003485696506781766
+    },
+    {
+     "month": "2018-09",
+     "return": -0.001512774254217697
+    },
+    {
+     "month": "2018-10",
+     "return": -0.0012676736397247979
+    },
+    {
+     "month": "2018-11",
+     "return": -0.014209816013803112
+    },
+    {
+     "month": "2018-12",
+     "return": -0.07639692783319363
+    },
+    {
+     "month": "2019-01",
+     "return": 0.003529299187379209
+    },
+    {
+     "month": "2019-02",
+     "return": -0.019816845159746244
+    },
+    {
+     "month": "2019-03",
+     "return": -0.03556897581111251
+    },
+    {
+     "month": "2019-04",
+     "return": -0.050243076570108625
+    },
+    {
+     "month": "2019-05",
+     "return": 0.04865482851900982
+    },
+    {
+     "month": "2019-06",
+     "return": 0.019920049725654865
+    },
+    {
+     "month": "2019-07",
+     "return": -0.021228830554874012
+    },
+    {
+     "month": "2019-08",
+     "return": 0.024502129538822137
+    },
+    {
+     "month": "2019-09",
+     "return": -0.043643982229402134
+    },
+    {
+     "month": "2019-10",
+     "return": 0.00838931965703682
+    },
+    {
+     "month": "2019-11",
+     "return": -0.029959952724483263
+    },
+    {
+     "month": "2019-12",
+     "return": 0.040541073470836464
+    },
+    {
+     "month": "2020-01",
+     "return": 0.00413711937604111
+    },
+    {
+     "month": "2020-02",
+     "return": 0.008246107880783837
+    },
+    {
+     "month": "2020-03",
+     "return": 0.0016550419671357286
+    },
+    {
+     "month": "2020-04",
+     "return": -0.01579133718871706
+    },
+    {
+     "month": "2020-05",
+     "return": -0.028176163980557778
+    },
+    {
+     "month": "2020-06",
+     "return": 0.00601331814237005
+    },
+    {
+     "month": "2020-07",
+     "return": -0.0031992444468066372
+    },
+    {
+     "month": "2020-08",
+     "return": 0.0042800335511974374
+    },
+    {
+     "month": "2020-09",
+     "return": -0.008060036757198352
+    },
+    {
+     "month": "2020-10",
+     "return": -0.01078325815795278
+    },
+    {
+     "month": "2020-11",
+     "return": -6.035191409214935e-05
+    },
+    {
+     "month": "2020-12",
+     "return": -0.005042810820710564
+    },
+    {
+     "month": "2021-01",
+     "return": -0.022532595076381168
+    },
+    {
+     "month": "2021-02",
+     "return": 0.010190652077613382
+    },
+    {
+     "month": "2021-03",
+     "return": 0.045706732083049983
+    },
+    {
+     "month": "2021-04",
+     "return": -0.02354399761764403
+    },
+    {
+     "month": "2021-05",
+     "return": -0.012738404214046595
+    },
+    {
+     "month": "2021-06",
+     "return": -0.02743203458109089
+    },
+    {
+     "month": "2021-07",
+     "return": -0.06033754453742657
+    },
+    {
+     "month": "2021-08",
+     "return": -0.04271674546090043
+    },
+    {
+     "month": "2021-09",
+     "return": -0.06783390301961745
+    },
+    {
+     "month": "2021-10",
+     "return": 0.014664842258246491
+    },
+    {
+     "month": "2021-11",
+     "return": -0.061527013779897444
+    },
+    {
+     "month": "2021-12",
+     "return": -0.03871081223700046
+    },
+    {
+     "month": "2022-01",
+     "return": 0.009757058806970198
+    },
+    {
+     "month": "2022-02",
+     "return": -0.045595713361732515
+    },
+    {
+     "month": "2022-03",
+     "return": 0.0492841932459156
+    },
+    {
+     "month": "2022-04",
+     "return": 0.05092243320815237
+    },
+    {
+     "month": "2022-05",
+     "return": 0.029811525675156547
+    },
+    {
+     "month": "2022-06",
+     "return": 0.003315678865312366
+    },
+    {
+     "month": "2022-07",
+     "return": -0.0005665969316597241
+    },
+    {
+     "month": "2022-08",
+     "return": 0.05965979780774555
+    },
+    {
+     "month": "2022-09",
+     "return": 0.036994896921691334
+    },
+    {
+     "month": "2022-10",
+     "return": 0.059108332594089985
+    },
+    {
+     "month": "2022-11",
+     "return": 0.03439824019255622
+    },
+    {
+     "month": "2022-12",
+     "return": 0.0947299336021068
+    },
+    {
+     "month": "2023-01",
+     "return": -0.049020142170869585
+    },
+    {
+     "month": "2023-02",
+     "return": 0.033666008956861226
+    },
+    {
+     "month": "2023-03",
+     "return": -0.008732465763189645
+    },
+    {
+     "month": "2023-04",
+     "return": -0.061997355184358116
+    },
+    {
+     "month": "2023-05",
+     "return": 0.06282822861961912
+    },
+    {
+     "month": "2023-06",
+     "return": 0.018292096467815933
+    },
+    {
+     "month": "2023-07",
+     "return": 0.014765927386426903
+    },
+    {
+     "month": "2023-08",
+     "return": 0.0006651140874265327
+    },
+    {
+     "month": "2023-09",
+     "return": -0.0014863073691389062
+    },
+    {
+     "month": "2023-10",
+     "return": -0.004298658779646747
+    },
+    {
+     "month": "2023-11",
+     "return": 0.04649535533717186
+    },
+    {
+     "month": "2023-12",
+     "return": 0.02234237321597199
+    },
+    {
+     "month": "2024-01",
+     "return": 0.06236689602906109
+    },
+    {
+     "month": "2024-02",
+     "return": 0.04325153006017346
+    },
+    {
+     "month": "2024-03",
+     "return": -0.022254585621555245
+    },
+    {
+     "month": "2024-04",
+     "return": -0.03786964342753396
+    },
+    {
+     "month": "2024-05",
+     "return": -0.07171363471162184
+    },
+    {
+     "month": "2024-06",
+     "return": -0.027272795720379106
+    },
+    {
+     "month": "2024-07",
+     "return": 0.02627072234811023
+    },
+    {
+     "month": "2024-08",
+     "return": -0.07929495483162974
+    },
+    {
+     "month": "2024-09",
+     "return": -0.015402574263508773
+    },
+    {
+     "month": "2024-10",
+     "return": 0.0030076501641103093
+    },
+    {
+     "month": "2024-11",
+     "return": 0.02683837252706245
+    },
+    {
+     "month": "2024-12",
+     "return": 0.09992689261292265
+    },
+    {
+     "month": "2025-01",
+     "return": 0.05494618483334013
+    },
+    {
+     "month": "2025-02",
+     "return": -0.07190619735174963
+    },
+    {
+     "month": "2025-03",
+     "return": 0.06832216602625762
+    },
+    {
+     "month": "2025-04",
+     "return": 0.052246325168601615
+    },
+    {
+     "month": "2025-05",
+     "return": -0.08250563016098089
+    },
+    {
+     "month": "2025-06",
+     "return": -0.04616976246927229
+    },
+    {
+     "month": "2025-07",
+     "return": -0.052985232529989545
+    },
+    {
+     "month": "2025-08",
+     "return": 0.04801299509060941
+    },
+    {
+     "month": "2025-09",
+     "return": -0.0006069266463847311
+    },
+    {
+     "month": "2025-10",
+     "return": -0.05292116692931548
+    },
+    {
+     "month": "2025-11",
+     "return": -0.06879422406113589
+    },
+    {
+     "month": "2025-12",
+     "return": 0.013432091017452352
+    },
+    {
+     "month": "2026-01",
+     "return": -0.0859191725887779
+    },
+    {
+     "month": "2026-02",
+     "return": -0.03835740178355085
+    },
+    {
+     "month": "2026-03",
+     "return": 0.045530710541314745
+    },
+    {
+     "month": "2026-04",
+     "return": 0.06003312947165962
+    },
+    {
+     "month": "2026-05",
+     "return": -0.005526703202353711
+    },
+    {
+     "month": "2026-06",
+     "return": -0.009112921661277085
+    },
+    {
+     "month": "2026-07",
+     "return": 0.01814484066988764
+    },
+    {
+     "month": "2026-08",
+     "return": 0.03131792222877294
+    },
+    {
+     "month": "2026-09",
+     "return": -0.013957601890961069
+    }
+   ],
+   "capitals": {
+    "100": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 259,
+     "winRate": 0.2857142857142857,
+     "profitFactor": 0.7363924209679852,
+     "netProfit": -52.52,
+     "totalReturn": -0.5251549600811469,
+     "cagr": -0.07225118961471655,
+     "maxDrawdown": 0.6331162423524768,
+     "avgR": -0.1506177606177606,
+     "expectancy": -0.20276253284986367,
+     "tradesPerWeek": 0.5015383731769925,
+     "worstLosingStreak": 9,
+     "skippedMinSize": 1435,
+     "blown": false,
+     "finalEquity": 47.48,
+     "medianMonth": 0.0,
+     "avgMonth": -0.0054429725291470655,
+     "positiveMonths": 0.075,
+     "bestMonth": 0.17523364485981308,
+     "worstMonth": -0.21128772995177714,
+     "monthsAbove30pct": 0
+    },
+    "1000": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 1475,
+     "winRate": 0.3383050847457627,
+     "profitFactor": 0.8863845116000392,
+     "netProfit": -775.59,
+     "totalReturn": -0.775589809316308,
+     "cagr": -0.13969339718008278,
+     "maxDrawdown": 0.7793477085238391,
+     "avgR": -0.05885491525423727,
+     "expectancy": -0.52582359953648,
+     "tradesPerWeek": 2.8562513530349953,
+     "worstLosingStreak": 13,
+     "skippedMinSize": 89,
+     "blown": false,
+     "finalEquity": 224.41,
+     "medianMonth": -0.008597780209473216,
+     "avgMonth": -0.009973726809933485,
+     "positiveMonths": 0.375,
+     "bestMonth": 0.16387831072696923,
+     "worstMonth": -0.25490300151269873,
+     "monthsAbove30pct": 0
+    }
+   },
+   "riskSimulation": [
+    {
+     "riskPct": 0.5,
+     "medianMonthly": -0.003047156969796627,
+     "p10Monthly": -0.011775654577833583,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 1,
+     "medianMonthly": -0.006976483358166474,
+     "p10Monthly": -0.02331063596336347,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 2,
+     "medianMonthly": -0.015863864047960696,
+     "p10Monthly": -0.047444641875079796,
+     "probHalved": 0.1235,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 3,
+     "medianMonthly": -0.027647040113784827,
+     "p10Monthly": -0.07510692180183343,
+     "probHalved": 0.4735,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 5,
+     "medianMonthly": -0.05570717111076284,
+     "p10Monthly": -0.12972436984629931,
+     "probHalved": 0.877,
+     "probRuin": 0.0245
+    },
+    {
+     "riskPct": 10,
+     "medianMonthly": -1.0,
+     "p10Monthly": -1.0,
+     "probHalved": 1.0,
+     "probRuin": 0.5275
+    },
+    {
+     "riskPct": 20,
+     "medianMonthly": -1.0,
+     "p10Monthly": -1.0,
+     "probHalved": 1.0,
+     "probRuin": 0.9495
+    }
+   ],
+   "highestWinRate": [
+    {
+     "params": {
+      "rr": 1.0,
+      "buffer_atr": 0.2,
+      "sl_cap_atr": 2.0
+     },
+     "isWin": 0.47153024911032027,
+     "isPF": 0.867172299360434,
+     "oosWin": 0.4791666666666667,
+     "oosPF": 0.8912949427328823,
+     "oosTrades": 432
+    },
+    {
+     "params": {
+      "rr": 1.0,
+      "buffer_atr": 0.2,
+      "sl_cap_atr": 3.0
+     },
+     "isWin": 0.46482635796972394,
+     "isPF": 0.8395064362171786,
+     "oosWin": 0.4791666666666667,
+     "oosPF": 0.8827867278232183,
+     "oosTrades": 432
+    },
+    {
+     "params": {
+      "rr": 1.0,
+      "buffer_atr": 0.0,
+      "sl_cap_atr": 2.0
+     },
+     "isWin": 0.44900953778429936,
+     "isPF": 0.7773927147255771,
+     "oosWin": 0.4612546125461255,
+     "oosPF": 0.8392189311492577,
+     "oosTrades": 542
+    },
+    {
+     "params": {
+      "rr": 1.0,
+      "buffer_atr": 0.0,
+      "sl_cap_atr": 3.0
+     },
+     "isWin": 0.4412628487518355,
+     "isPF": 0.7428949827193643,
+     "oosWin": 0.45387453874538747,
+     "oosPF": 0.8240270387616351,
+     "oosTrades": 542
+    },
+    {
+     "params": {
+      "rr": 1.5,
+      "buffer_atr": 0.2,
+      "sl_cap_atr": 3.0
+     },
+     "isWin": 0.38227394807520143,
+     "isPF": 0.8144366975100067,
+     "oosWin": 0.41067285382830626,
+     "oosPF": 0.9410560963855873,
+     "oosTrades": 431
+    }
+   ],
+   "gridSize": 12
+  },
+  "trend_pullback": {
+   "label": "Trend pullback (EMA 20/50/200)",
+   "chosen": {
+    "sl_atr": 2.0,
+    "tp_atr": 2.0,
+    "rsi_max_long": 65
+   },
+   "inSample": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2023-11-30",
+     "years": 7.09
+    },
+    "trades": 1788,
+    "winRate": 0.49272930648769575,
+    "profitFactor": 0.9619068486344223,
+    "netProfit": -2208.09,
+    "totalReturn": -0.22080886916937537,
+    "cagr": -0.034555847702479436,
+    "maxDrawdown": 0.35309503382405416,
+    "avgR": -0.009615212527964205,
+    "expectancy": -1.2349489327146272,
+    "tradesPerWeek": 4.8465323266905465,
+    "worstLosingStreak": 10,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 7791.91,
+    "medianMonth": 0.002655738570704669,
+    "avgMonth": -0.0023071803658289993,
+    "positiveMonths": 0.5232558139534884,
+    "bestMonth": 0.0880974707380826,
+    "worstMonth": -0.08653058978116246,
+    "monthsAbove30pct": 0
+   },
+   "outOfSample": {
+    "period": {
+     "start": "2023-11-30",
+     "end": "2026-09-30",
+     "years": 2.84
+    },
+    "trades": 769,
+    "winRate": 0.47464239271781533,
+    "profitFactor": 0.9359453669246878,
+    "netProfit": -1853.18,
+    "totalReturn": -0.18531799051705888,
+    "cagr": -0.06971582174393554,
+    "maxDrawdown": 0.27293572621485235,
+    "avgR": -0.02613394018205462,
+    "expectancy": -2.4098568337718977,
+    "tradesPerWeek": 5.21420858523666,
+    "worstLosingStreak": 11,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 8146.82,
+    "medianMonth": -0.0037285822547693526,
+    "avgMonth": -0.005132087467751858,
+    "positiveMonths": 0.45714285714285713,
+    "bestMonth": 0.07212957493322825,
+    "worstMonth": -0.0816932160215742,
+    "monthsAbove30pct": 0
+   },
+   "full": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2026-09-30",
+     "years": 9.93
+    },
+    "trades": 2557,
+    "winRate": 0.4872897927258506,
+    "profitFactor": 0.955748191242114,
+    "netProfit": -3544.98,
+    "totalReturn": -0.35449815217995495,
+    "cagr": -0.043119653187957296,
+    "maxDrawdown": 0.3915210195048249,
+    "avgR": -0.0145831052014079,
+    "expectancy": -1.3863830746185175,
+    "tradesPerWeek": 4.951481159125751,
+    "worstLosingStreak": 11,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 6455.02,
+    "medianMonth": 0.0020678456040785775,
+    "avgMonth": -0.003025172487294699,
+    "positiveMonths": 0.5083333333333333,
+    "bestMonth": 0.0880974707380826,
+    "worstMonth": -0.08653058978116246,
+    "monthsAbove30pct": 0
+   },
+   "monthly": [
+    {
+     "month": "2016-10",
+     "return": 0.005654999999999966
+    },
+    {
+     "month": "2016-11",
+     "return": 0.02838746886357657
+    },
+    {
+     "month": "2016-12",
+     "return": -0.06460627168940714
+    },
+    {
+     "month": "2017-01",
+     "return": -0.053646575775775474
+    },
+    {
+     "month": "2017-02",
+     "return": 0.07626516947208617
+    },
+    {
+     "month": "2017-03",
+     "return": -0.046695963706853694
+    },
+    {
+     "month": "2017-04",
+     "return": -0.03294687533269447
+    },
+    {
+     "month": "2017-05",
+     "return": 0.04308126906610088
+    },
+    {
+     "month": "2017-06",
+     "return": 0.029252147261278783
+    },
+    {
+     "month": "2017-07",
+     "return": 0.03919598196066043
+    },
+    {
+     "month": "2017-08",
+     "return": 0.00403285489024352
+    },
+    {
+     "month": "2017-09",
+     "return": -0.08653058978116246
+    },
+    {
+     "month": "2017-10",
+     "return": 0.007672138978575882
+    },
+    {
+     "month": "2017-11",
+     "return": -0.005166570930110859
+    },
+    {
+     "month": "2017-12",
+     "return": -0.019906435033093306
+    },
+    {
+     "month": "2018-01",
+     "return": 0.0324963234126614
+    },
+    {
+     "month": "2018-02",
+     "return": -0.03941405491856409
+    },
+    {
+     "month": "2018-03",
+     "return": -0.008603062301539954
+    },
+    {
+     "month": "2018-04",
+     "return": -0.008722264046720607
+    },
+    {
+     "month": "2018-05",
+     "return": -0.04148972025615094
+    },
+    {
+     "month": "2018-06",
+     "return": 0.019254075975479568
+    },
+    {
+     "month": "2018-07",
+     "return": -0.05969316821470172
+    },
+    {
+     "month": "2018-08",
+     "return": 0.030150864388373
+    },
+    {
+     "month": "2018-09",
+     "return": 0.012817834086392477
+    },
+    {
+     "month": "2018-10",
+     "return": 0.0078088095843702465
+    },
+    {
+     "month": "2018-11",
+     "return": -0.08173984445237914
+    },
+    {
+     "month": "2018-12",
+     "return": -0.013159877951314791
+    },
+    {
+     "month": "2019-01",
+     "return": 0.02069998498326986
+    },
+    {
+     "month": "2019-02",
+     "return": 0.002655738570704669
+    },
+    {
+     "month": "2019-03",
+     "return": -0.03504516718064732
+    },
+    {
+     "month": "2019-04",
+     "return": 0.042678512711407324
+    },
+    {
+     "month": "2019-05",
+     "return": -0.00028419537185342403
+    },
+    {
+     "month": "2019-06",
+     "return": -0.05120087975991128
+    },
+    {
+     "month": "2019-07",
+     "return": -0.02681044769058527
+    },
+    {
+     "month": "2019-08",
+     "return": -0.05945015326032643
+    },
+    {
+     "month": "2019-09",
+     "return": -0.010998603101316173
+    },
+    {
+     "month": "2019-10",
+     "return": 0.03840135175545312
+    },
+    {
+     "month": "2019-11",
+     "return": 0.026528792064149043
+    },
+    {
+     "month": "2019-12",
+     "return": -0.0021244346756764676
+    },
+    {
+     "month": "2020-01",
+     "return": -0.021391928794559645
+    },
+    {
+     "month": "2020-02",
+     "return": -0.029058205662424452
+    },
+    {
+     "month": "2020-03",
+     "return": -0.006362739338820922
+    },
+    {
+     "month": "2020-04",
+     "return": 0.009180252988171711
+    },
+    {
+     "month": "2020-05",
+     "return": 0.022562098767907823
+    },
+    {
+     "month": "2020-06",
+     "return": -0.0009917160890526855
+    },
+    {
+     "month": "2020-07",
+     "return": 0.045057108324943806
+    },
+    {
+     "month": "2020-08",
+     "return": 0.027243905809555713
+    },
+    {
+     "month": "2020-09",
+     "return": 0.022378459002647455
+    },
+    {
+     "month": "2020-10",
+     "return": 0.0037852221758063465
+    },
+    {
+     "month": "2020-11",
+     "return": 0.007496080148241768
+    },
+    {
+     "month": "2020-12",
+     "return": -0.04001723018465608
+    },
+    {
+     "month": "2021-01",
+     "return": -0.03002414616654936
+    },
+    {
+     "month": "2021-02",
+     "return": -0.00300757795690898
+    },
+    {
+     "month": "2021-03",
+     "return": 0.005544813660243841
+    },
+    {
+     "month": "2021-04",
+     "return": 0.01031534676777679
+    },
+    {
+     "month": "2021-05",
+     "return": 0.03110153907146751
+    },
+    {
+     "month": "2021-06",
+     "return": 0.030438792476358723
+    },
+    {
+     "month": "2021-07",
+     "return": 0.009787298950046264
+    },
+    {
+     "month": "2021-08",
+     "return": -0.009360366624762584
+    },
+    {
+     "month": "2021-09",
+     "return": 0.0422600527510304
+    },
+    {
+     "month": "2021-10",
+     "return": 0.02819941141905069
+    },
+    {
+     "month": "2021-11",
+     "return": -0.04926169777174649
+    },
+    {
+     "month": "2021-12",
+     "return": -0.02728616396930139
+    },
+    {
+     "month": "2022-01",
+     "return": 0.008172228410414428
+    },
+    {
+     "month": "2022-02",
+     "return": -0.018478415782643087
+    },
+    {
+     "month": "2022-03",
+     "return": 0.057325691963711956
+    },
+    {
+     "month": "2022-04",
+     "return": 0.002660324343243703
+    },
+    {
+     "month": "2022-05",
+     "return": 0.01823589944983217
+    },
+    {
+     "month": "2022-06",
+     "return": -0.049224703773274925
+    },
+    {
+     "month": "2022-07",
+     "return": 0.0013133612281741591
+    },
+    {
+     "month": "2022-08",
+     "return": 0.006800764726550224
+    },
+    {
+     "month": "2022-09",
+     "return": 0.03429450001366119
+    },
+    {
+     "month": "2022-10",
+     "return": -0.03882970548116271
+    },
+    {
+     "month": "2022-11",
+     "return": -0.06041390269314073
+    },
+    {
+     "month": "2022-12",
+     "return": 0.040738288406872325
+    },
+    {
+     "month": "2023-01",
+     "return": 0.0880974707380826
+    },
+    {
+     "month": "2023-02",
+     "return": -0.020078265433236653
+    },
+    {
+     "month": "2023-03",
+     "return": 0.006186078388145111
+    },
+    {
+     "month": "2023-04",
+     "return": 0.010875480334707088
+    },
+    {
+     "month": "2023-05",
+     "return": -0.009198833330192113
+    },
+    {
+     "month": "2023-06",
+     "return": 0.03041363542871678
+    },
+    {
+     "month": "2023-07",
+     "return": -0.043616819971292964
+    },
+    {
+     "month": "2023-08",
+     "return": 0.0020678456040785775
+    },
+    {
+     "month": "2023-09",
+     "return": -0.015773011187147468
+    },
+    {
+     "month": "2023-10",
+     "return": -0.01712671025510859
+    },
+    {
+     "month": "2023-11",
+     "return": -0.039621951128446464
+    },
+    {
+     "month": "2023-12",
+     "return": 0.0714370874143726
+    },
+    {
+     "month": "2024-01",
+     "return": -0.009088237179525893
+    },
+    {
+     "month": "2024-02",
+     "return": -0.01017492423123545
+    },
+    {
+     "month": "2024-03",
+     "return": -0.012423961042404286
+    },
+    {
+     "month": "2024-04",
+     "return": -0.006042269665783473
+    },
+    {
+     "month": "2024-05",
+     "return": -0.03794633042678619
+    },
+    {
+     "month": "2024-06",
+     "return": 0.024001943033090223
+    },
+    {
+     "month": "2024-07",
+     "return": 0.04227907890139426
+    },
+    {
+     "month": "2024-08",
+     "return": 0.011269359845060167
+    },
+    {
+     "month": "2024-09",
+     "return": -0.08015389082462254
+    },
+    {
+     "month": "2024-10",
+     "return": -0.06826312494410158
+    },
+    {
+     "month": "2024-11",
+     "return": -0.03167952885841052
+    },
+    {
+     "month": "2024-12",
+     "return": 0.02001851406412869
+    },
+    {
+     "month": "2025-01",
+     "return": 0.016675789663239904
+    },
+    {
+     "month": "2025-02",
+     "return": 0.0034286196256492207
+    },
+    {
+     "month": "2025-03",
+     "return": 0.05340681755776089
+    },
+    {
+     "month": "2025-04",
+     "return": -0.004407348595473537
+    },
+    {
+     "month": "2025-05",
+     "return": 0.039450342767682
+    },
+    {
+     "month": "2025-06",
+     "return": 0.013004003109960305
+    },
+    {
+     "month": "2025-07",
+     "return": -0.02566018491266886
+    },
+    {
+     "month": "2025-08",
+     "return": 0.007228818403280046
+    },
+    {
+     "month": "2025-09",
+     "return": 0.023610728694435812
+    },
+    {
+     "month": "2025-10",
+     "return": -0.002280723466699719
+    },
+    {
+     "month": "2025-11",
+     "return": -0.01375739195593173
+    },
+    {
+     "month": "2025-12",
+     "return": -0.0561539774557579
+    },
+    {
+     "month": "2026-01",
+     "return": -0.019754563687663595
+    },
+    {
+     "month": "2026-02",
+     "return": 0.01394790101775989
+    },
+    {
+     "month": "2026-03",
+     "return": -0.0728050542306472
+    },
+    {
+     "month": "2026-04",
+     "return": 0.015233092580433372
+    },
+    {
+     "month": "2026-05",
+     "return": 0.0508459303635298
+    },
+    {
+     "month": "2026-06",
+     "return": -0.0159312572955449
+    },
+    {
+     "month": "2026-07",
+     "return": 0.009228066476933305
+    },
+    {
+     "month": "2026-08",
+     "return": -0.049174826031798236
+    },
+    {
+     "month": "2026-09",
+     "return": -0.05459621953802751
+    }
+   ],
+   "capitals": {
+    "100": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 456,
+     "winRate": 0.5021929824561403,
+     "profitFactor": 0.9184794199189592,
+     "netProfit": -45.81,
+     "totalReturn": -0.45809581659264287,
+     "cagr": -0.05982794937040481,
+     "maxDrawdown": 0.5835638730675345,
+     "avgR": -0.026655701754385964,
+     "expectancy": -0.10045960890189537,
+     "tradesPerWeek": 0.8830173674467511,
+     "worstLosingStreak": 9,
+     "skippedMinSize": 4273,
+     "blown": false,
+     "finalEquity": 54.19,
+     "medianMonth": 0.0,
+     "avgMonth": -0.003281543309659818,
+     "positiveMonths": 0.15,
+     "bestMonth": 0.21881811576652943,
+     "worstMonth": -0.2159130434782609,
+     "monthsAbove30pct": 0
+    },
+    "1000": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 2541,
+     "winRate": 0.48760330578512395,
+     "profitFactor": 0.9533912994725113,
+     "netProfit": -498.96,
+     "totalReturn": -0.4989602832445935,
+     "cagr": -0.06722126312543497,
+     "maxDrawdown": 0.5338328574439952,
+     "avgR": -0.013473435655253836,
+     "expectancy": -0.19636374783337013,
+     "tradesPerWeek": 4.920498093601304,
+     "worstLosingStreak": 11,
+     "skippedMinSize": 28,
+     "blown": false,
+     "finalEquity": 501.04,
+     "medianMonth": -0.0024124735578637813,
+     "avgMonth": -0.004221203281721166,
+     "positiveMonths": 0.4583333333333333,
+     "bestMonth": 0.16389887406791237,
+     "worstMonth": -0.24855972429936923,
+     "monthsAbove30pct": 0
+    }
+   },
+   "riskSimulation": [
+    {
+     "riskPct": 0.5,
+     "medianMonthly": -0.0018147033536750623,
+     "p10Monthly": -0.00906925165205219,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 1,
+     "medianMonthly": -0.0041889764949930575,
+     "p10Monthly": -0.019283620280328928,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 2,
+     "medianMonthly": -0.010418698928705172,
+     "p10Monthly": -0.0377014626151595,
+     "probHalved": 0.054,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 3,
+     "medianMonthly": -0.017929471568765676,
+     "p10Monthly": -0.06034846550883122,
+     "probHalved": 0.3225,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 5,
+     "medianMonthly": -0.0358508597110907,
+     "p10Monthly": -0.1051461666562572,
+     "probHalved": 0.761,
+     "probRuin": 0.0075
+    },
+    {
+     "riskPct": 10,
+     "medianMonthly": -0.11216446398776359,
+     "p10Monthly": -1.0,
+     "probHalved": 0.996,
+     "probRuin": 0.3545
+    },
+    {
+     "riskPct": 20,
+     "medianMonthly": -1.0,
+     "p10Monthly": -1.0,
+     "probHalved": 1.0,
+     "probRuin": 0.9055
+    }
+   ],
+   "highestWinRate": [
+    {
+     "params": {
+      "sl_atr": 2.0,
+      "tp_atr": 1.0,
+      "rsi_max_long": 65
+     },
+     "isWin": 0.6149802890932983,
+     "isPF": 0.9156823742821919,
+     "oosWin": 0.5881104033970276,
+     "oosPF": 0.856163108177377,
+     "oosTrades": 942
+    },
+    {
+     "params": {
+      "sl_atr": 2.0,
+      "tp_atr": 1.0,
+      "rsi_max_long": 55
+     },
+     "isWin": 0.5898791540785498,
+     "isPF": 0.8369533623766443,
+     "oosWin": 0.5716911764705882,
+     "oosPF": 0.8019818001250002,
+     "oosTrades": 544
+    },
+    {
+     "params": {
+      "sl_atr": 1.5,
+      "tp_atr": 1.0,
+      "rsi_max_long": 65
+     },
+     "isWin": 0.5540154912352222,
+     "isPF": 0.8788557764040129,
+     "oosWin": 0.5343283582089552,
+     "oosPF": 0.8368281188183923,
+     "oosTrades": 1005
+    },
+    {
+     "params": {
+      "sl_atr": 1.5,
+      "tp_atr": 1.0,
+      "rsi_max_long": 55
+     },
+     "isWin": 0.5300429184549357,
+     "isPF": 0.8095339612379433,
+     "oosWin": 0.5280701754385965,
+     "oosPF": 0.8381289222957166,
+     "oosTrades": 570
+    },
+    {
+     "params": {
+      "sl_atr": 2.0,
+      "tp_atr": 2.0,
+      "rsi_max_long": 65
+     },
+     "isWin": 0.49272930648769575,
+     "isPF": 0.9619068486344223,
+     "oosWin": 0.47464239271781533,
+     "oosPF": 0.9359453669246878,
+     "oosTrades": 769
+    }
+   ],
+   "gridSize": 18
+  },
+  "asia_session_drift": {
+   "label": "Asian-hours drift (long from the 18:00 New York reopen, ~9 hours)",
+   "chosen": {
+    "sl_atr": 5.0,
+    "trend_filter": 1,
+    "max_bars": 14
+   },
+   "inSample": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2023-11-30",
+     "years": 7.09
+    },
+    "trades": 840,
+    "winRate": 0.5333333333333333,
+    "profitFactor": 1.0784572417456266,
+    "netProfit": 869.99,
+    "totalReturn": 0.08699858488886103,
+    "cagr": 0.011827541297441346,
+    "maxDrawdown": 0.09249377854192553,
+    "avgR": 0.01057857142857143,
+    "expectancy": 1.0356974391531064,
+    "tradesPerWeek": 2.2768943816667,
+    "worstLosingStreak": 9,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 10869.99,
+    "medianMonth": 0.0,
+    "avgMonth": 0.0010220488141159442,
+    "positiveMonths": 0.47674418604651164,
+    "bestMonth": 0.03915187591426439,
+    "worstMonth": -0.027236554317723982,
+    "monthsAbove30pct": 0
+   },
+   "outOfSample": {
+    "period": {
+     "start": "2023-11-30",
+     "end": "2026-09-30",
+     "years": 2.84
+    },
+    "trades": 369,
+    "winRate": 0.5365853658536586,
+    "profitFactor": 1.1008789655669553,
+    "netProfit": 426.81,
+    "totalReturn": 0.04268054767191498,
+    "cagr": 0.014845403873539942,
+    "maxDrawdown": 0.053885902624892665,
+    "avgR": 0.015547425474254743,
+    "expectancy": 1.1566544084529804,
+    "tradesPerWeek": 2.502006460276109,
+    "worstLosingStreak": 10,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 10426.81,
+    "medianMonth": 0.0033855304916288187,
+    "avgMonth": 0.0012527930129131448,
+    "positiveMonths": 0.6571428571428571,
+    "bestMonth": 0.024927597626904552,
+    "worstMonth": -0.024977699359863603,
+    "monthsAbove30pct": 0
+   },
+   "full": {
+    "period": {
+     "start": "2016-10-25",
+     "end": "2026-09-30",
+     "years": 9.93
+    },
+    "trades": 1209,
+    "winRate": 0.5343258891645989,
+    "profitFactor": 1.0834766767391053,
+    "netProfit": 1322.39,
+    "totalReturn": 0.13223943621446788,
+    "cagr": 0.012584587778199818,
+    "maxDrawdown": 0.09249377854192553,
+    "avgR": 0.012095947063689,
+    "expectancy": 1.0937918628161123,
+    "tradesPerWeek": 2.341157888691057,
+    "worstLosingStreak": 10,
+    "skippedMinSize": 0,
+    "blown": false,
+    "finalEquity": 11322.39,
+    "medianMonth": 0.000465036460459034,
+    "avgMonth": 0.0010900982494255224,
+    "positiveMonths": 0.525,
+    "bestMonth": 0.03956908122411673,
+    "worstMonth": -0.027236554317723982,
+    "monthsAbove30pct": 0
+   },
+   "monthly": [
+    {
+     "month": "2016-10",
+     "return": -0.009043000000000023
+    },
+    {
+     "month": "2016-11",
+     "return": 0.007143599570919923
+    },
+    {
+     "month": "2016-12",
+     "return": -0.005702199119069884
+    },
+    {
+     "month": "2017-01",
+     "return": 0.025883135401498336
+    },
+    {
+     "month": "2017-02",
+     "return": 0.013527106273881984
+    },
+    {
+     "month": "2017-03",
+     "return": -0.006032170932185554
+    },
+    {
+     "month": "2017-04",
+     "return": -0.009363509517081647
+    },
+    {
+     "month": "2017-05",
+     "return": 0.00859569240945146
+    },
+    {
+     "month": "2017-06",
+     "return": -0.022742110671635785
+    },
+    {
+     "month": "2017-07",
+     "return": 0.015407383441032207
+    },
+    {
+     "month": "2017-08",
+     "return": -0.027236554317723982
+    },
+    {
+     "month": "2017-09",
+     "return": -0.0019067126191821826
+    },
+    {
+     "month": "2017-10",
+     "return": 0.0
+    },
+    {
+     "month": "2017-11",
+     "return": 0.0
+    },
+    {
+     "month": "2017-12",
+     "return": 0.0
+    },
+    {
+     "month": "2018-01",
+     "return": 0.0
+    },
+    {
+     "month": "2018-02",
+     "return": 0.0
+    },
+    {
+     "month": "2018-03",
+     "return": 0.0
+    },
+    {
+     "month": "2018-04",
+     "return": 0.0043788256481887
+    },
+    {
+     "month": "2018-05",
+     "return": -0.019221964270947023
+    },
+    {
+     "month": "2018-06",
+     "return": -0.010061551813135727
+    },
+    {
+     "month": "2018-07",
+     "return": 0.0053358733350712395
+    },
+    {
+     "month": "2018-08",
+     "return": -0.011183366292441321
+    },
+    {
+     "month": "2018-09",
+     "return": 7.94113528979068e-05
+    },
+    {
+     "month": "2018-10",
+     "return": -0.003968162755271454
+    },
+    {
+     "month": "2018-11",
+     "return": 0.004046909746989513
+    },
+    {
+     "month": "2018-12",
+     "return": 0.0014386038960358949
+    },
+    {
+     "month": "2019-01",
+     "return": 0.006497279759638319
+    },
+    {
+     "month": "2019-02",
+     "return": -0.0006840916558439325
+    },
+    {
+     "month": "2019-03",
+     "return": 0.016279043234110224
+    },
+    {
+     "month": "2019-04",
+     "return": 0.020529322792600224
+    },
+    {
+     "month": "2019-05",
+     "return": -0.005316356195865124
+    },
+    {
+     "month": "2019-06",
+     "return": 0.025985882002821148
+    },
+    {
+     "month": "2019-07",
+     "return": 0.0035562288882595716
+    },
+    {
+     "month": "2019-08",
+     "return": 0.002408963257207297
+    },
+    {
+     "month": "2019-09",
+     "return": 0.010679366699819504
+    },
+    {
+     "month": "2019-10",
+     "return": 0.0036895603177571346
+    },
+    {
+     "month": "2019-11",
+     "return": 0.00743938157199775
+    },
+    {
+     "month": "2019-12",
+     "return": 0.01106951978701698
+    },
+    {
+     "month": "2020-01",
+     "return": 0.0023531408207708715
+    },
+    {
+     "month": "2020-02",
+     "return": 0.00398511671303603
+    },
+    {
+     "month": "2020-03",
+     "return": -0.008860426271004584
+    },
+    {
+     "month": "2020-04",
+     "return": 0.00953699721640655
+    },
+    {
+     "month": "2020-05",
+     "return": 0.012538445333895032
+    },
+    {
+     "month": "2020-06",
+     "return": 0.005754220886998729
+    },
+    {
+     "month": "2020-07",
+     "return": -0.00666274398036204
+    },
+    {
+     "month": "2020-08",
+     "return": -0.002585976307866389
+    },
+    {
+     "month": "2020-09",
+     "return": 0.0054321954551064255
+    },
+    {
+     "month": "2020-10",
+     "return": -0.0008361767341670268
+    },
+    {
+     "month": "2020-11",
+     "return": 0.004504908105232186
+    },
+    {
+     "month": "2020-12",
+     "return": 0.013386067161145876
+    },
+    {
+     "month": "2021-01",
+     "return": -0.00872207769109934
+    },
+    {
+     "month": "2021-02",
+     "return": -0.001628496025792403
+    },
+    {
+     "month": "2021-03",
+     "return": -0.01640229589965525
+    },
+    {
+     "month": "2021-04",
+     "return": 0.012535993907253351
+    },
+    {
+     "month": "2021-05",
+     "return": 0.0024001126865333955
+    },
+    {
+     "month": "2021-06",
+     "return": -0.00305747764064479
+    },
+    {
+     "month": "2021-07",
+     "return": -0.0022856311096413062
+    },
+    {
+     "month": "2021-08",
+     "return": -0.008941861281112629
+    },
+    {
+     "month": "2021-09",
+     "return": -0.0006978399570676252
+    },
+    {
+     "month": "2021-10",
+     "return": 0.011861307913847652
+    },
+    {
+     "month": "2021-11",
+     "return": 0.00841161538213453
+    },
+    {
+     "month": "2021-12",
+     "return": 0.0020887890688532362
+    },
+    {
+     "month": "2022-01",
+     "return": 0.0020552566791283144
+    },
+    {
+     "month": "2022-02",
+     "return": -0.007951197229365436
+    },
+    {
+     "month": "2022-03",
+     "return": 0.0020638112080542115
+    },
+    {
+     "month": "2022-04",
+     "return": -0.0023149461859681697
+    },
+    {
+     "month": "2022-05",
+     "return": -0.00294512435122396
+    },
+    {
+     "month": "2022-06",
+     "return": -0.007453573896664012
+    },
+    {
+     "month": "2022-07",
+     "return": -0.0018263959644994054
+    },
+    {
+     "month": "2022-08",
+     "return": -0.0032294407596848984
+    },
+    {
+     "month": "2022-09",
+     "return": -0.007834659609757932
+    },
+    {
+     "month": "2022-10",
+     "return": -0.006000345613896618
+    },
+    {
+     "month": "2022-11",
+     "return": 0.010371481779280378
+    },
+    {
+     "month": "2022-12",
+     "return": 0.00981802199446391
+    },
+    {
+     "month": "2023-01",
+     "return": -0.008446473104359087
+    },
+    {
+     "month": "2023-02",
+     "return": -0.001684819255504011
+    },
+    {
+     "month": "2023-03",
+     "return": 0.007568287658545669
+    },
+    {
+     "month": "2023-04",
+     "return": -0.005565335591407483
+    },
+    {
+     "month": "2023-05",
+     "return": 0.0009010018393509345
+    },
+    {
+     "month": "2023-06",
+     "return": -0.0006501895997650387
+    },
+    {
+     "month": "2023-07",
+     "return": 0.0009045102296467711
+    },
+    {
+     "month": "2023-08",
+     "return": -0.0061980831266840175
+    },
+    {
+     "month": "2023-09",
+     "return": -0.007856451777883411
+    },
+    {
+     "month": "2023-10",
+     "return": -0.010598260201712062
+    },
+    {
+     "month": "2023-11",
+     "return": 0.03956908122411673
+    },
+    {
+     "month": "2023-12",
+     "return": 0.010102672803431911
+    },
+    {
+     "month": "2024-01",
+     "return": 0.0025172497612482303
+    },
+    {
+     "month": "2024-02",
+     "return": -0.0018598129652939166
+    },
+    {
+     "month": "2024-03",
+     "return": 0.007191999548737282
+    },
+    {
+     "month": "2024-04",
+     "return": -0.02296658756705927
+    },
+    {
+     "month": "2024-05",
+     "return": 0.00967624429327163
+    },
+    {
+     "month": "2024-06",
+     "return": 0.006114914237366431
+    },
+    {
+     "month": "2024-07",
+     "return": -0.006955100376605627
+    },
+    {
+     "month": "2024-08",
+     "return": 0.007243932839650968
+    },
+    {
+     "month": "2024-09",
+     "return": 0.023310682933220805
+    },
+    {
+     "month": "2024-10",
+     "return": 0.000465036460459034
+    },
+    {
+     "month": "2024-11",
+     "return": 0.006671904412326679
+    },
+    {
+     "month": "2024-12",
+     "return": 0.006261295184047055
+    },
+    {
+     "month": "2025-01",
+     "return": 0.004149978284997413
+    },
+    {
+     "month": "2025-02",
+     "return": -0.011162128274916028
+    },
+    {
+     "month": "2025-03",
+     "return": 7.0688862969792154e-06
+    },
+    {
+     "month": "2025-04",
+     "return": -0.01366229341325842
+    },
+    {
+     "month": "2025-05",
+     "return": -0.0003887962188223737
+    },
+    {
+     "month": "2025-06",
+     "return": 0.009177904917586188
+    },
+    {
+     "month": "2025-07",
+     "return": 0.012965411656260306
+    },
+    {
+     "month": "2025-08",
+     "return": 0.008033853698649951
+    },
+    {
+     "month": "2025-09",
+     "return": 0.01951841869760651
+    },
+    {
+     "month": "2025-10",
+     "return": 0.012749513768041787
+    },
+    {
+     "month": "2025-11",
+     "return": -0.010377131228595071
+    },
+    {
+     "month": "2025-12",
+     "return": -0.013407030009209175
+    },
+    {
+     "month": "2026-01",
+     "return": 0.0004382506552191856
+    },
+    {
+     "month": "2026-02",
+     "return": 0.001195175835717599
+    },
+    {
+     "month": "2026-03",
+     "return": -0.02212053248444512
+    },
+    {
+     "month": "2026-04",
+     "return": 0.01481285753920547
+    },
+    {
+     "month": "2026-05",
+     "return": 0.005204034428558657
+    },
+    {
+     "month": "2026-06",
+     "return": -0.013711179360012649
+    },
+    {
+     "month": "2026-07",
+     "return": -0.00581546512778186
+    },
+    {
+     "month": "2026-08",
+     "return": 0.009808427904224537
+    },
+    {
+     "month": "2026-09",
+     "return": -0.012692385112885951
+    }
+   ],
+   "capitals": {
+    "100": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 59,
+     "winRate": 0.4915254237288136,
+     "profitFactor": 0.8656032269893656,
+     "netProfit": -7.34,
+     "totalReturn": -0.07338118408629357,
+     "cagr": -0.007644893202766623,
+     "maxDrawdown": 0.11599999999999994,
+     "avgR": -0.037813559322033896,
+     "expectancy": -0.12437488828185349,
+     "tradesPerWeek": 0.11425005412139981,
+     "worstLosingStreak": 5,
+     "skippedMinSize": 1151,
+     "blown": false,
+     "finalEquity": 92.66,
+     "medianMonth": 0.0,
+     "avgMonth": -0.0005633592763990152,
+     "positiveMonths": 0.05,
+     "bestMonth": 0.057270598254204774,
+     "worstMonth": -0.06276505513146724,
+     "monthsAbove30pct": 0
+    },
+    "1000": {
+     "period": {
+      "start": "2016-10-25",
+      "end": "2026-09-30",
+      "years": 9.93
+     },
+     "trades": 1176,
+     "winRate": 0.5382653061224489,
+     "profitFactor": 1.0188352371160958,
+     "netProfit": 66.28,
+     "totalReturn": 0.06627563078803456,
+     "cagr": 0.006482705202462302,
+     "maxDrawdown": 0.21859393008067618,
+     "avgR": 0.012437074829931973,
+     "expectancy": 0.056356828901389884,
+     "tradesPerWeek": 2.2772553160468845,
+     "worstLosingStreak": 8,
+     "skippedMinSize": 33,
+     "blown": false,
+     "finalEquity": 1066.28,
+     "medianMonth": 0.00045610034207532735,
+     "avgMonth": 0.0008637957329926616,
+     "positiveMonths": 0.5083333333333333,
+     "bestMonth": 0.10265439090307593,
+     "worstMonth": -0.08236958149596474,
+     "monthsAbove30pct": 0
+    }
+   },
+   "riskSimulation": [
+    {
+     "riskPct": 0.5,
+     "medianMonthly": 0.0006557592374736299,
+     "p10Monthly": -0.0016796902413356296,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 1,
+     "medianMonthly": 0.0012390271632300998,
+     "p10Monthly": -0.0033451037016504204,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 2,
+     "medianMonthly": 0.0017844891534521956,
+     "p10Monthly": -0.006960511830138683,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 3,
+     "medianMonthly": 0.0032581710099852668,
+     "p10Monthly": -0.010227114090262446,
+     "probHalved": 0.0,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 5,
+     "medianMonthly": 0.0042298660697892565,
+     "p10Monthly": -0.019053940305555628,
+     "probHalved": 0.0025,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 10,
+     "medianMonthly": 0.003440761191308095,
+     "p10Monthly": -0.04078018901067271,
+     "probHalved": 0.14,
+     "probRuin": 0.0
+    },
+    {
+     "riskPct": 20,
+     "medianMonthly": -0.00733532641693091,
+     "p10Monthly": -0.09394958958717914,
+     "probHalved": 0.7145,
+     "probRuin": 0.0105
+    }
+   ],
+   "highestWinRate": [
+    {
+     "params": {
+      "sl_atr": 3.0,
+      "trend_filter": 1,
+      "max_bars": 8
+     },
+     "isWin": 0.5231866825208086,
+     "isPF": 1.0354791088369624,
+     "oosWin": 0.5663956639566395,
+     "oosPF": 1.2488936208173824,
+     "oosTrades": 369
+    },
+    {
+     "params": {
+      "sl_atr": 5.0,
+      "trend_filter": 1,
+      "max_bars": 8
+     },
+     "isWin": 0.5267538644470868,
+     "isPF": 1.0279069832763144,
+     "oosWin": 0.5663956639566395,
+     "oosPF": 1.246878488367795,
+     "oosTrades": 369
+    },
+    {
+     "params": {
+      "sl_atr": 2.0,
+      "trend_filter": 1,
+      "max_bars": 8
+     },
+     "isWin": 0.5160523186682521,
+     "isPF": 1.002610690037843,
+     "oosWin": 0.5636856368563685,
+     "oosPF": 1.2799507619962296,
+     "oosTrades": 369
+    },
+    {
+     "params": {
+      "sl_atr": 3.0,
+      "trend_filter": 0,
+      "max_bars": 8
+     },
+     "isWin": 0.5208012326656395,
+     "isPF": 1.0586948503952747,
+     "oosWin": 0.5549645390070922,
+     "oosPF": 1.1871826686563562,
+     "oosTrades": 564
+    },
+    {
+     "params": {
+      "sl_atr": 5.0,
+      "trend_filter": 0,
+      "max_bars": 8
+     },
+     "isWin": 0.5231124807395994,
+     "isPF": 1.0492139720442206,
+     "oosWin": 0.5549645390070922,
+     "oosPF": 1.2005340740722659,
+     "oosTrades": 564
+    }
+   ],
+   "gridSize": 12
+  }
+ }
+}

@@ -74,12 +74,13 @@ class BacktestBody(BaseModel):
 
 class IntradayBody(BaseModel):
     strategy: str
-    timeframe: Literal["15m", "60m"] = "60m"
+    symbol: str = "XAUUSD"
+    timeframe: Literal["5m", "15m", "30m", "60m"] = "60m"
     years: float = Field(default=10, gt=0, le=20)
     capital: float = Field(default=1000, gt=0)
-    riskPct: float = Field(default=1, gt=0, le=10)
+    riskPct: float = Field(default=1, gt=0, le=25)
     maxRiskPct: float = Field(default=5, gt=0, le=50)
-    spread: float = Field(default=0.30, ge=0, le=10)
+    spread: float | None = Field(default=None, ge=0, le=50)
     leverage: float = Field(default=100, ge=1, le=1000)
     params: dict[str, float] = Field(default_factory=dict)
 
@@ -373,49 +374,62 @@ def create_app(
         events.emit("backtest.run", {"symbol": symbol, "strategy": body.strategy, "params": body.params, "totalReturn": result["metrics"]["totalReturn"], "benchmark": result["benchmark"]["totalReturn"]})
         return {"symbol": symbol, "dataSource": market.mode, **result}
 
-    # --- intraday (gold) backtests on local history ---------------------------------
-    history_cache: dict[int, tuple[int, list]] = {}
+    # --- intraday (gold, US30, NAS100) backtests on local history ------------------
+    history_cache: dict[tuple[str, int], tuple[int, list]] = {}
 
-    def gold_history(minutes: int) -> list:
-        sub = config.data_dir / "history" / "XAUUSD" / ("h1" if minutes >= 60 else "m1")
+    def local_history(symbol: str, minutes: int) -> list:
+        data_sym = intraday.INSTRUMENTS[symbol]["data"]
+        sub = config.data_dir / "history" / data_sym / ("h1" if minutes >= 60 else "m1")
         count = len(list(sub.glob("*.csv"))) if sub.exists() else 0
-        hit = history_cache.get(minutes)
+        hit = history_cache.get((symbol, minutes))
         if hit and hit[0] == count:
             return hit[1]
-        bars = intraday.load_history(config.data_dir, "XAUUSD", minutes)
-        history_cache[minutes] = (count, bars)
+        bars = intraday.load_history(config.data_dir, data_sym, minutes)
+        history_cache[(symbol, minutes)] = (count, bars)
         return bars
 
     @app.get("/api/intraday/strategies")
     async def intraday_strategies():
         avail = {}
-        for tf, sub in (("60m", "h1"), ("15m", "m1")):
-            files = sorted((config.data_dir / "history" / "XAUUSD" / sub).glob("*.csv")) if (config.data_dir / "history" / "XAUUSD" / sub).exists() else []
-            avail[tf] = {"files": len(files), "from": files[0].stem if files else None, "to": files[-1].stem if files else None}
+        for sym, inst in intraday.INSTRUMENTS.items():
+            avail[sym] = {}
+            for tf, sub in (("60m", "h1"), ("minute", "m1")):
+                d = config.data_dir / "history" / inst["data"] / sub
+                files = sorted(d.glob("*.csv")) if d.exists() else []
+                avail[sym][tf] = {"files": len(files), "from": files[0].stem if files else None, "to": files[-1].stem if files else None}
         return {"strategies": [{"id": k, "label": v["label"], "params": v["params"]} for k, v in intraday.STRATEGIES.items() if not k.startswith("_")],
-                "history": avail, "symbol": "XAUUSD"}
+                "instruments": {k: {"live": v["live"], "unit": v["unit"], "spread": v["costs"].spread, "minQty": v["costs"].min_qty,
+                                    "leverage": v["costs"].leverage} for k, v in intraday.INSTRUMENTS.items()},
+                "history": avail}
 
     @app.post("/api/intraday/backtest")
     async def intraday_backtest(body: IntradayBody):
         if body.strategy not in intraday.STRATEGIES:
             raise HTTPException(400, f"Unknown strategy. Options: {list(intraday.STRATEGIES)}")
-        minutes = 60 if body.timeframe == "60m" else 15
+        if body.symbol not in intraday.INSTRUMENTS:
+            raise HTTPException(400, f"Unknown symbol. Options: {list(intraday.INSTRUMENTS)}")
+        minutes = int(body.timeframe.rstrip("m"))
         try:
-            bars = await asyncio.to_thread(gold_history, minutes)
+            bars = await asyncio.to_thread(local_history, body.symbol, minutes)
         except FileNotFoundError as e:
             raise HTTPException(400, str(e))
         cutoff = bars[-1]["t"] - int(body.years * 365.25 * 86400) if bars else 0
         bars = [b for b in bars if b["t"] >= cutoff]
-        costs = intraday.Costs(spread=body.spread, leverage=body.leverage)
+        preset = intraday.INSTRUMENTS[body.symbol]["costs"]
+        costs = intraday.Costs(spread=body.spread if body.spread is not None else preset.spread, commission=preset.commission,
+                               leverage=body.leverage, min_qty=preset.min_qty, qty_step=preset.qty_step)
         try:
             result = await asyncio.to_thread(
                 intraday.run_intraday, bars, body.strategy, body.params, body.capital, body.riskPct, body.maxRiskPct, costs, 21, 250)
         except ValueError as e:
             raise HTTPException(400, str(e))
         m = result["metrics"]
-        events.emit("backtest.run", {"symbol": "XAUUSD", "strategy": body.strategy, "params": body.params,
+        tpm = m["trades"] / max(1e-9, result["period"]["years"] * 12)
+        result["riskSimulation"] = await asyncio.to_thread(intraday.risk_simulation, result["rs"], tpm) if result["rs"] else []
+        result.pop("rs", None)
+        events.emit("backtest.run", {"symbol": body.symbol, "strategy": body.strategy, "params": body.params,
                                      "totalReturn": m["totalReturn"], "benchmark": 0.0, "winRate": m["winRate"], "timeframe": body.timeframe})
-        return {"symbol": "XAUUSD", "timeframe": body.timeframe, **result}
+        return {"symbol": body.symbol, "timeframe": body.timeframe, "live": intraday.INSTRUMENTS[body.symbol]["live"], **result}
 
     # --- automation ------------------------------------------------------------------
     @app.get("/api/automation")

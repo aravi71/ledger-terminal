@@ -60,7 +60,10 @@ def market_open(symbol: str, now: datetime | None = None) -> bool:
     et = now.astimezone(NY)
     if et.weekday() >= 5:
         return False
-    if symbol.endswith("=X") or symbol.endswith("=F"):
+    if symbol.endswith("=F"):
+        # CME/COMEX futures pause daily 17:00-18:00 New York time
+        return et.hour != 17
+    if symbol.endswith("=X"):
         return True
     return dtime(9, 30) <= et.time() < dtime(16, 0)
 
@@ -284,10 +287,14 @@ class AutoTrader:
         pos = next((p for p in acct["positions"] if p["symbol"] == symbol), None)
         flat = params.get("flat_hour", 21)
         flat = None if flat is None or flat < 0 else int(flat)
+        flat_ny = params.get("flat_ny")
+        flat_ny = None if flat_ny is None or flat_ny < 0 else int(flat_ny)
+        ny_now = now.astimezone(NY)
+        ny_min = ny_now.hour * 60 + ny_now.minute
         if pos:
             held = (bars[-1]["t"] - (st.get("openedBarT") or bars[-1]["t"])) // (minutes * 60)  # completed bars after the entry bar
             max_bars = int(params.get("max_bars") or 0)
-            end_of_day = flat is not None and now.hour >= flat
+            end_of_day = (flat is not None and now.hour >= flat) or (flat_ny is not None and ny_min >= flat_ny)
             if (max_bars and held >= max_bars) or end_of_day:
                 fill = await broker.close_position(symbol, "end of day" if end_of_day else "time exit")
                 self.events.emit("bot.exit", {"bot": bot.id, **fill})
@@ -298,8 +305,8 @@ class AutoTrader:
         if bot.respectMarketHours and not market_open(symbol, now):
             self._record(bot, f"{symbol}: skip (market closed)")
             return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "skip", "reason": "market closed"}]}
-        if flat is not None and now.hour >= flat - 1:
-            self._record(bot, f"{symbol}: no new entries after {flat - 1:02d}:00 UTC")
+        if (flat is not None and now.hour >= flat - 1) or (flat_ny is not None and ny_min >= flat_ny - minutes):
+            self._record(bot, f"{symbol}: outside the strategy's entry window")
             return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "skip", "reason": "after entry window"}]}
         # Gold and CME futures pause 17:00-18:00 New York time; a signal on the bar that closes
         # into the break is held until the reopen, matching the backtest's next-bar-open entry.
