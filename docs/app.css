@@ -1,0 +1,67 @@
+/* Terminal look: dark by default, light tokens when the viewer prefers light. */
+:root {
+  --bg: #07090c; --panel: #0e1217; --panel2: #131922; --line: #1e2631; --line2: #2a3442;
+  --text: #d6dde6; --muted: #7a8696; --amber: #ffb000; --amber-dim: #8a6100; --up: #22c55e; --down: #f04f4f;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; --sans: Inter, system-ui, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) { --bg: #f4f6f9; --panel: #ffffff; --panel2: #f0f3f7; --line: #dde2e8; --line2: #c9d1db; --text: #18202b; --muted: #5d6878; --amber: #a86f00; --amber-dim: #e8c27a; --up: #12804a; --down: #c0392b; color-scheme: light; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.5 var(--mono); }
+a { color: var(--amber); }
+.muted { color: var(--muted); } .small { font-size: 12px; } .up { color: var(--up); } .down { color: var(--down); }
+.top { display: flex; align-items: center; gap: 16px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
+.brand { font-weight: 700; letter-spacing: .12em; color: var(--amber); white-space: nowrap; }
+.brand .mark { margin-right: 6px; } .brand .sub { color: var(--muted); font-weight: 400; margin-left: 8px; font-size: 11px; }
+.tabs { display: flex; gap: 2px; flex: 1; flex-wrap: wrap; }
+.tabs button { background: transparent; border: 0; border-bottom: 2px solid transparent; color: var(--muted); padding: 6px 12px; cursor: pointer; font: 500 11px var(--mono); letter-spacing: .08em; }
+.tabs button.on { color: var(--amber); border-bottom-color: var(--amber); }
+.pill { color: var(--amber); font-size: 12px; }
+.disclaimer { padding: 6px 16px; font-size: 11px; color: var(--muted); border-bottom: 1px solid var(--line); }
+main { padding: 12px 16px 40px; max-width: 1400px; margin-inline: auto; }
+.tab { display: none; } .tab.on { display: grid; gap: 12px; }
+.controls { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); }
+.controls .wide { grid-column: span 2; }
+label { display: flex; flex-direction: column; gap: 3px; color: var(--muted); font-size: 11px; min-width: 0; }
+input, select { background: var(--panel); color: var(--text); border: 1px solid var(--line2); border-radius: 3px; padding: 6px 8px; font: 13px var(--mono); min-width: 0; }
+input:focus, select:focus { outline: 1px solid var(--amber); border-color: var(--amber); }
+.btn { background: var(--amber); color: #000; border: 0; border-radius: 3px; padding: 7px 14px; font: 700 12px var(--mono); cursor: pointer; align-self: end; }
+.btn.buy { background: var(--up); color: #00140a; } .btn.sell { background: var(--down); color: #fff; }
+.ghost { background: transparent; border: 1px solid var(--line2); color: var(--muted); border-radius: 3px; padding: 6px 10px; font: 11px var(--mono); cursor: pointer; align-self: end; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; min-width: 0; }
+.card h3 { margin: 0 0 8px; font-size: 12px; letter-spacing: .08em; color: var(--amber); font-weight: 500; }
+.card h4 { margin: 14px 0 6px; font-size: 11px; letter-spacing: .08em; color: var(--amber); font-weight: 500; }
+.grid2 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); }
+.kpis { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; display: grid; gap: 2px; }
+.kpi .k { color: var(--muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; }
+.kpi .v { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.kpi .s { color: var(--muted); font-size: 11px; }
+.verdict { border: 1px solid var(--line2); border-radius: 4px; padding: 8px 12px; font-family: var(--sans); font-size: 13px; }
+.verdict.good { border-color: #164f2c; } .verdict.bad { border-color: #5a1d1d; }
+.chart { height: 280px; }
+.row { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+.row.between { justify-content: space-between; align-items: center; }
+.scroll { overflow-x: auto; }
+.tbl, .months { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 12px; }
+.tbl th, .tbl td, .months th, .months td { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.tbl th, .months th { color: var(--muted); font-weight: 400; }
+.tbl td:first-child, .tbl th:first-child, .months td:first-child, .months th:first-child { text-align: left; }
+.tbl tr.click { cursor: pointer; } .tbl tr.click:hover td { background: var(--panel2); } .tbl tr.sel td { background: var(--panel2); font-weight: 700; }
+.tag { font-size: 10.5px; padding: 1px 6px; border-radius: 3px; border: 1px solid currentColor; }
+.seg { display: inline-flex; border: 1px solid var(--line2); border-radius: 3px; overflow: hidden; }
+.seg button { background: transparent; border: 0; color: var(--muted); padding: 5px 12px; font: 11px var(--mono); cursor: pointer; }
+.seg button.on { background: var(--panel2); color: var(--amber); }
+.price { font-size: 20px; font-weight: 700; }
+.tv { height: 460px; margin-top: 8px; }
+.order { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 120px), 1fr)); align-items: end; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin-bottom: 8px; }
+.kv .k { color: var(--muted); } .kv .v { text-align: right; font-variant-numeric: tabular-nums; }
+.botbox { border: 1px solid var(--amber-dim); border-radius: 4px; padding: 10px; display: grid; gap: 8px; }
+.prose { font-family: var(--sans); font-size: 14px; line-height: 1.6; } .prose p, .prose ol { max-width: 80ch; }
+.prose h3 { font-family: var(--mono); margin-top: 18px; }
+.prose code { font-family: var(--mono); color: var(--amber); }
+.small-kpis .kpi .v { font-size: 15px; }
+@media (max-width: 640px) { .controls .wide { grid-column: auto; } .tv { height: 360px; } }

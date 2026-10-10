@@ -873,6 +873,7 @@ def run_intraday(
             "entryTime": bars[pos["i"]]["t"], "exitTime": bars[i]["t"], "side": pos["side"], "qty": pos["qty"],
             "entry": round(pos["entry"], 3), "exit": round(exit_px, 3), "sl": round(pos["sl"], 3), "tp": round(pos["tp"], 3),
             "pnl": round(pnl, 2), "r": round(pnl / pos["risk"], 3) if pos["risk"] else 0.0, "reason": reason, "bars": i - pos["i"],
+            "u": round(pos["risk"] / pos["qty"], 4) if pos["qty"] else 0.0,
             "swap": round(pos.get("swap", 0.0), 2),
         })
         pos = None
@@ -1015,6 +1016,7 @@ def summarize(trades, curve, capital, final, bars, start_index, skipped, blown, 
         "yearly": [dict(r, winRate=r["wins"] / r["trades"]) for r in sorted(yearly.values(), key=lambda r: r["year"])],
         "curve": curve[::step] + ([curve[-1]] if curve and curve[-1] not in curve[::step] else []),
         "rs": [t["r"] for t in trades],
+        "compact": [[t["exitTime"], t["r"], t["u"], 1 if t["side"] == "buy" else -1, t["entry"]] for t in trades],
         "trades": trades[-200:],
     }
 

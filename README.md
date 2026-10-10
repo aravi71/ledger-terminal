@@ -10,6 +10,8 @@ from scratch with original code:
 | **OpenAlice**: AI trading agent with Unified Trading Accounts, *Trading-as-Git* (stage, commit, push), guards, heartbeat, event log | Per-account **UTAs**, a git-style order workflow with 8-character commit hashes, **pre-trade guards**, a **push** approval gate, a periodic **heartbeat**, and a live **event log** |
 | *(added)* | A **backtester** for rule-based strategies against buy-and-hold, and **automated paper trading**: strategy bots and an AI autopilot with a kill switch, daily loss limit and market-hours checks |
 
+🌐 **[Web app on GitHub Pages](https://aravi71.github.io/ledger-terminal/)**: pick any tested gold / US30 / NAS100 strategy (from popular YouTube videos and Instagram reels), set capital and risk, see month-by-month and yearly results, check a monthly target, and paper trade in the browser. [Research tables](https://aravi71.github.io/ledger-terminal/research.html).
+
 📘 **[Operator Handbook](docs/HANDBOOK.md)**: how a trade happens step by step, guards, how paper fills are simulated, backtesting status, the daily routine, and server deployment.
 
 > **Not financial advice.** This is a technical tool. Automated trading only
