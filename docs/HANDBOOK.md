@@ -346,8 +346,8 @@ forward paper trading, and against the strategy bots.
 - **No cherry-picking:** each strategy's settings are chosen on 2016–2023
   only (in-sample, 70%) and then reported on 2023–2026 (out-of-sample, 30%),
   which played no part in the choice. Reproduce with
-  `python scripts/gold_research.py`. Full results:
-  [`gold-research-2026-10-10.json`](gold-research-2026-10-10.json).
+  `python scripts/research.py --symbol XAUUSD --tf 60`. Full results:
+  [`research-xauusd-60m-2026-10-10.json`](research-xauusd-60m-2026-10-10.json).
 
 ### Results on 10 years of hourly gold (account of 10,000, 1% risk)
 
@@ -398,7 +398,7 @@ On the minute data available so far (February–October 2026), the Asian-hours
 drift was again the strongest. Breakout and trend pullback were mixed, and the
 fade and RSI(2) setups lost. About 8 months is far too short to rely on. Let
 `fetch_dukascopy.py --tf minute` finish (it resumes where it stopped) and
-re-run `scripts/gold_research.py` for a multi-year 15-minute test.
+re-run `python scripts/research.py --symbol XAUUSD --tf 15` for a multi-year 15-minute test.
 
 ### Live paper bot
 
@@ -417,11 +417,91 @@ re-run `scripts/gold_research.py` for a multi-year 15-minute test.
 Create other gold bots from the **GOLD SCALP** tab: run a backtest, then
 **Run as paper bot**.
 
+## 7c. Scalping research: gold, US30, NAS100 and the "70–90% win rate, 30–40% a month" claims
+
+### What was tested
+
+The strategies shown most often in trading reels, plus research-backed ones,
+on three markets, with the same method as §7b (settings picked on the first
+70% of the history, judged on the last 30%):
+
+| Strategy | Idea |
+|---|---|
+| New York opening-range breakout (`ny_orb`) | Range of the first 5/15/30 minutes after 09:30 New York; trade the first close outside it; stop at the other side or the middle; target 0.5–2× the stop |
+| EMA-200 + RSI pullback scalp (`ema_rsi_scalp`) | With the 200 EMA trend, enter when RSI turns back from 25–35; stop 1–2×ATR; target 0.5–2× |
+| RSI(2) dip, small target / wide stop (`rsi2_highwin`) | The classic "90% win rate" design |
+| Asian-range breakout, trend pullback | London-session breakout; EMA 20/50/200 pullback |
+| Asian-hours / overnight drift (`asia_session_drift`) | Long from the 18:00 New York reopen for ~9 hours (indices also tested to 09:30) |
+
+Costs: gold $0.30/oz spread plus commission, NAS100 1.0 and US30 2.0 points
+of spread, estimated overnight swap at the 17:00 New York rollover, 1:100
+leverage, minimum size 1 oz (gold) and 0.1 (indices).
+
+Data: gold 10 years hourly and 2 years of minute bars (5- and 15-minute
+tests); US30 and NAS100 10 years hourly. NAS100 and US30 minute data was still
+downloading when this was written, so the index opening-range test (5-minute)
+covers only about 4½ months and is **preliminary**.
+
+### Results (out-of-sample = the last 30%, never used to choose settings)
+
+| Market · bars | Strategy | Win rate in → out | Profit factor in → out | Verdict |
+|---|---|---:|---:|---|
+| Gold · 1h · 10y | **Asian-hours drift** | 52% → 57% | **1.29 → 1.64** | Robust |
+| Gold · 15m · 2y | **Asian-hours drift** | 42% → 35% | **1.41 → 1.34** | Holds (strong gold years) |
+| Gold · 5m · 2y | Opening-range breakout | 45% → 44% | 1.07 → 0.95 | No edge |
+| Gold · 5m · 2y | Trend pullback | 40% → 39% | 0.88 → 0.88 | Loses (costs) |
+| Gold · 15m · 2y | RSI(2) high-win | 76% → 68% | 1.10 → 0.94 | No edge |
+| NAS100 · 1h · 10y | **RSI(2) high-win** | **91% → 92%** | 0.97 → 1.08 | 90% win rate, ~no profit |
+| NAS100 · 1h · 10y | Overnight drift | 53% → 54% | 1.08 → 1.10 | Tiny edge |
+| US30 · 1h · 10y | Overnight drift | 51% → 51% | 1.15 → 1.09 | Tiny edge |
+| US30 · 1h · 10y | All others | 40–73% | 0.92–1.03 → 0.97–1.29 | No reliable edge |
+| NAS100 · 5m · 4½ months | Opening-range breakout | 71% → 60% | 1.22 → 0.75 | Failed out-of-sample (small sample) |
+| NAS100 · 5m · 4½ months | RSI(2) high-win | 85% → 83% | 1.00 → 0.77 | Loses |
+
+**The 70–90% win rates are real, and they don't make money.** NAS100's RSI(2)
+setup won about 91% of over a thousand trades in 10 years, and $1,000 ended at
+$997. A target much smaller than the stop gives many small wins and a few large
+losses; spread does the rest.
+
+### Can a strategy make 30–40% a month?
+
+Return per month is set mostly by **risk per trade**, not by the strategy.
+The risk simulation replays each strategy's real trades (costs included) at
+higher risk. For the best strategy found (gold Asian-hours drift, 10 years):
+
+| Risk per trade | Typical month | Bad month (1 in 10) | Chance the account halves within a year |
+|---:|---:|---:|---:|
+| 1% | +0.6% | +0.2% | 0% |
+| 5% | +2.9% | +0.7% | 0% |
+| 10% | +5.4% | +0.9% | 1% |
+| 20% | +9.4% | −0.2% | 33% |
+
+On the 2024–26 15-minute data, gold's strongest stretch, the same strategy
+gave +3.5% a typical month at 1% risk and +14% at 5%, but at 5% the account
+halved in 55% of simulated years and at 10% in almost all of them.
+
+**30–40% a month (about 2,000–5,000% a year) did not appear for any
+strategy, market or risk level in 10 years of data.** Getting near it needs
+20%+ risk per trade, where the simulations show the account halving or being
+wiped out most of the time. Accounts that show such months in reels are
+usually short lucky streaks, demo results, or survivors of many that blew up.
+
+### Practical settings
+
+- Gold Asian-hours drift, 1–2% risk per trade: historically about
+  0.6–1.2% a month over 10 years (more in strong gold years), with small
+  drawdowns. This is what the `gold-asia-drift` paper bot runs.
+- Below about $2,000 the 1 oz gold minimum forces 4–25% risk per trade. Use
+  a broker with micro lots and set `minQty` to match.
+- Re-run everything when more minute data has downloaded:
+  `python scripts/research.py --symbol NAS100 --tf 5` (and `US30`, `XAUUSD`).
+
 ## 8. Accounts and brokers
 
 | Account | Type | Status | Notes |
 |---|---|---|---|
 | `paper-main` | Local simulator | Enabled | Section 5 |
+| `paper-nas100`, `paper-us30` | Local CFD simulators for NAS100 / US30: $1,000, 1:100, minimum 0.1 | Enabled | For index intraday bots |
 | `paper-gold` | Local CFD simulator: 1:100 leverage, long and short, stop-loss/take-profit, $1,000 | Enabled | For gold intraday bots; `brokerConfig` sets leverage, spread, commission and minimum size |
 | `alpaca-paper` | Alpaca **paper** API | Disabled | Put `ALPACA_API_KEY_ID` / `ALPACA_API_SECRET_KEY` in `.env`, set `"enabled": true`, restart. The base URL is fixed to `paper-api.alpaca.markets`, so it cannot place live-money orders |
 

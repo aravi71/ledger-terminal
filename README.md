@@ -226,7 +226,7 @@ offline demo data provider.
 ```bash
 python scripts/fetch_dukascopy.py --symbol XAUUSD --tf hour --start 2016-10
 python scripts/fetch_dukascopy.py --symbol XAUUSD --tf minute --start 2021-10
-python scripts/gold_research.py
+python scripts/research.py --symbol XAUUSD --tf 60   # also NAS100 / US30 and --tf 5, 15, 30
 ```
 
 The feed throttles heavily; the downloader backs off, resumes where it
