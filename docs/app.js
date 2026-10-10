@@ -406,16 +406,118 @@ const SOURCES = [
   ["EASY Scalping Strategy (High Winrate)", "D80KULtCbHw", "—", "EMA trend, stop at 50 EMA, 1.5R"],
   ["Powerful XAUUSD Gold Trading Strategy", "3E7k47dZeWk", "2.2M", "Paid indicator — not testable"],
 ];
+let SURVEY = null;
 async function initResearch() {
+  try { SURVEY = await (await fetch("data/youtube-survey.json")).json(); } catch { SURVEY = null; }
+  initResearchStatic();
+  if (SURVEY) {
+    $("#r-fam").innerHTML = `<thead><tr><th>Strategy type (${SURVEY.videos.toLocaleString()} videos, ${SURVEY.searches} searches)</th><th>Videos</th><th>Views</th></tr></thead><tbody>${
+      SURVEY.families.map(([f, n, v]) => `<tr><td>${esc(f)}</td><td>${n}</td><td>${v}</td></tr>`).join("")}</tbody>`;
+    const w = SURVEY.winClaims;
+    $("#r-claims").innerHTML = `<p>${w.count} titles claim a win rate: ${w.ge90} claim 90% or more, ${w["80s"]} claim 80–89%, ${w["70s"]} claim 70–79%. None showed a long, cost-included backtest that could be checked.</p><div class="scroll"><table class="tbl"><thead><tr><th>Most-viewed win-rate claims</th><th>Views</th><th>Claim</th></tr></thead><tbody>${
+      w.top.map(([id, tt, v, p]) => `<tr><td><a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">${esc(tt)}</a></td><td>${v.toLocaleString()}K</td><td>${p}%</td></tr>`).join("")}</tbody></table></div>`;
+  }
+  researchCounts();
+}
+async function initResearchStatic() {
   $("#r-fam").innerHTML = `<thead><tr><th>Strategy type</th><th>Videos</th><th>Views</th><th>Tested as</th></tr></thead><tbody>${
     FAMILIES.map(([f, n, v, t]) => `<tr><td>${esc(f)}</td><td>${n}</td><td>${v}</td><td class="muted">${esc(t)}</td></tr>`).join("")}</tbody>`;
   $("#r-src").innerHTML = `<thead><tr><th>Video</th><th>Views</th><th>Rules</th></tr></thead><tbody>${
     SOURCES.map(([t, id, v, r]) => `<tr><td><a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">${esc(t)}</a></td><td>${v}</td><td class="muted">${esc(r)}</td></tr>`).join("")}</tbody>`;
+}
+async function researchCounts() {
   let tests = 0, holds = 0, high = 0;
   for (const e of INDEX) { const f = await loadFile(e.file); for (const s of Object.values(f.strategies)) { tests++; holds += s.verdict === "holds up"; high += (s.oosWin || 0) >= 0.8; } }
   const kpi = (k, v) => `<div class="kpi"><span class="k">${k}</span><span class="v">${v}</span></div>`;
-  $("#r-kpis").innerHTML = kpi("Videos surveyed", "252") + kpi("Instagram reels checked", "~40") + kpi("Strategy tests", tests) + kpi("Held up on later data", holds) + kpi("Tests with 80%+ win rate", high);
+  const tv = SURVEY ? SURVEY.timeVideos : 0;
+  $("#r-kpis").innerHTML = kpi("Videos surveyed", SURVEY ? SURVEY.videos.toLocaleString() : "252") + kpi("Videos that teach a time", tv) + kpi("Instagram reels checked", "~40") + kpi("Strategy tests", tests) + kpi("Held up on later data", holds) + kpi("Tests with 80%+ win rate", high);
 }
+
+// ---------------------------------------------------------------- timing tab
+let TIMING = [];
+async function initTiming() {
+  try { TIMING = await (await fetch("data/timing-index.json")).json(); } catch { TIMING = []; }
+  if (SURVEY) {
+    $("#t-count").textContent = `(${SURVEY.timeVideos} of ${SURVEY.videos.toLocaleString()} videos)`;
+    $("#t-src").innerHTML = `<thead><tr><th>Time taught</th><th>Videos</th><th>Views</th><th>Most-viewed examples</th></tr></thead><tbody>${
+      SURVEY.times.map(([n, c, v, , ex]) => `<tr><td>${esc(n)}</td><td>${c}</td><td>${v}</td><td style="text-align:left;white-space:normal">${ex.map(([id, tt]) => `<a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">${esc(tt)}</a>`).join("<br>")}</td></tr>`).join("")}</tbody>`;
+  }
+  if (!TIMING.length) { $("#t-heat").innerHTML = '<tbody><tr><td class="muted">Timing results not published yet.</td></tr></tbody>'; return; }
+  fillSelect($("#t-market"), [...new Set(TIMING.map((x) => x.symbol))].map((s) => [s, NAMES[s] || s]), "XAUUSD");
+  const tfs = () => fillSelect($("#t-tf"), TIMING.filter((x) => x.symbol === $("#t-market").value).map((x) => [String(x.tf), x.tf >= 60 ? "1-hour bars, 10 years" : `${x.tf}-minute bars, 2 years`]));
+  tfs();
+  $("#t-market").addEventListener("change", () => { tfs(); drawTiming(); });
+  $("#t-tf").addEventListener("change", drawTiming);
+  $("#t-side").addEventListener("change", drawTiming);
+  drawTiming();
+}
+async function drawTiming() {
+  const e = TIMING.find((x) => x.symbol === $("#t-market").value && String(x.tf) === $("#t-tf").value); if (!e) return;
+  const d = await loadFile(e.file), side = $("#t-side").value;
+  const rows = d.heatmap.filter((h) => h.side === side);
+  const holds = [...new Set(rows.map((h) => h.hold))].sort((a, b) => a - b);
+  const times = [...new Set(rows.map((h) => h.time))].sort();
+  const c = (x) => (x > 0 ? "up" : x < 0 ? "down" : "");
+  const cell = (h) => {
+    if (!h || h.isN < 30) return '<td class="muted">·</td>';
+    const strong = (h.isT || 0) >= 2.5 && (h.oosT || 0) >= 2;
+    return `<td class="c ${strong ? "strong" : ""}" title="${h.isN} + ${h.oosN} trades; win ${pctPlain(h.isWin)} → ${pctPlain(h.oosWin)}"><span class="${c(h.isMeanR)}">${num(h.isMeanR)}</span> → <span class="${c(h.oosMeanR)}">${num(h.oosMeanR)}</span></td>`;
+  };
+  const by = {}; for (const h of rows) by[h.time + "|" + h.hold] = h;
+  const hl = (x) => (x < 1 ? `${Math.round(x * 60)} min` : `${x} h`);
+  $("#t-heat").innerHTML = `<thead><tr><th>Enter (NY)</th>${holds.map((h) => `<th>hold ${hl(h)}</th>`).join("")}</tr></thead><tbody>${
+    times.map((t) => `<tr><td>${t}</td>${holds.map((h) => cell(by[t + "|" + h])).join("")}</tr>`).join("")}</tbody>`;
+  const vids = Object.entries(d.tested).sort((a, b) => (b[1].oosPF || 0) - (a[1].oosPF || 0));
+  $("#t-video").innerHTML = `<thead><tr><th>Time / rule</th><th>Verdict</th><th>Profit factor earlier → later</th><th>Win rate later</th><th>Trades later</th></tr></thead><tbody>${
+    vids.map(([k, s]) => `<tr class="click" data-k="${esc(k)}"><td>${esc(s.label)}</td><td><span class="tag ${VERDICT_CLASS[s.verdict]}">${esc(s.verdict)}</span></td><td class="${cls((s.oosPF || 0) - 1)}">${num(s.isPF)} → ${num(s.oosPF)}</td><td>${pctPlain(s.oosWin)}</td><td>${s.oosTrades}</td></tr>`).join("")}</tbody>`;
+}
+$("#t-video").addEventListener("click", async (ev) => {
+  const tr = ev.target.closest("tr[data-k]"); if (!tr) return;
+  $("#s-market").value = $("#t-market").value; await onMarket();
+  if ([...$("#s-tf").options].some((o) => o.value === $("#t-tf").value)) { $("#s-tf").value = $("#t-tf").value; await onTf(); }
+  if ([...$("#s-strategy").options].some((o) => o.value === tr.dataset.k)) { $("#s-strategy").value = tr.dataset.k; render(); }
+  $('#tabs button[data-tab="strategies"]').click(); window.scrollTo({ top: 0 });
+});
+
+// ---------------------------------------------------------------- XM demo (through the Ledger server on this PC)
+const xurl = () => $("#x-url").value.replace(/\/+$/, "");
+async function xget(path, opts) {
+  const r = await fetch(xurl() + path, { ...opts, headers: { "content-type": "application/json" } });
+  if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 200)}`);
+  return r.json();
+}
+async function xmRefresh() {
+  const st = $("#x-status");
+  try {
+    const s = await xget("/api/broker/mt5");
+    if (!s.connected) { st.className = "verdict bad"; st.textContent = "Server reached, MetaTrader 5 not ready: " + s.message; $("#x-acct").innerHTML = ""; $("#x-pos").innerHTML = ""; }
+    else {
+      st.className = "verdict " + (s.algoTrading ? "good" : "bad");
+      st.textContent = `Connected to ${s.company || "XM"} demo · login ${s.login} · ${s.server}` + (s.algoTrading ? " · Algo Trading on" : " · Algo Trading is OFF in MetaTrader: press the Algo Trading button so bots can place orders");
+      $("#x-acct").innerHTML = `<span class="k">Balance</span><span class="v">${money(s.balance)} ${esc(s.currency)}</span><span class="k">Equity</span><span class="v ${cls(s.equity - s.balance)}">${money(s.equity)}</span><span class="k">Leverage</span><span class="v">1:${s.leverage}</span>`;
+      const a = await xget("/api/accounts/xm-demo"); const pos = (a.account && a.account.positions) || [];
+      $("#x-pos").innerHTML = pos.length ? `<thead><tr><th>Symbol</th><th>Lots</th><th>Entry</th><th>Now</th><th>SL / TP</th><th>P&amp;L</th></tr></thead><tbody>${
+        pos.map((p) => `<tr><td>${esc(p.brokerSymbol)}</td><td class="${p.qty > 0 ? "up" : "down"}">${p.qty > 0 ? "buy" : "sell"} ${p.lots}</td><td>${num(p.avgPrice)}</td><td>${num(p.marketPrice)}</td><td>${p.stopLoss ? num(p.stopLoss) : "—"} / ${p.takeProfit ? num(p.takeProfit) : "—"}</td><td class="${cls(p.unrealizedPnl)}">${money(p.unrealizedPnl)}</td></tr>`).join("")}</tbody>` : '<tbody><tr><td class="muted">No open positions</td></tr></tbody>';
+    }
+    const auto = await xget("/api/automation"); const bots = auto.bots.filter((b) => b.account === "xm-demo");
+    const last = (b) => { const l = (b.state && b.state.log) || []; const x = l[l.length - 1]; return x ? (x.msg || x.message || JSON.stringify(x)) : ""; };
+    $("#x-bots").innerHTML = `<thead><tr><th>Bot</th><th>Strategy</th><th>Risk</th><th>Last action</th><th>On</th></tr></thead><tbody>${
+      bots.map((b) => `<tr><td>${esc(b.id)}</td><td>${esc(b.strategy)}</td><td>${b.riskPct}%</td><td class="muted" style="white-space:normal;text-align:left">${esc(last(b))}</td><td><input type="checkbox" data-bot="${esc(b.id)}" ${b.enabled ? "checked" : ""}></td></tr>`).join("") || '<tr><td class="muted">No bots for xm-demo</td></tr>'}</tbody>`;
+    window.__xbots = bots;
+  } catch (e) {
+    st.className = "verdict bad";
+    st.textContent = `Cannot reach the Ledger server at ${xurl()} (${e.message}). Start it on this PC: .venv\\Scripts\\python run.py`;
+  }
+}
+$("#x-connect").addEventListener("click", () => { store.set("xurl", $("#x-url").value); xmRefresh(); clearInterval(window.__xt); window.__xt = setInterval(xmRefresh, 15000); });
+$("#x-bots").addEventListener("change", async (ev) => {
+  const id = ev.target.dataset.bot; if (!id) return;
+  const b = (window.__xbots || []).find((x) => x.id === id); if (!b) return;
+  const { state, performance, running, ...cfg } = b; cfg.enabled = ev.target.checked;
+  try { await xget(`/api/automation/bots/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(cfg) }); } catch (e) { alert(e.message); }
+  xmRefresh();
+});
+$("#x-url").value = store.get("xurl", "http://127.0.0.1:3002");
 
 // ---------------------------------------------------------------- boot
 (async function boot() {
@@ -423,6 +525,7 @@ async function initResearch() {
   const markets = [...new Set(INDEX.map((x) => x.symbol))].map((s) => [s, NAMES[s] || s]);
   fillSelect($("#s-market"), markets, store.get("market", "XAUUSD"));
   await onMarket();
-  initResearch();
+  await initResearch();
+  initTiming();
   const tab = store.get("tab", "strategies"); const b = $(`#tabs button[data-tab="${tab}"]`); if (b) b.click();
 })();

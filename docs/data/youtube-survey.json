@@ -1,0 +1,44 @@
+{
+ "collected": "2026-10-10",
+ "searches": 146,
+ "videos": 1677,
+ "totalViews": "374M",
+ "markets": {"Gold": 581, "US30": 196, "NAS100": 128, "General": 772},
+ "families": [
+  ["ICT / smart money (FVG, order blocks, Silver Bullet, killzones)", 379, "82M"],
+  ["Indicators (RSI, MACD, VWAP, Bollinger, UT Bot, Heikin-Ashi)", 156, "60M"],
+  ["Session / breakout (London, Asia, New York)", 153, "20M"],
+  ["Price action (retests, engulfing, inside bar, trendlines)", 110, "31M"],
+  ["Bots / EAs / signals", 93, "33M"],
+  ["Opening range / first candle", 87, "9M"],
+  ["Moving averages", 42, "9M"],
+  ["Supply and demand", 26, "6M"],
+  ["Fibonacci", 16, "4M"],
+  ["General titles (rules only inside the video)", 615, "120M"]
+ ],
+ "timeVideos": 356,
+ "times": [
+  ["08:30 New York news (CPI, NFP)", 98, "5.7M", "08:30", [["isASIMfapDA", "The Best FVG", 710], ["K0N93SzHclo", "NFP $100K Gold Trade on LIVE", 710], ["bm0sr7mQ5Tk", "How To Trade CPI & NFP The Right Way", 242]]],
+  ["09:30 New York open / opening range", 88, "6.2M", "09:30", [["BY0yNPjwdK8", "My Secret Trading Strategy I Trade Right After The Open", 512], ["jlShztsY3oA", "15-Min ORB Strategy: Why Most Traders Lose (And How to Fix It)", 482], ["jq-fpkPv3-A", "My Simple \"9:30AM Candle\" Scalping Strategy (Backtested 1000 Times)", 437]]],
+  ["London open 02:00-03:00 New York", 55, "3.3M", "03:00", [["G8OEsUAoIWE", "ICT Forex - The ICT London Killzone", 884], ["IgfJI34XcqU", "The only 15 min London killzone trading strategy you need to watch", 696], ["weWczfI_-BI", "High Probability London Killzone ICT Trade Setups - 80% Winrate", 157]]],
+  ["10:00 window / ICT Silver Bullet", 46, "7.4M", "10:00", [["H-j7xjrwIio", "I Reveal My Day Trading Strategy", 1626], ["tRq1hyGGtl4", "2023 ICT Mentorship - ICT Silver Bullet Time Based Trading Model", 1577], ["o0v4KQxZbpU", "ICT Silver Bullet Strategy - No Daily Bias | With Backtest!", 887]]],
+  ["Asian session", 43, "2.2M", "18:00-21:00", [["JA0mLNJeytY", "ICT Forex - Implementing The Asian Range", 639], ["fIAPfomosUs", "How to Improve your Trading Strategy by using the Asian Session Range", 350], ["BQLL97wr6lY", "My SIMPLE trading strategy for the ASIA session!", 147]]],
+  ["ICT killzones", 38, "4.6M", "02:00-05:00, 07:00-10:00", [["plNN9n7nrxc", "ICT Forex - The ICT New York Killzone", 694], ["MPeeE55rNOw", "ICT Killzones & Indicator Settings", 667]]],
+  ["Best time of day to trade", 16, "0.8M", "", [["v21qoYNw4Cw", "THIS is the best time of day to Day Trade", 291], ["fPmZ0ZjCCec", "Most Efficient Time of Day to Trade Gold!", 90], ["F3fgiERWYQQ", "The best time to trade gold (XAUUSD)", 78]]],
+  ["Gold 6:30 AM (India time, Asian session)", 3, "26K", "21:00", [["E0wcbIboV1Y", "Gold 6:30 Strategy 80% Accuracy", 21], ["HLDG7cjSM4E", "High Accuracy 6:30 AM Gold Strategy for Intraday Traders", 5], ["fUhkIzLgDVE", "Gold 6:30 AM Asian Session Strategy | Daily 30 Pips Fixed Profit", 0]]],
+  ["07:00-08:00 pre-market candle", 1, "46K", "07:00-08:00", [["2cuaTYjEw9Q", "This \"8AM Candle\" Strategy Is Boring, But It Makes F*ck You Money", 46]]]
+ ],
+ "winClaims": {"count": 70, "ge90": 34, "80s": 22, "70s": 11, "below70": 3,
+  "top": [
+   ["rf_EQvubKlk", "BEST MACD Trading Strategy [86% Win Rate]", 4598, 86],
+   ["ADnslyKOwFE", "STEAL This INSANE Simple 90% Win Rate Trading Strategy (1:20+ RR)", 735, 90],
+   ["hPWDYDSbIAw", "I Tested 99% Win Rate Super SMART Scalping Trading Strategy", 706, 99],
+   ["wof5zXdZDCg", "Precise Trading Indicator - 90% Win Rate - Beginner Friendly", 267, 90],
+   ["_EQFJ_TLV58", "Simple ICT Silver Bullet Strategy | 70% Win Rate", 264, 70],
+   ["18cy7G2zz_Y", "BEST VWAP Trading Strategy [87% Win Rate]", 228, 87],
+   ["4ft3bah5B4A", "How I Achieved A 94% Win Rate (NEW STRATEGY)", 187, 94],
+   ["AD0S7OpJuhM", "I DESTROYED the london session using this one strategy (92% winrate)", 126, 92],
+   ["rXUDahzLjZM", "Best Gold Trading Strategy With 83% Winrate! (Insane Accuracy)", 126, 83],
+   ["UdOvnsSzeFc", "#1 Prop Firm Scalper: The ICT Trader Who Made $2.5+ Million With A 40% Win Rate", 119, 40]
+  ]}
+}

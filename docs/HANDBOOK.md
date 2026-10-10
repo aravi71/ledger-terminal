@@ -652,6 +652,87 @@ leaderboard, and a goal check. Its Paper Trading tab keeps a paper account in
 the browser's local storage, with a live gold feed and the Asian-drift bot.
 
 
+## 7e. Trading by the clock: every entry time tested
+
+### The bigger YouTube survey
+
+146 searches (gold, US30, NAS100; scalping, sessions, ICT, opening range,
+news, "win rate", Hindi and Tamil terms) returned **1,677 distinct videos
+with 374 million views**. 356 of them teach a specific time:
+
+| Time taught (New York) | Videos | Examples |
+|---|---:|---|
+| 08:30 news (CPI, NFP) | 98 | [NFP $100K Gold Trade](https://www.youtube.com/watch?v=K0N93SzHclo), [How To Trade CPI & NFP](https://www.youtube.com/watch?v=bm0sr7mQ5Tk) |
+| 09:30 open / opening range | 88 | [My Secret Trading Strategy I Trade Right After The Open](https://www.youtube.com/watch?v=BY0yNPjwdK8), [15-Min ORB Strategy](https://www.youtube.com/watch?v=jlShztsY3oA) |
+| London open (02:00–03:00) | 55 | [ICT London Killzone](https://www.youtube.com/watch?v=G8OEsUAoIWE) |
+| 10:00 / ICT Silver Bullet | 46 | [ICT Silver Bullet Time Based Trading Model](https://www.youtube.com/watch?v=tRq1hyGGtl4) |
+| Asian session | 43 | [ICT Asian Range](https://www.youtube.com/watch?v=JA0mLNJeytY) |
+| ICT killzones | 38 | [ICT New York Killzone](https://www.youtube.com/watch?v=plNN9n7nrxc) |
+| "Gold 6:30" (India morning) | 3 | [Gold 6:30 Strategy 80% Accuracy](https://www.youtube.com/watch?v=E0wcbIboV1Y) |
+
+70 titles state a win rate; 34 of them claim 90% or more. None of those
+videos shows a long backtest with costs that could be checked.
+
+### Method (`scripts/time_scan.py`)
+
+1. **Every time of day**: buy or sell at each New York time (every hour on
+   10 years of hourly data, every 15 minutes on 2 years of 5-minute data),
+   hold 15 minutes to 8 hours, after spread and commission. 184 windows per
+   market on hourly data, 920 on 5-minute data.
+2. Windows with a t-statistic of 2.5+ on the first 70% are run through the
+   full engine (stop-loss, swaps, sizing) and judged on the last 30%.
+3. **Every time named in the videos** (02:00, 03:00, 06:30, 07:00, 08:30,
+   09:30, 10:00, 14:00, 18:00, 20:00, 21:00 = 6:30 AM India) is tested with
+   four rules (buy, sell, follow the last bar, fade the last bar), several
+   hold times and stops, chosen on the first 70%.
+
+The new strategy `timed_entry` (entry time, direction rule, weekdays, hold,
+stop) can be selected in the web app and run by a bot.
+
+### Results
+
+* **Gold: one time stands out — the 18:00 New York reopen.** On hourly data,
+  of 184 windows only "buy at 18:00" is strong on both the earlier and the
+  later data (hold 4 hours: profit factor 1.12 → 1.51, 57% wins over 748
+  later trades). The 5-minute scan finds the same cluster on its own
+  (buys between 18:00 and 19:30). This is the Asian-hours drift strategy
+  from §7b, found again from scratch.
+* **The famous times did not hold up.** For gold, US30 and NAS100, the
+  09:30 open, 03:00 London open, 10:00 Silver Bullet and 14:00 rules mostly
+  looked fine on the earlier data and lost on the later data (for example
+  US30 09:30: 1.56 → 0.50; NAS100 09:30: 1.50 → 0.70).
+* Gold buys at 08:30 (1.12 → 1.46) and US30 at 06:30 (1.03 → 1.65) were
+  positive on the later data but weak or flat on the earlier data, so they
+  are not counted as robust.
+* US30 and NAS100 have no time window that passes on both halves.
+
+The **Timing** tab of the web app shows the full heatmap for each market.
+
+## 7f. XM demo account (MetaTrader 5)
+
+`app/brokers/mt5.py` connects an account of type `mt5` to a MetaTrader 5
+terminal running on the same Windows PC, through MetaQuotes' `MetaTrader5`
+Python package.
+
+* **Demo only**: before every call it checks the terminal's account trade
+  mode and refuses to trade a real account.
+* **No credentials in the app**: you log in inside MetaTrader yourself. The
+  app attaches to the running terminal and never sees the password.
+* It does not start MetaTrader. If the terminal is closed, it says so
+  instead of waiting.
+* Symbols map to XM names (`GC=F` → `GOLD`, `YM=F` → `US30Cash`,
+  `NQ=F` → `US100Cash`). Sizes are converted to lots with the broker's
+  contract size and lot step. Stop-loss and take-profit are sent with the
+  order, and the bot uses XM's own price and spread for them.
+* XM accounts are hedging accounts, so a closing order closes the open
+  position by ticket instead of opening an opposite one.
+
+The account `xm-demo` and the bot `xm-gold-asia-drift` (disabled) are
+created by default. The GitHub Pages app's **Broker (XM)** tab connects to
+the Ledger server on your PC (`http://127.0.0.1:3002`). It shows balance,
+equity and positions, and turns the bot on or off. The server only accepts
+browser calls from the Pages site (`LEDGER_CORS_ORIGINS`).
+
 ## 8. Accounts and brokers
 
 | Account | Type | Status | Notes |

@@ -16,6 +16,7 @@
   <div class="brand"><span class="mark">▮</span>LEDGER<span class="sub">TERMINAL · PAPER</span></div>
   <nav class="tabs" id="tabs">
     <button data-tab="strategies" class="on">STRATEGIES</button>
+    <button data-tab="timing">TIMING</button>
     <button data-tab="paper">PAPER TRADING</button>
     <button data-tab="research">RESEARCH</button>
     <button data-tab="broker">BROKER (XM)</button>
@@ -63,6 +64,33 @@
       <h3>All strategies on this market and timeframe <span class="muted">(same capital, risk and period)</span></h3>
       <div class="scroll"><table class="tbl" id="board"></table></div>
       <p class="muted small">"Holds up" = profitable both on the data used to choose its settings and on the later data it never saw. Click a row to select it.</p>
+    </div>
+  </section>
+
+  <!-- TIMING -->
+  <section id="tab-timing" class="tab">
+    <div class="card prose">
+      <h3>Does the clock matter? Every entry time, tested</h3>
+      <p>Hundreds of the surveyed videos teach a <b>time</b>: the 09:30 New York open, the 03:00 London open, 08:30 news, the 10:00 Silver Bullet, the Asian session, "the 6:30 strategy". Here every entry time of the day was tested on its own — buy or sell at that exact New York time and hold 1–8 hours (15 minutes–4 hours on 5-minute data) — after spread and commission. Green = it made money, on the first 70% of the history (left number) and on the later 30% it never saw (right number).</p>
+    </div>
+    <div class="controls">
+      <label>Market<select id="t-market"></select></label>
+      <label>Data<select id="t-tf"></select></label>
+      <label>Direction<select id="t-side"><option value="buy">Buy at that time</option><option value="sell">Sell at that time</option></select></label>
+    </div>
+    <div class="card">
+      <h3>Average result per trade, in ATR <span class="muted">(earlier data → later data; bold = strong on both)</span></h3>
+      <div class="scroll"><table class="tbl heat" id="t-heat"></table></div>
+      <p class="muted small">ATR = the average bar range, so 0.10 means a tenth of a typical bar's range per trade after costs. Times are New York (EST/EDT); India time is 9½–10½ hours later.</p>
+    </div>
+    <div class="card">
+      <h3>The times named in videos — best rule found for each</h3>
+      <div class="scroll"><table class="tbl" id="t-video"></table></div>
+      <p class="muted small">Each time was tried with buy, sell, follow the last bar, and fade the last bar, several hold times and stops. The rule was picked on the earlier data; the later data shows if it held up. Click a row to open it on the Strategies tab.</p>
+    </div>
+    <div class="card">
+      <h3>Videos that teach a time <span class="muted" id="t-count"></span></h3>
+      <div class="scroll"><table class="tbl" id="t-src"></table></div>
     </div>
   </section>
 
@@ -116,13 +144,15 @@
   <section id="tab-research" class="tab">
     <div class="card prose">
       <h3>What was researched</h3>
-      <p>252 YouTube videos about gold, US30 and NAS100 strategies were collected from 20 searches. The transcripts of the most-viewed videos with real rules were read, and about 40 Instagram reels were checked. Every strategy with clear rules was coded exactly and backtested on gold (10 years hourly, 2 years of 1- and 5-minute data), NAS100 and US30 (10 years hourly, 2 years of minute data), with real spreads, commission, overnight fees and broker minimum sizes. Settings were chosen on the first 70% of each history and judged on the last 30%.</p>
+      <p>1,677 YouTube videos about gold, US30 and NAS100 strategies were collected from 146 searches (374 million views). The transcripts of the most-viewed videos with real rules were read, and about 40 Instagram reels were checked. Every strategy with clear rules was coded exactly and backtested on gold (10 years hourly, 2 years of 1- and 5-minute data), NAS100 and US30 (10 years hourly, 2 years of minute data), with real spreads, commission, overnight fees and broker minimum sizes. Settings were chosen on the first 70% of each history and judged on the last 30%.</p>
       <div class="kpis small-kpis" id="r-kpis"></div>
       <p><a href="research.html">Full research tables →</a> · <a href="https://github.com/aravi71/ledger-terminal/blob/main/docs/HANDBOOK.md">Handbook (method, sources, results) →</a></p>
-      <h3>Strategy types in 252 videos</h3>
+      <h3>Strategy types</h3>
       <div class="scroll"><table class="tbl" id="r-fam"></table></div>
       <h3>Videos whose rules were coded and tested</h3>
       <div class="scroll"><table class="tbl" id="r-src"></table></div>
+      <h3>Win-rate claims in titles</h3>
+      <div id="r-claims"></div>
       <h3>About 80–90% win rates and 30–40% a month</h3>
       <p>Win rates of 70–92% are real for strategies with a small target and a wide stop (NAS100's RSI(2) setup won 91% of over 1,000 trades in 10 years) — and they ended roughly break-even after costs. No strategy, market or risk level reached 30–40% a month in the tests; getting close required 20%+ risk per trade, where most simulated accounts halved within a year. Use the Goal check on the Strategies tab to see the numbers for any strategy.</p>
     </div>
@@ -130,16 +160,32 @@
 
   <!-- BROKER -->
   <section id="tab-broker" class="tab">
-    <div class="card prose">
-      <h3>Connecting XM later</h3>
-      <p>This page is static (GitHub Pages), so it only paper-trades in your browser. Real or demo orders at XM need a small server, because XM trades through MetaTrader 4/5 and your login must never be placed in a public web page or repository.</p>
-      <ol>
-        <li>Open an <b>XM demo account</b> (MT5) first. Do not use a live account until a strategy has months of good paper and demo results.</li>
-        <li>Run Ledger Terminal on a Windows PC or Windows VPS with the MetaTrader 5 terminal logged in to that demo account.</li>
-        <li>Add a broker adapter using MetaQuotes' official <code>MetaTrader5</code> Python package (it talks to the local terminal: prices, orders with stop-loss/take-profit, positions).</li>
-        <li>Keep the same safety rules as the paper bots: per-trade risk, daily loss limit, kill switch, and the 1% default.</li>
-      </ol>
-      <p class="muted small">XM symbols are usually <code>GOLD</code>, <code>US30Cash</code> and <code>US100Cash</code>; contract sizes differ from these paper settings, so position sizes must be recalculated from XM's own contract specification.</p>
+    <div class="grid2">
+      <div class="card">
+        <h3>XM demo account (MetaTrader 5)</h3>
+        <div class="row">
+          <label style="flex:1">Ledger server on your PC<input id="x-url" value="http://127.0.0.1:3002"></label>
+          <button class="btn" id="x-connect">CONNECT</button>
+        </div>
+        <div id="x-status" class="verdict" style="margin-top:8px">Not connected.</div>
+        <div class="kv" id="x-acct" style="margin-top:8px"></div>
+        <h4>Open positions at XM</h4>
+        <div class="scroll"><table class="tbl" id="x-pos"></table></div>
+        <h4>Bots on the XM demo account</h4>
+        <div class="scroll"><table class="tbl" id="x-bots"></table></div>
+        <p class="muted small">Only demo logins are traded: the server checks MetaTrader's account type before every order and refuses a real account.</p>
+      </div>
+      <div class="card prose">
+        <h3>How to connect (once)</h3>
+        <ol>
+          <li>Open <b>MetaTrader 5</b> on this PC (it is installed). <b>File → Login to Trade Account</b>, choose an <b>XMGlobal-MT5 Demo</b> server and log in with your XM <b>demo</b> login. You type the password into MetaTrader yourself; this app never sees it.</li>
+          <li>In MetaTrader: <b>Tools → Options → Expert Advisors → Allow algorithmic trading</b>, and turn on the <b>Algo Trading</b> button.</li>
+          <li>Start the Ledger server on the same PC: <code>.venv\Scripts\python run.py</code> in the <code>ledger-terminal</code> folder.</li>
+          <li>Press <b>CONNECT</b>. This page talks only to the server on your own PC (127.0.0.1); nothing about your account goes to GitHub.</li>
+          <li>Turn on the <b>xm-gold-asia-drift</b> bot. It trades gold (XM symbol <code>GOLD</code>) at 1% risk while the server and MetaTrader are running.</li>
+        </ol>
+        <p class="muted small">Later, the same setup can run on a Windows VPS so it trades 24/5 without your PC. Keep it on demo until months of demo results match the backtest.</p>
+      </div>
     </div>
   </section>
 </main>

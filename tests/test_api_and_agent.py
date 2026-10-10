@@ -18,7 +18,7 @@ def client(tmp_path):
 
 def test_status_and_market_endpoints(client):
     s = client.get("/api/status").json()
-    assert s["marketData"] == "demo" and s["accounts"] == ["paper-main", "paper-gold", "paper-nas100", "paper-us30"]
+    assert s["marketData"] == "demo" and s["accounts"] == ["paper-main", "paper-gold", "paper-nas100", "paper-us30", "xm-demo"]
     assert s["ai"]["configured"] is False
     assert client.get("/api/quote/AAPL").json()["symbol"] == "AAPL"
     assert len(client.get("/api/history/AAPL?range=6mo").json()["bars"]) > 100
@@ -128,3 +128,11 @@ def test_chat_loop_with_fake_client(tmp_path, monkeypatch):
     assert [m["role"] for m in history] == ["user", "assistant", "user", "assistant"]
     tool_result = history[2]["content"][0]
     assert tool_result["type"] == "tool_result" and '"AAPL"' in tool_result["content"]
+
+
+def test_cors_only_for_the_pages_site(client):
+    pre = client.options("/api/status", headers={"Origin": "https://aravi71.github.io", "Access-Control-Request-Method": "GET",
+                                                 "Access-Control-Request-Private-Network": "true"})
+    assert pre.status_code == 204 and pre.headers["access-control-allow-private-network"] == "true"
+    assert client.get("/api/status", headers={"Origin": "https://aravi71.github.io"}).headers["access-control-allow-origin"] == "https://aravi71.github.io"
+    assert "access-control-allow-origin" not in client.get("/api/status", headers={"Origin": "https://evil.example"}).headers

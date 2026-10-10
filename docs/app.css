@@ -65,3 +65,5 @@ input:focus, select:focus { outline: 1px solid var(--amber); border-color: var(-
 .prose code { font-family: var(--mono); color: var(--amber); }
 .small-kpis .kpi .v { font-size: 15px; }
 @media (max-width: 640px) { .controls .wide { grid-column: auto; } .tv { height: 360px; } }
+.heat td { text-align: center; } .heat td.c { font-size: 11px; }
+.heat td.strong { font-weight: 700; outline: 1px solid var(--amber-dim); }

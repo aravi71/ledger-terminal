@@ -31,7 +31,7 @@ from zoneinfo import ZoneInfo
 
 from . import intraday
 from .agent import AgentError, TradingAgent
-from .brokers import OrderRequest
+from .brokers import BrokerError, OrderRequest
 from .config import BotConfig, Config
 from .events import EventLog
 from .strategies import get_signals
@@ -39,7 +39,8 @@ from .uta import TradingError, UTAManager
 
 NY = ZoneInfo("America/New_York")
 IST = ZoneInfo("Asia/Kolkata")
-PAPER_ACCOUNT_TYPES = {"paper", "alpaca", "cfd"}  # Alpaca is hard-wired to its paper endpoint; cfd is a local simulator
+PAPER_ACCOUNT_TYPES = {"paper", "alpaca", "cfd", "mt5"}  # Alpaca is hard-wired to its paper endpoint; cfd is a local simulator;
+# mt5 refuses every call unless the terminal is logged in to a DEMO account (app/brokers/mt5.py)
 
 
 def is_crypto(symbol: str) -> bool:
@@ -145,7 +146,11 @@ class AutoTrader:
             st = self.bot_state(bot.id)
             perf: dict[str, Any] = {}
             if bot.type == "intraday" and bot.account in self.utas.utas:
-                acct = await self.utas.get(bot.account).broker.account()
+                try:
+                    acct = await self.utas.get(bot.account).broker.account()
+                except BrokerError as e:  # e.g. MetaTrader 5 closed or logged out
+                    bots.append({**bot.model_dump(), "state": st, "performance": {"error": str(e)}, "running": bot.id in self.running})
+                    continue
                 perf = {"holdings": {p["symbol"]: {"qty": p["qty"], "avgCost": p["avgPrice"]} for p in acct["positions"]},
                         "realizedPnl": acct["cash"] - acct.get("startingCash", acct["cash"]),
                         "unrealizedPnl": acct["equity"] - acct["cash"], "totalPnl": acct["totalPnl"], "equity": acct["equity"]}
@@ -197,7 +202,7 @@ class AutoTrader:
             if bot.type == "intraday":
                 return await self._run_intraday(bot, uta)
             return await self._run_strategy(bot, uta)
-        except (TradingError, AgentError, ValueError) as e:
+        except (TradingError, AgentError, BrokerError, ValueError) as e:
             self._record(bot, f"error: {e}", "bot.error")
             return {"bot": bot.id, "error": str(e)}
         finally:
@@ -266,8 +271,8 @@ class AutoTrader:
         Exits (stop, target, time limit, end of day) never go through guards;
         entries are staged, committed and pushed like any other order.
         """
-        if uta.cfg.type != "cfd":
-            raise TradingError("Intraday bots need a CFD account (type 'cfd'): leverage, shorts and stop-loss/take-profit")
+        if uta.cfg.type not in ("cfd", "mt5"):
+            raise TradingError("Intraday bots need a CFD or MT5 demo account: leverage, shorts and stop-loss/take-profit")
         if bot.strategy not in intraday.STRATEGIES:
             raise TradingError(f"Unknown intraday strategy {bot.strategy!r}. Options: {list(intraday.STRATEGIES)}")
         if len(bot.symbols) != 1:
@@ -332,16 +337,28 @@ class AutoTrader:
                 self._record(bot, f"{symbol}: {sig[0]} signal, waiting for the 18:00 New York reopen")
                 return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "wait", "reason": "waiting for reopen"}]}
         side, stop_dist, target_dist = sig
-        price = float((await self.market.quote(symbol))["price"])
-        entry = price + broker.spread / 2 if side == "buy" else price - broker.spread / 2
-        risk_unit = stop_dist + broker.spread
+        if hasattr(broker, "spec"):  # MT5 demo: the broker's own price, spread and lot sizes
+            q, spec = await broker.quote(symbol), await broker.spec(symbol)
+            price, spread, min_qty, qty_step = q["price"], q["spread"], spec["minQty"], spec["qtyStep"]
+            max_spread = float(bot.params.get("max_spread") or 0)
+            if max_spread and spread > max_spread:
+                # Spreads widen right after the daily reopen; keep the signal for this bar and retry next tick.
+                st["pending"] = {"side": side, "sd": stop_dist, "td": target_dist, "t": bars[-1]["t"]}
+                self._save()
+                self._record(bot, f"{symbol}: {side} signal waiting, spread {spread:.2f} is above {max_spread:g}")
+                return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "wait", "reason": "spread too wide"}]}
+        else:
+            price = float((await self.market.quote(symbol))["price"])
+            spread, min_qty, qty_step = broker.spread, broker.min_qty, broker.min_qty
+        entry = price + spread / 2 if side == "buy" else price - spread / 2
+        risk_unit = stop_dist + spread
         equity = acct["equity"]
-        qty = math.floor(equity * bot.riskPct / 100 / risk_unit / broker.min_qty) * broker.min_qty
-        if qty < broker.min_qty:
-            if broker.min_qty * risk_unit <= equity * bot.maxRiskPct / 100:
-                qty = broker.min_qty
+        qty = math.floor(equity * bot.riskPct / 100 / risk_unit / qty_step) * qty_step
+        if qty < min_qty:
+            if min_qty * risk_unit <= equity * bot.maxRiskPct / 100:
+                qty = min_qty
             else:
-                msg = f"{symbol}: {side} signal skipped, minimum size risks {broker.min_qty * risk_unit / equity:.1%} of equity (cap {bot.maxRiskPct}%)"
+                msg = f"{symbol}: {side} signal skipped, minimum size risks {min_qty * risk_unit / equity:.1%} of equity (cap {bot.maxRiskPct}%)"
                 self._record(bot, msg)
                 return {"bot": bot.id, "actions": [{"symbol": symbol, "action": "skip", "reason": "minimum size too risky"}]}
         sl = round(entry - stop_dist if side == "buy" else entry + stop_dist, 2)

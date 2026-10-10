@@ -188,6 +188,27 @@ def create_app(
                 return await call_next(request)
             return Response(status_code=401, headers={"WWW-Authenticate": 'Basic realm="Ledger Terminal"'})
 
+    # The GitHub Pages app may talk to this server on the same PC (e.g. to drive the XM demo
+    # account). Only the origins listed here are allowed; browsers also require the
+    # private-network header for a public page calling localhost.
+    cors_origins = {o.strip() for o in os.getenv("LEDGER_CORS_ORIGINS", "https://aravi71.github.io").split(",") if o.strip()}
+
+    @app.middleware("http")
+    async def cors(request: Request, call_next):
+        origin = request.headers.get("origin")
+        allowed = origin in cors_origins
+        if request.method == "OPTIONS" and allowed and request.headers.get("access-control-request-method"):
+            response = Response(status_code=204)
+        else:
+            response = await call_next(request)
+        if allowed:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = "content-type, authorization"
+            response.headers["Access-Control-Allow-Private-Network"] = "true"
+            response.headers["Vary"] = "Origin"
+        return response
+
     @app.middleware("http")
     async def revalidate_ui(request: Request, call_next):
         # Make browsers re-check the UI files so an upgrade is picked up immediately.
@@ -301,6 +322,13 @@ def create_app(
     @app.get("/api/accounts")
     async def accounts():
         return {"accounts": [await u.summary() for u in utas.utas.values()], "errors": utas.errors}
+
+    @app.get("/api/broker/mt5")
+    async def mt5_status():
+        """Connection status of the MetaTrader 5 (XM demo) terminal on this machine."""
+        from .brokers import Mt5DemoBroker
+        b = next((u.broker for u in utas.utas.values() if isinstance(u.broker, Mt5DemoBroker)), None) or Mt5DemoBroker()
+        return await b.status()
 
     @app.get("/api/accounts/{account_id}")
     async def account(account_id: str):
@@ -506,8 +534,8 @@ def create_app(
                 raise HTTPException(400, "An intraday bot trades exactly one symbol")
             if body.strategy not in intraday.STRATEGIES:
                 raise HTTPException(400, f"Unknown intraday strategy. Options: {list(intraday.STRATEGIES)}")
-            if utas.get(body.account).cfg.type != "cfd":
-                raise HTTPException(400, "Intraday bots need a CFD account (type 'cfd')")
+            if utas.get(body.account).cfg.type not in ("cfd", "mt5"):
+                raise HTTPException(400, "Intraday bots need a CFD or MT5 demo account")
         if body.type == "strategy":
             if not body.symbols:
                 raise HTTPException(400, "A strategy bot needs at least one symbol")

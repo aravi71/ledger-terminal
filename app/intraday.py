@@ -229,6 +229,39 @@ def asia_session_drift(bars: Bars, f: Features, i: int, p: dict) -> Signal:
     return ("buy", p["sl_atr"] * a, p["tp_atr"] * a)
 
 
+def _closes_into(f: Features, i: int, entry_ny: int) -> bool:
+    """True when the next bar opens at New York time ``entry_ny``: the bar closes there, or,
+    for an 18:00 entry, the bar closes at 17:00 into the daily futures break."""
+    c = (f.ny_min[i] + f.step_min) % 1440
+    return c == entry_ny % 1440 or (entry_ny % 1440 == 1080 and c == 1020)
+
+
+def timed_entry(bars: Bars, f: Features, i: int, p: dict) -> Signal:
+    """Enter at an exact New York clock time (the times named in videos: 03:00 London open,
+    08:30 news, 09:30 open, 10:00, 18:00 reopen ...). Signal on the bar that closes at
+    ``entry_ny`` (minutes after midnight New York), so the entry is the next bar's open.
+    ``side``: 1 buy, -1 sell, 0 follow the move of the last ``mom_bars`` bars, 2 fade it.
+    ``days``: bit mask of New York weekdays (1 = Monday ... 16 = Friday; 31 = all).
+    The trade ends at the stop, the target or after ``max_bars`` bars."""
+    a = f.atr[i]
+    if a is None or not _closes_into(f, i, int(p["entry_ny"])):
+        return None
+    wd = f.ny_weekday[i] if f.ny_min[i] + f.step_min < 1440 else (f.ny_weekday[i] + 1) % 7
+    if wd > 4 or not (int(p.get("days", 31)) >> wd) & 1:
+        return None
+    side = int(p.get("side", 1))
+    if side in (0, 2):
+        k = int(p.get("mom_bars", 1))
+        if i - k < 0:
+            return None
+        move = bars[i]["c"] - bars[i - k]["c"]
+        if abs(move) < 1e-12:
+            return None
+        up = move > 0 if side == 0 else move < 0
+        side = 1 if up else -1
+    return ("buy" if side == 1 else "sell", p["sl_atr"] * a, p["tp_atr"] * a)
+
+
 def _opening_range(bars: Bars, f: Features, start: int, minutes: int):
     """Per bar: the day's New York opening range [start, start+minutes) once it is complete,
     and the index of the first bar that closed outside it (None until it happens)."""
@@ -755,6 +788,10 @@ STRATEGIES: dict[str, dict[str, Any]] = {
     "asia_session_drift": {
         "fn": asia_session_drift, "label": "Asian-hours drift (long from the 18:00 New York reopen, ~9 hours)",
         "params": {"ny_signal_hour": 17, "max_bars": 8, "sl_atr": 3.0, "tp_atr": 20.0, "trend_filter": 0, "flat_hour": -1},
+    },
+    "timed_entry": {
+        "fn": timed_entry, "label": "Exact-time entry (New York clock)",
+        "params": {"entry_ny": 570, "side": 1, "mom_bars": 1, "days": 31, "max_bars": 4, "sl_atr": 2.0, "tp_atr": 20.0, "flat_hour": -1},
     },
     "ny_orb": {
         "fn": ny_orb, "label": "New York opening-range breakout (09:30)",

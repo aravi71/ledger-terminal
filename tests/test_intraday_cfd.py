@@ -237,3 +237,24 @@ def test_intraday_bot_waits_for_reopen(tmp_path, monkeypatch):
     clock["now"] = datetime(2026, 10, 6, 18, 2, tzinfo=ny).astimezone(timezone.utc)  # reopened, same last completed bar
     second = run(trader.run_bot("asia"))["actions"][0]
     assert second["action"] == "buy" and second["status"] == "pushed"
+
+
+def test_mt5_adapter_refuses_without_demo_terminal(monkeypatch):
+    """The MT5 adapter never trades unless a demo account is logged in."""
+    import asyncio
+    import sys
+    import types
+
+    from app.brokers import Mt5DemoBroker, OrderRequest
+
+    fake = types.SimpleNamespace(
+        ACCOUNT_TRADE_MODE_DEMO=0, initialize=lambda *a, **k: True, last_error=lambda: (0, ""),
+        account_info=lambda: types.SimpleNamespace(trade_mode=2, login=1, server="XMGlobal-Real"),
+    )
+    monkeypatch.setitem(sys.modules, "MetaTrader5", fake)
+    b = Mt5DemoBroker()
+    b._terminal_running = lambda: True
+    res = asyncio.run(b.place_order(OrderRequest(symbol="GC=F", side="buy", qty=1)))
+    assert res["status"] == "rejected" and "REAL account" in res["message"]
+    st = asyncio.run(b.status())
+    assert st["connected"] is False

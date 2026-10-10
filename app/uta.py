@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .brokers import AlpacaPaperBroker, BrokerError, CfdPaperBroker, OrderRequest, PaperBroker
+from .brokers import AlpacaPaperBroker, BrokerError, CfdPaperBroker, Mt5DemoBroker, OrderRequest, PaperBroker
 from .config import AccountConfig, Config
 from .events import EventLog
 from .guards import GuardContext, check_order
@@ -264,6 +264,8 @@ class UTAManager:
             )
         if acc.type == "alpaca":
             return AlpacaPaperBroker(bc.get("keyIdEnv", "ALPACA_API_KEY_ID"), bc.get("secretKeyEnv", "ALPACA_API_SECRET_KEY"))
+        if acc.type == "mt5":
+            return Mt5DemoBroker(bc.get("symbolMap"), bc.get("terminalPath"))
         raise BrokerError(f"Unknown account type {acc.type}")
 
     def get(self, account_id: str) -> UTA:

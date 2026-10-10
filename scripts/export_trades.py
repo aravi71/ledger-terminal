@@ -39,9 +39,19 @@ def verdict(i: dict, o: dict) -> str:
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     groups: dict[tuple[str, int], dict] = {}
+    timing = []
     for f in sorted(glob.glob(str(ROOT / "docs" / "research-*.json"))):
         rep = json.loads(Path(f).read_text(encoding="utf-8"))
         key = (rep["symbol"], rep["timeframeMinutes"])
+        if rep.get("kind") == "time-scan":
+            tname = f"timing-{rep['symbol'].lower()}-{rep['timeframeMinutes']}m.json"
+            videos = {k: {"label": r["label"], "params": r["chosen"], "verdict": verdict(r["inSample"], r["outOfSample"]),
+                          "isPF": r["inSample"]["profitFactor"], "oosPF": r["outOfSample"]["profitFactor"],
+                          "isWin": r["inSample"]["winRate"], "oosWin": r["outOfSample"]["winRate"], "oosTrades": r["outOfSample"]["trades"]}
+                      for k, r in rep["results"].items() if r["full"]["trades"]}
+            (OUT / tname).write_text(json.dumps({"symbol": rep["symbol"], "tf": rep["timeframeMinutes"], "heatmap": rep["heatmap"], "tested": videos},
+                                                separators=(",", ":")), encoding="utf-8")
+            timing.append({"file": tname, "symbol": rep["symbol"], "tf": rep["timeframeMinutes"]})
         g = groups.setdefault(key, {})
         for name, r in rep["results"].items():
             if name in g or not r.get("full", {}).get("trades"):
@@ -54,7 +64,7 @@ def main() -> None:
         split_t = bars[int(len(bars) * 0.7)]["t"]
         out = {"symbol": symbol, "tf": tf, "splitTime": split_t, "costs": vars(inst["costs"]), "live": inst["live"], "strategies": {}}
         for name, r in results.items():
-            res = run_intraday(bars, name, r["chosen"], capital=10_000, risk_pct=1, max_risk_pct=50, costs=inst["costs"], start_index=250)
+            res = run_intraday(bars, r.get("strategy", name), r["chosen"], capital=10_000, risk_pct=1, max_risk_pct=50, costs=inst["costs"], start_index=250)
             out["strategies"][name] = {
                 "label": r["label"], "params": r["chosen"], "verdict": verdict(r["inSample"], r["outOfSample"]),
                 "isPF": r["inSample"]["profitFactor"], "oosPF": r["outOfSample"]["profitFactor"],
@@ -66,6 +76,7 @@ def main() -> None:
         (OUT / fname).write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
         index.append({"file": fname, "symbol": symbol, "tf": tf, "strategies": list(out["strategies"])})
     (OUT / "index.json").write_text(json.dumps(index, indent=1), encoding="utf-8")
+    (OUT / "timing-index.json").write_text(json.dumps(timing, indent=1), encoding="utf-8")
     print("done", flush=True)
 
 

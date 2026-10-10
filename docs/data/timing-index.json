@@ -1,0 +1,32 @@
+[
+ {
+  "file": "timing-nas100-5m.json",
+  "symbol": "NAS100",
+  "tf": 5
+ },
+ {
+  "file": "timing-nas100-60m.json",
+  "symbol": "NAS100",
+  "tf": 60
+ },
+ {
+  "file": "timing-us30-5m.json",
+  "symbol": "US30",
+  "tf": 5
+ },
+ {
+  "file": "timing-us30-60m.json",
+  "symbol": "US30",
+  "tf": 60
+ },
+ {
+  "file": "timing-xauusd-5m.json",
+  "symbol": "XAUUSD",
+  "tf": 5
+ },
+ {
+  "file": "timing-xauusd-60m.json",
+  "symbol": "XAUUSD",
+  "tf": 60
+ }
+]

@@ -40,7 +40,7 @@ class GuardConfig(BaseModel):
 
 class AccountConfig(BaseModel):
     id: str
-    type: Literal["paper", "alpaca", "cfd"]
+    type: Literal["paper", "alpaca", "cfd", "mt5"]
     label: str = ""
     enabled: bool = True
     guards: GuardConfig = Field(default_factory=GuardConfig)
@@ -160,6 +160,21 @@ DEFAULTS: dict[str, dict[str, Any]] = {
                     "allowShort": True,
                 },
                 "brokerConfig": {"startingCash": 1000, "leverage": 100, "spread": 2.0, "commissionPerUnitSide": 0, "minQty": 0.1},
+            },
+            {
+                "id": "xm-demo",
+                "type": "mt5",
+                "label": "XM demo (MetaTrader 5) · gold, US30, NAS100",
+                "enabled": True,
+                "guards": {
+                    "maxOrderValue": 100000,
+                    "maxPositionValue": 200000,
+                    "cooldownSeconds": 0,
+                    "maxOrdersPerDay": 20,
+                    "symbolWhitelist": ["GC=F", "YM=F", "NQ=F"],
+                    "allowShort": True,
+                },
+                "brokerConfig": {"symbolMap": {"GC=F": "GOLD", "YM=F": "US30Cash", "NQ=F": "US100Cash"}},
             },
             {
                 "id": "alpaca-paper",
