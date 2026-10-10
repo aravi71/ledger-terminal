@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ledger Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">▮</span>LEDGER<span class="brand-sub">TERMINAL</span></div>
+    <form id="cmd-form" class="cmd" autocomplete="off">
+      <span class="cmd-prompt">&gt;</span>
+      <input id="cmd" type="text" spellcheck="false" placeholder="AAPL · BUY 10 AAPL · ASK what moved NVDA today? · HELP" aria-label="Command">
+      <button type="submit" class="go">GO</button>
+      <ul id="cmd-suggest" class="suggest" hidden></ul>
+    </form>
+    <div class="pills">
+      <span id="pill-data" class="pill">DATA —</span>
+      <span id="pill-ai" class="pill">AI —</span>
+      <span id="pill-hb" class="pill">HB —</span>
+      <span id="pill-auto" class="pill">AUTO —</span>
+      <span id="clock" class="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <div class="tape" aria-label="Watchlist ticker"><div id="tape-track" class="tape-track"></div></div>
+
+  <main class="grid">
+    <!-- LEFT -->
+    <section class="col col-left">
+      <div class="panel">
+        <div class="panel-head"><span>WATCHLIST</span><button class="ghost" id="wl-edit" title="Edit watchlist">EDIT</button></div>
+        <table class="table" id="watchlist"><tbody></tbody></table>
+      </div>
+      <div class="panel grow">
+        <div class="panel-head"><span>QUOTE · TECHNICALS</span></div>
+        <div id="quote-detail" class="panel-body small"></div>
+      </div>
+    </section>
+
+    <!-- CENTER -->
+    <section class="col col-center">
+      <div class="panel chart-panel">
+        <div class="chart-head">
+          <div class="sym-block">
+            <span id="sym" class="sym">—</span>
+            <span id="sym-name" class="muted"></span>
+          </div>
+          <div class="px-block">
+            <span id="sym-px" class="px">—</span>
+            <span id="sym-chg" class="chg"></span>
+          </div>
+        </div>
+        <div class="chart-tools">
+          <div class="seg" id="ranges">
+            <button data-r="1d">1D</button><button data-r="5d">5D</button><button data-r="1mo">1M</button><button data-r="3mo">3M</button><button data-r="6mo">6M</button><button data-r="1y" class="on">1Y</button><button data-r="2y">2Y</button><button data-r="5y">5Y</button>
+          </div>
+          <div class="seg" id="overlays">
+            <button data-o="sma20">SMA20</button><button data-o="sma50" class="on">SMA50</button><button data-o="sma200" class="on">SMA200</button><button data-o="rsi" class="on">RSI</button>
+          </div>
+        </div>
+        <div id="chart" class="chart"></div>
+        <div id="rsi-chart" class="rsi-chart"></div>
+      </div>
+
+      <div class="panel grow">
+        <div class="tabs" data-tabs="lower">
+          <button data-tab="news" class="on">NEWS</button>
+          <button data-tab="panel">INVESTOR PANEL</button>
+          <button data-tab="dcf">DCF</button>
+          <button data-tab="bt">BACKTEST</button>
+        </div>
+        <div class="tab-body" data-tabbody="lower">
+          <div data-pane="news" class="pane on"><ul id="news" class="news"></ul></div>
+          <div data-pane="panel" class="pane">
+            <div class="row gap">
+              <button id="panel-run" class="btn">RUN PANEL ON <span id="panel-sym">—</span></button>
+              <span class="muted small">Five independent AI lenses (value, growth, technical, macro, risk) on the same data snapshot.</span>
+            </div>
+            <div id="panel-out" class="lens-grid"></div>
+          </div>
+          <div data-pane="dcf" class="pane">
+            <form id="dcf-form" class="dcf-form">
+              <label>Free cash flow (latest, $M)<input name="freeCashFlow" type="number" step="any" value="100000" required></label>
+              <label>Growth % (stage 1)<input name="growthRate" type="number" step="any" value="8" required></label>
+              <label>Years<input name="years" type="number" min="1" max="30" value="5" required></label>
+              <label>Discount rate % (WACC)<input name="discountRate" type="number" step="any" value="9" required></label>
+              <label>Terminal growth %<input name="terminalGrowth" type="number" step="any" value="2.5" required></label>
+              <label>Net debt ($M)<input name="netDebt" type="number" step="any" value="0"></label>
+              <label>Shares outstanding (M)<input name="sharesOutstanding" type="number" step="any" value="15000" required></label>
+              <button class="btn" type="submit">VALUE</button>
+            </form>
+            <div id="dcf-out" class="small"></div>
+          </div>
+          <div data-pane="bt" class="pane">
+            <form id="bt-form" class="dcf-form">
+              <label>Symbol<input name="symbol" required></label>
+              <label>Strategy<select name="strategy" id="bt-strategy"></select></label>
+              <span id="bt-params" class="contents"></span>
+              <label>History<select name="range"><option value="1y">1 year</option><option value="2y">2 years</option><option value="5y" selected>5 years</option><option value="10y">10 years</option><option value="max">Max</option></select></label>
+              <label>Starting cash $<input name="initialCash" type="number" step="any" value="100000"></label>
+              <label>Allocation per trade $<input name="allocation" type="number" step="any" value="10000"></label>
+              <label>Slippage (bps)<input name="slippageBps" type="number" step="any" value="2"></label>
+              <label>Commission $/order<input name="commission" type="number" step="any" value="0"></label>
+              <button class="btn" type="submit" id="bt-run">RUN BACKTEST</button>
+            </form>
+            <p id="bt-desc" class="muted small"></p>
+            <div id="bt-out"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT -->
+    <section class="col col-right">
+      <div class="panel grow">
+        <div class="tabs" data-tabs="right">
+          <button data-tab="agent" class="on">AGENT</button>
+          <button data-tab="trade">TRADE <span id="pending-badge" class="badge" hidden>0</span></button>
+          <button data-tab="port">PORTFOLIO</button>
+          <button data-tab="auto">AUTO <span id="auto-badge" class="badge" hidden>0</span></button>
+          <button data-tab="events">EVENTS</button>
+        </div>
+        <div class="tab-body" data-tabbody="right">
+          <!-- AGENT -->
+          <div data-pane="agent" class="pane on agent-pane">
+            <div id="ai-off" class="notice" hidden>
+              <b>AI is off.</b> Add <code>ANTHROPIC_API_KEY</code> to <code>.env</code> (or run <code>ant auth login</code>) and restart. Everything else works without it.
+            </div>
+            <div id="chat" class="chat"></div>
+            <form id="chat-form" class="chat-form">
+              <textarea id="chat-input" rows="2" placeholder="Ask about a ticker, or: 'propose a small paper trade in SPY'"></textarea>
+              <div class="row between">
+                <button type="button" id="chat-reset" class="ghost">NEW CHAT</button>
+                <button type="submit" class="btn" id="chat-send">SEND</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- TRADE -->
+          <div data-pane="trade" class="pane">
+            <div class="row gap">
+              <select id="acct-select" aria-label="Account"></select>
+              <button class="ghost" id="acct-refresh">↻</button>
+            </div>
+            <div id="acct-summary" class="kv small"></div>
+
+            <h4>ORDER TICKET</h4>
+            <form id="ticket" class="ticket">
+              <input name="symbol" placeholder="SYMBOL" required>
+              <div class="seg side">
+                <button type="button" data-side="buy" class="on buy">BUY</button><button type="button" data-side="sell" class="sell">SELL</button>
+              </div>
+              <input name="qty" type="number" step="any" min="0" placeholder="QTY" required>
+              <select name="type"><option value="market">MKT</option><option value="limit">LMT</option></select>
+              <input name="limitPrice" type="number" step="any" placeholder="LIMIT" disabled>
+              <input name="rationale" class="wide" placeholder="Rationale (optional)">
+              <button class="btn wide" type="submit">STAGE</button>
+            </form>
+
+            <h4>STAGED <span class="muted">· git add</span></h4>
+            <ul id="staged" class="list"></ul>
+            <form id="commit-form" class="row gap">
+              <input id="commit-msg" placeholder="Commit message" class="grow">
+              <button class="btn" type="submit">COMMIT</button>
+            </form>
+
+            <h4>AWAITING PUSH <span class="muted">· human approval</span></h4>
+            <ul id="pending" class="list"></ul>
+
+            <h4>OPEN ORDERS</h4>
+            <ul id="open-orders" class="list"></ul>
+
+            <h4>LOG <span class="muted">· git log</span></h4>
+            <ul id="gitlog" class="gitlog"></ul>
+          </div>
+
+          <!-- PORTFOLIO -->
+          <div data-pane="port" class="pane">
+            <div class="row between"><h4>POSITIONS</h4><button class="ghost" id="risk-refresh">↻ RISK</button></div>
+            <table class="table" id="positions"><thead><tr><th>SYM</th><th>QTY</th><th>AVG</th><th>LAST</th><th>P&amp;L</th></tr></thead><tbody></tbody></table>
+            <h4>RISK <span class="muted">· 1y replay of current weights</span></h4>
+            <div id="risk" class="kv small"></div>
+          </div>
+
+          <!-- AUTO -->
+          <div data-pane="auto" class="pane">
+            <div class="kill-box">
+              <div><b>Automated trading</b><div class="muted small">Paper accounts only. Bots stage, commit and push their own orders. Guards, a daily loss limit and market hours still apply.</div></div>
+              <button id="kill" class="btn danger">KILL SWITCH</button>
+            </div>
+            <ul id="bots" class="list"></ul>
+            <p class="muted small">Create strategy bots from the BACKTEST tab ("Paper trade this strategy"). Edit any bot as JSON with EDIT.</p>
+          </div>
+
+          <!-- EVENTS -->
+          <div data-pane="events" class="pane">
+            <div class="hb-box">
+              <label class="row gap"><input type="checkbox" id="hb-enabled"> Heartbeat every <input id="hb-interval" type="number" min="5" max="1440" value="60" class="num"> min</label>
+              <button class="ghost" id="hb-run">RUN NOW</button>
+            </div>
+            <ul id="events" class="events"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="statusbar">
+    <span><kbd>/</kbd> command</span><span><kbd>HELP</kbd> commands</span>
+    <span class="grow"></span>
+    <span id="last-event" class="muted">ready</span>
+  </footer>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="modal-head"><span id="modal-title"></span><button class="ghost" data-close>✕</button></div>
+      <div id="modal-body" class="modal-body"></div>
+      <div id="modal-actions" class="modal-actions"></div>
+    </div>
+  </div>
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
