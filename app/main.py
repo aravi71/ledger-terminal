@@ -75,14 +75,20 @@ class BacktestBody(BaseModel):
 class IntradayBody(BaseModel):
     strategy: str
     symbol: str = "XAUUSD"
-    timeframe: Literal["5m", "15m", "30m", "60m"] = "60m"
+    timeframe: Literal["1m", "5m", "15m", "30m", "60m"] = "60m"
     years: float = Field(default=10, gt=0, le=20)
     capital: float = Field(default=1000, gt=0)
     riskPct: float = Field(default=1, gt=0, le=25)
     maxRiskPct: float = Field(default=5, gt=0, le=50)
     spread: float | None = Field(default=None, ge=0, le=50)
+    accountType: Literal["standard", "micro"] = "standard"
     leverage: float = Field(default=100, ge=1, le=1000)
     params: dict[str, float] = Field(default_factory=dict)
+
+
+class PlanBody(IntradayBody):
+    strategy: str = ""
+    targetMonthlyPct: float = Field(default=30, gt=0, le=200)
 
 
 class KillBody(BaseModel):
@@ -415,9 +421,7 @@ def create_app(
             raise HTTPException(400, str(e))
         cutoff = bars[-1]["t"] - int(body.years * 365.25 * 86400) if bars else 0
         bars = [b for b in bars if b["t"] >= cutoff]
-        preset = intraday.INSTRUMENTS[body.symbol]["costs"]
-        costs = intraday.Costs(spread=body.spread if body.spread is not None else preset.spread, commission=preset.commission,
-                               leverage=body.leverage, min_qty=preset.min_qty, qty_step=preset.qty_step)
+        costs = intraday.instrument_costs(body.symbol, body.accountType, body.spread, body.leverage)
         try:
             result = await asyncio.to_thread(
                 intraday.run_intraday, bars, body.strategy, body.params, body.capital, body.riskPct, body.maxRiskPct, costs, 21, 250)
@@ -430,6 +434,53 @@ def create_app(
         events.emit("backtest.run", {"symbol": body.symbol, "strategy": body.strategy, "params": body.params,
                                      "totalReturn": m["totalReturn"], "benchmark": 0.0, "winRate": m["winRate"], "timeframe": body.timeframe})
         return {"symbol": body.symbol, "timeframe": body.timeframe, "live": intraday.INSTRUMENTS[body.symbol]["live"], **result}
+
+    async def _plan_one(body: PlanBody, strategy: str, bars: list) -> dict:
+        costs = intraday.instrument_costs(body.symbol, body.accountType, body.spread, body.leverage)
+        # Measure the strategy at 1% risk on a large account so sizing limits don't distort its R results.
+        res = await asyncio.to_thread(intraday.run_intraday, bars, strategy, body.params if strategy == body.strategy else {},
+                                      10_000, 1.0, 50.0, costs, 21, 250)
+        plan = await asyncio.to_thread(intraday.goal_plan, res, body.targetMonthlyPct / 100, body.capital, costs)
+        m = res["metrics"]
+        return {"strategy": strategy, "label": res["label"], "trades": m["trades"], "winRate": m["winRate"],
+                "profitFactor": m["profitFactor"], "medianMonthAt1pct": m["medianMonth"], **plan}
+
+    async def _plan_bars(body: PlanBody) -> list:
+        if body.symbol not in intraday.INSTRUMENTS:
+            raise HTTPException(400, f"Unknown symbol. Options: {list(intraday.INSTRUMENTS)}")
+        try:
+            bars = await asyncio.to_thread(local_history, body.symbol, int(body.timeframe.rstrip("m")))
+        except FileNotFoundError as e:
+            raise HTTPException(400, str(e))
+        cutoff = bars[-1]["t"] - int(body.years * 365.25 * 86400) if bars else 0
+        return [b for b in bars if b["t"] >= cutoff]
+
+    @app.post("/api/intraday/plan")
+    async def intraday_plan(body: PlanBody):
+        """Can a monthly return target be reached with one strategy, and at what risk?"""
+        if body.strategy not in intraday.STRATEGIES:
+            raise HTTPException(400, f"Unknown strategy. Options: {list(intraday.STRATEGIES)}")
+        bars = await _plan_bars(body)
+        return {"symbol": body.symbol, "timeframe": body.timeframe, **(await _plan_one(body, body.strategy, bars))}
+
+    @app.post("/api/intraday/scan")
+    async def intraday_scan(body: PlanBody):
+        """Run the goal planner for every strategy on one market and timeframe, safest first."""
+        bars = await _plan_bars(body)
+        rows = []
+        for name in intraday.STRATEGIES:
+            if name.startswith("_"):
+                continue
+            try:
+                rows.append(await _plan_one(body, name, bars))
+            except ValueError as e:
+                rows.append({"strategy": name, "label": intraday.STRATEGIES[name]["label"], "error": str(e)})
+
+        def rank(r):
+            n = r.get("needed")
+            return (0 if n else 1, (n or {}).get("probHalved", 1), -((r.get("best") or {}).get("medianMonthly") or -1))
+        rows.sort(key=rank)
+        return {"symbol": body.symbol, "timeframe": body.timeframe, "targetMonthlyPct": body.targetMonthlyPct, "strategies": rows}
 
     # --- automation ------------------------------------------------------------------
     @app.get("/api/automation")

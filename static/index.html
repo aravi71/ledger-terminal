@@ -117,7 +117,7 @@
             <form id="sc-form" class="dcf-form">
               <label>Market<select name="symbol" id="sc-symbol"><option value="XAUUSD">Gold (XAUUSD)</option><option value="NAS100">Nasdaq 100 (NAS100)</option><option value="US30">Dow 30 (US30)</option></select></label>
               <label>Strategy<select name="strategy" id="sc-strategy"></select></label>
-              <label>Timeframe<select name="timeframe" id="sc-tf"><option value="60m">1 hour (up to 10 years)</option><option value="30m">30 minutes</option><option value="15m">15 minutes</option><option value="5m">5 minutes</option></select></label>
+              <label>Timeframe<select name="timeframe" id="sc-tf"><option value="60m">1 hour (up to 10 years)</option><option value="30m">30 minutes</option><option value="15m">15 minutes</option><option value="5m">5 minutes</option><option value="1m">1 minute (slow)</option></select></label>
               <label>Years of history<input name="years" type="number" step="any" min="0.25" max="20" value="10"></label>
               <label>Starting capital $<input name="capital" type="number" step="any" value="1000" list="sc-caps"></label>
               <datalist id="sc-caps"><option value="100"></option><option value="1000"></option><option value="10000"></option></datalist>
@@ -125,9 +125,21 @@
               <label>Max risk with minimum size %<input name="maxRiskPct" type="number" step="any" value="5"></label>
               <label>Spread (blank = market default)<input name="spread" type="number" step="any" placeholder="default"></label>
               <label>Leverage 1:<input name="leverage" type="number" step="any" value="100"></label>
+              <label>Account type<select name="accountType" id="sc-acct"><option value="standard">Standard (gold 1 oz, index 0.1 min)</option><option value="micro">Micro / cent (0.01 min)</option></select></label>
               <span id="sc-params" class="contents"></span>
               <button class="btn" type="submit" id="sc-run">RUN BACKTEST</button>
             </form>
+            <div class="goal-box">
+              <h4>GOAL PLANNER <span class="muted">· what would a monthly target take?</span></h4>
+              <div class="dcf-form">
+                <label>Target return per month %<input id="goal-pct" type="number" step="any" min="0.5" max="200" value="30"></label>
+                <label>= per year<output id="goal-year" class="goal-year">—</output></label>
+                <button class="btn" type="button" id="goal-one">CHECK THIS STRATEGY</button>
+                <button class="btn" type="button" id="goal-scan">SCAN ALL STRATEGIES</button>
+              </div>
+              <p class="muted small">Uses the market, timeframe, years, capital, spread and account type above. It replays each strategy's real backtest trades at different risk per trade (2,000 simulated years each).</p>
+              <div id="goal-out"></div>
+            </div>
             <p id="sc-avail" class="muted small"></p>
             <div id="sc-out"></div>
           </div>

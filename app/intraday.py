@@ -294,6 +294,107 @@ def ema_rsi_scalp(bars: Bars, f: Features, i: int, p: dict) -> Signal:
     return None
 
 
+def silver_bullet(bars: Bars, f: Features, i: int, p: dict) -> Signal:
+    """ICT 'Silver Bullet' (simplified, mechanical): inside the ``win_start``-``win_end`` New York
+    window (600-660 = 10:00-11:00), take the FIRST fair-value gap of the day there, formed by a
+    displacement candle: bullish if low[i] > high[i-2] and bar i closes up (bearish mirrored),
+    gap at least ``min_gap_atr`` x ATR. Stop beyond candle i-2 plus ``sl_pad_atr`` x ATR;
+    target ``rr`` x stop. Entry at the next bar's open (market, no limit-order fill assumed)."""
+    a = f.atr[i]
+    if a is None or i < 2 or not (p["win_start"] <= f.ny_min[i] < p["win_end"]) or f.ny_weekday[i] > 4:
+        return None
+
+    def gap(k: int) -> str | None:
+        b, b2 = bars[k], bars[k - 2]
+        if b["l"] > b2["h"] and b["c"] > b["o"] and b["l"] - b2["h"] >= p["min_gap_atr"] * a:
+            return "buy"
+        if b["h"] < b2["l"] and b["c"] < b["o"] and b2["l"] - b["h"] >= p["min_gap_atr"] * a:
+            return "sell"
+        return None
+
+    side = gap(i)
+    if not side:
+        return None
+    k = i - 1  # only the first gap of today's window counts
+    while k >= 2 and f.ny_date[k] == f.ny_date[i] and f.ny_min[k] >= p["win_start"]:
+        if gap(k):
+            return None
+        k -= 1
+    c = bars[i]["c"]
+    pad = p["sl_pad_atr"] * a
+    sd = (c - bars[i - 2]["l"] + pad) if side == "buy" else (bars[i - 2]["h"] - c + pad)
+    return (side, sd, p["rr"] * sd) if sd > 0 else None
+
+
+def orb_fvg(bars: Bars, f: Features, i: int, p: dict) -> Signal:
+    """Opening range + fair-value-gap scalp (as taught in popular YouTube videos), for 1-minute bars:
+    1) range = high/low of the first ``or_minutes`` after 09:30 New York;
+    2) bias = direction of the first 5-minute close outside the range;
+    3) entry = the first 1-minute fair-value gap in that direction (low[i] > high[i-2] for longs),
+       stop beyond the middle candle (i-1), target ``rr`` x stop; before ``entry_until``. One trade a day."""
+    hi, lo, _ = _opening_range(bars, f, 570, int(p["or_minutes"]))
+    h, l = hi[i], lo[i]
+    if h is None or i < 3 or f.ny_min[i] >= p["entry_until"] or f.ny_weekday[i] > 4:
+        return None
+    key = ("orb_fvg_bias", int(p["or_minutes"]))
+    if key not in f.cache:  # per bar: the day's bias once a 5-minute close has left the range
+        bias: list[str | None] = [None] * len(bars)
+        day, cur = None, None
+        for k, b in enumerate(bars):
+            if f.ny_date[k] != day:
+                day, cur = f.ny_date[k], None
+            if cur is None and hi[k] is not None and (f.ny_min[k] + f.step_min) % 5 == 0:
+                cur = "buy" if b["c"] > hi[k] else "sell" if b["c"] < lo[k] else None
+            bias[k] = cur
+        f.cache[key] = bias
+    side = f.cache[key][i - 1]  # bias known before this bar
+    if side is None:
+        return None
+
+    def fvg(k: int) -> bool:
+        return bars[k]["l"] > bars[k - 2]["h"] if side == "buy" else bars[k]["h"] < bars[k - 2]["l"]
+
+    if not fvg(i):
+        return None
+    k = i - 1  # only the first qualifying gap after the bias was set
+    while k >= 2 and f.ny_date[k] == f.ny_date[i] and f.cache[key][k - 1] == side:
+        if fvg(k):
+            return None
+        k -= 1
+    c = bars[i]["c"]
+    sd = c - bars[i - 1]["l"] if side == "buy" else bars[i - 1]["h"] - c
+    return (side, sd, p["rr"] * sd) if sd > 0 else None
+
+
+def supply_demand(bars: Bars, f: Features, i: int, p: dict) -> Signal:
+    """Supply/demand zone retest (mechanical version of the popular US30 video): a small 'base'
+    candle followed by an impulsive candle (body >= ``impulse_atr`` x ATR) marks a zone at the base
+    candle's range. The first time price returns into a fresh zone within ``lookback`` bars, trade in
+    the impulse direction; stop beyond the zone (+ ``sl_pad_atr`` x ATR), target ``rr`` x stop."""
+    a = f.atr[i]
+    if a is None or not (p["sess_start"] <= f.ny_min[i] < p["sess_end"]):
+        return None
+    b = bars[i]
+    for k in range(i - 2, max(2, i - int(p["lookback"])), -1):
+        base, imp = bars[k - 1], bars[k]
+        ak = f.atr[k]
+        if ak is None or abs(base["c"] - base["o"]) > p["base_atr"] * ak or abs(imp["c"] - imp["o"]) < p["impulse_atr"] * ak:
+            continue
+        up = imp["c"] > imp["o"]
+        top, bot = base["h"], base["l"]
+        between = bars[k + 1:i]
+        if up:
+            if any(x["l"] <= top for x in between) or not (b["l"] <= top and b["c"] > bot):
+                continue
+            sd = b["c"] - bot + p["sl_pad_atr"] * a
+            return ("buy", sd, p["rr"] * sd) if sd > 0 else None
+        if any(x["h"] >= bot for x in between) or not (b["h"] >= bot and b["c"] < top):
+            continue
+        sd = top - b["c"] + p["sl_pad_atr"] * a
+        return ("sell", sd, p["rr"] * sd) if sd > 0 else None
+    return None
+
+
 STRATEGIES: dict[str, dict[str, Any]] = {
     "trend_pullback": {
         "fn": trend_pullback, "label": "Trend pullback (EMA 20/50/200)",
@@ -315,6 +416,19 @@ STRATEGIES: dict[str, dict[str, Any]] = {
         "fn": ny_orb, "label": "New York opening-range breakout (09:30)",
         "params": {"or_start": 570, "or_minutes": 15, "sl_frac": 1.0, "rr": 1.0, "entry_until": 690,
                    "max_range_atr": 0, "max_bars": 0, "flat_ny": 945, "flat_hour": -1},
+    },
+    "orb_fvg": {
+        "fn": orb_fvg, "label": "Opening range + fair-value gap (YouTube 1-minute scalp)",
+        "params": {"or_minutes": 15, "rr": 2.0, "entry_until": 690, "max_bars": 0, "flat_ny": 945, "flat_hour": -1},
+    },
+    "supply_demand": {
+        "fn": supply_demand, "label": "Supply/demand zone retest (YouTube US30 strategy)",
+        "params": {"base_atr": 0.5, "impulse_atr": 1.5, "lookback": 48, "sl_pad_atr": 0.1, "rr": 2.0,
+                   "sess_start": 570, "sess_end": 900, "max_bars": 0, "flat_ny": 945, "flat_hour": -1},
+    },
+    "silver_bullet": {
+        "fn": silver_bullet, "label": "ICT Silver Bullet (FVG, 10:00-11:00 New York)",
+        "params": {"win_start": 600, "win_end": 660, "min_gap_atr": 0.1, "sl_pad_atr": 0.1, "rr": 2.0, "max_bars": 0, "flat_ny": 945, "flat_hour": -1},
     },
     "ema_rsi_scalp": {
         "fn": ema_rsi_scalp, "label": "EMA-200 trend + RSI pullback scalp (1:2)",
@@ -545,6 +659,55 @@ INSTRUMENTS: dict[str, dict[str, Any]] = {
     "NAS100": {"data": "USATECHIDXUSD", "live": "NQ=F", "unit": "$1/point",
                "costs": Costs(spread=1.0, commission=0.0, leverage=100, min_qty=0.1, qty_step=0.1, swap_long=3.0, swap_short=1.0)},
 }
+
+
+MICRO_MIN = {"XAUUSD": 0.01, "US30": 0.01, "NAS100": 0.01}
+
+
+def instrument_costs(symbol: str, account_type: str = "standard", spread: float | None = None, leverage: float | None = None) -> Costs:
+    """Cost preset for a market; ``micro`` accounts trade 100x smaller minimum sizes (cent/micro lots)."""
+    base = INSTRUMENTS[symbol]["costs"]
+    c = Costs(**vars(base))
+    if account_type == "micro":
+        c.min_qty = c.qty_step = MICRO_MIN[symbol]
+    if spread is not None:
+        c.spread = spread
+    if leverage is not None:
+        c.leverage = leverage
+    return c
+
+
+def goal_plan(result: dict, target_monthly: float, capital: float, costs: Costs,
+              risk_levels=(0.25, 0.5, 1, 1.5, 2, 3, 4, 5, 7.5, 10, 15, 20, 25, 30)) -> dict[str, Any]:
+    """What it would take to reach ``target_monthly`` (0.30 = 30%) with this strategy's own trades."""
+    rs = result.get("rs") or []
+    m = result["metrics"]
+    tpm = m["trades"] / max(1e-9, result["period"]["years"] * 12)
+    sims = risk_simulation(rs, tpm, risk_levels) if rs else []
+    needed = next((x for x in sims if x["medianMonthly"] >= target_monthly), None)
+    best = max(sims, key=lambda x: x["medianMonthly"], default=None)
+    stops = sorted(abs(t["entry"] - t["sl"]) + costs.spread for t in result.get("trades", []) if t.get("sl"))
+    typical_stop = stops[len(stops) // 2] if stops else None
+    min_risk_pct = costs.min_qty * typical_stop / capital * 100 if typical_stop else None
+    if not rs:
+        verdict = "This strategy made no trades on this data."
+    elif (m.get("avgR") or 0) <= 0:
+        verdict = "This strategy lost money after costs, so no amount of risk reaches the target; more risk only loses faster."
+    elif needed is None:
+        verdict = (f"Not reachable: the best typical month was {best['medianMonthly']:.1%} at {best['riskPct']}% risk per trade, "
+                   f"where the account halves in {best['probHalved']:.0%} of simulated years.")
+    elif needed["probHalved"] >= 0.25 or needed["probRuin"] >= 0.02:
+        verdict = (f"Possible only at {needed['riskPct']}% risk per trade: the account halves in {needed['probHalved']:.0%} "
+                   f"and is wiped out in {needed['probRuin']:.0%} of simulated years. Not a sound plan.")
+    else:
+        verdict = f"Reachable at about {needed['riskPct']}% risk per trade with a {needed['probHalved']:.0%} chance of halving in a year."
+    if min_risk_pct and min_risk_pct > 5:
+        verdict += f" With {capital:,.0f} on this account type the smallest position already risks about {min_risk_pct:.0f}% per trade."
+    return {
+        "targetMonthly": target_monthly, "targetYearly": (1 + target_monthly) ** 12 - 1,
+        "tradesPerMonth": tpm, "avgR": m.get("avgR"), "needed": needed, "best": best, "table": sims,
+        "typicalStop": typical_stop, "minRiskPctAtCapital": min_risk_pct, "verdict": verdict,
+    }
 
 
 def risk_simulation(r_multiples: Sequence[float], trades_per_month: float, risk_levels=(0.5, 1, 2, 3, 5, 10, 20),

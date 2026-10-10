@@ -247,3 +247,8 @@ kbd { color: var(--amber); font: inherit; }
 
 .ticket .half { grid-column: span 2; }
 @media (max-width: 760px) { .ticket .half { grid-column: auto; } }
+
+.goal-box { border: 1px solid var(--amber-dim); border-radius: 3px; padding: 10px 12px; margin: 10px 0; background: var(--panel-2); }
+.goal-box h4 { margin-top: 0; }
+.goal-year { font: 700 15px var(--mono); color: var(--amber); padding: 6px 0; }
+.tablebox { overflow-x: auto; }

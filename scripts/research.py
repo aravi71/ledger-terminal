@@ -36,6 +36,9 @@ ROOT = Path(__file__).resolve().parent.parent
 GRIDS = {
     "ny_orb": {"or_minutes": [5, 15, 30], "sl_frac": [0.5, 1.0], "rr": [0.5, 1.0, 1.5, 2.0], "entry_until": [660, 720]},
     "ema_rsi_scalp": {"rsi_low": [25, 30, 35], "sl_atr": [1.0, 1.5, 2.0], "rr": [0.5, 1.0, 2.0]},
+    "orb_fvg": {"or_minutes": [5, 15], "rr": [1.0, 2.0, 3.0]},
+    "supply_demand": {"impulse_atr": [1.5, 2.5], "rr": [1.0, 2.0, 3.0]},
+    "silver_bullet": {"rr": [1.0, 2.0, 3.0], "min_gap_atr": [0.05, 0.2], "sl_pad_atr": [0.0, 0.2]},
     "rsi2_highwin": {"tp_atr": [0.3, 0.5, 1.0], "sl_atr": [2.0, 3.0, 6.0], "rsi_entry": [5, 10]},
     "asian_breakout": {"rr": [1.0, 1.5, 2.0], "buffer_atr": [0.0, 0.2], "sl_cap_atr": [2.0, 3.0]},
     "trend_pullback": {"sl_atr": [1.0, 1.5, 2.0], "tp_atr": [1.0, 2.0, 3.0], "rsi_max_long": [55, 65]},
@@ -53,7 +56,8 @@ def slim(r: dict) -> dict:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--symbol", default="XAUUSD", choices=list(INSTRUMENTS))
-    ap.add_argument("--tf", type=int, default=60, choices=[5, 15, 30, 60])
+    ap.add_argument("--tf", type=int, default=60, choices=[1, 5, 15, 30, 60])
+    ap.add_argument("--only", help="comma-separated strategy names to run")
     ap.add_argument("--out")
     args = ap.parse_args()
     inst = INSTRUMENTS[args.symbol]
@@ -65,7 +69,10 @@ def main() -> None:
     print(f"{args.symbol} {args.tf}m: {len(bars)} bars", flush=True)
     report = {"generated": date.today().isoformat(), "symbol": args.symbol, "timeframeMinutes": args.tf,
               "costs": vars(costs), "riskPerTradePct": 1.0, "results": {}}
+    only = set(args.only.split(",")) if args.only else None
     for name, grid in GRIDS.items():
+        if only and name not in only:
+            continue
         keys, rows = list(grid), []
         hold_hours = [9] if args.symbol == "XAUUSD" else [9, 15.5]  # indices: also hold to the 09:30 cash open
         for combo, hours in itertools.product(itertools.product(*(grid[k] for k in keys)), hold_hours if name == "asia_session_drift" else [None]):

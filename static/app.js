@@ -772,6 +772,7 @@ $("#sc-form").addEventListener("submit", async (e) => {
     symbol: f.get("symbol"), strategy: f.get("strategy"), timeframe: f.get("timeframe"), years: Number(f.get("years")),
     capital: Number(f.get("capital")), riskPct: Number(f.get("riskPct")), maxRiskPct: Number(f.get("maxRiskPct")),
     spread: f.get("spread") === "" ? null : Number(f.get("spread")), leverage: Number(f.get("leverage")),
+    accountType: f.get("accountType"),
     params: Object.fromEntries($$("#sc-params [data-sparam]").map((i) => [i.dataset.sparam, Number(i.value)])),
   };
   const out = $("#sc-out");
@@ -859,6 +860,63 @@ function createScalpBot(body, live) {
     } },
   ]);
 }
+
+
+// ---------------------------------------------------------------- goal planner
+function updateGoalYear() {
+  const m = Number($("#goal-pct").value) / 100;
+  $("#goal-year").textContent = m > 0 ? `${Math.round(((1 + m) ** 12 - 1) * 100).toLocaleString()}% a year (compounded)` : "—";
+}
+$("#goal-pct").addEventListener("input", updateGoalYear);
+updateGoalYear();
+
+function scalpBody() {
+  const f = new FormData($("#sc-form"));
+  return {
+    symbol: f.get("symbol"), strategy: f.get("strategy"), timeframe: f.get("timeframe"), years: Number(f.get("years")),
+    capital: Number(f.get("capital")), riskPct: Number(f.get("riskPct")), maxRiskPct: Number(f.get("maxRiskPct")),
+    spread: f.get("spread") === "" ? null : Number(f.get("spread")), leverage: Number(f.get("leverage")),
+    accountType: f.get("accountType"), targetMonthlyPct: Number($("#goal-pct").value),
+    params: Object.fromEntries($$("#sc-params [data-sparam]").map((i) => [i.dataset.sparam, Number(i.value)])),
+  };
+}
+function goalCell(x) { return x ? `${x.riskPct}%` : "not reachable"; }
+function riskRows(table) {
+  return table.map((x) => `<tr><td>${x.riskPct}%</td><td class="${cls(x.medianMonthly)}">${pct(x.medianMonthly * 100, 1)}</td><td class="${cls(x.p10Monthly)}">${pct(x.p10Monthly * 100, 1)}</td><td class="${x.probHalved > 0.2 ? "down" : ""}">${fmtPct(x.probHalved)}</td><td class="${x.probRuin > 0.01 ? "down" : ""}">${fmtPct(x.probRuin)}</td></tr>`).join("");
+}
+async function runGoal(scan) {
+  const out = $("#goal-out");
+  const body = scalpBody();
+  $("#goal-one").disabled = $("#goal-scan").disabled = true;
+  out.innerHTML = `<p class="muted typing">${scan ? "Scanning every strategy (this can take a minute)" : "Checking"} </p>`;
+  try {
+    if (!scan) {
+      const r = await api("/api/intraday/plan", { method: "POST", body });
+      const ok = r.needed && r.needed.probHalved < 0.25 && r.needed.probRuin < 0.02;
+      out.innerHTML = `
+        <div class="verdict ${ok ? "good" : "bad"}"><b>${esc(r.label)}</b> · ${esc(r.symbol)} ${esc(r.timeframe)} · target ${body.targetMonthlyPct}%/month (${Math.round(r.targetYearly * 100).toLocaleString()}%/year)<br>${esc(r.verdict)}</div>
+        <p class="small muted">${r.trades} trades (${fmtNum(r.tradesPerMonth, 1)}/month), win rate ${fmtPct(r.winRate)}, profit factor ${fmtNum(r.profitFactor)}, average ${fmtNum(r.avgR)} R per trade.</p>
+        <table class="bt-metrics"><thead><tr><th>RISK / TRADE</th><th>TYPICAL MONTH</th><th>BAD CASE (1 IN 10)</th><th>HALVES IN A YEAR</th><th>WIPED OUT</th></tr></thead><tbody>${riskRows(r.table)}</tbody></table>`;
+    } else {
+      const r = await api("/api/intraday/scan", { method: "POST", body });
+      out.innerHTML = `
+        <p class="small">Target <b>${body.targetMonthlyPct}%/month</b> on ${esc(r.symbol)} ${esc(r.timeframe)}. Safest first. "Needs" = smallest risk per trade whose typical month reaches the target.</p>
+        <div class="tablebox"><table class="table small"><thead><tr><th>STRATEGY</th><th>TRADES/MO</th><th>WIN</th><th>PF</th><th>MONTH @1%</th><th>NEEDS</th><th>HALVES</th><th>WIPED</th><th>BEST MONTH POSSIBLE</th></tr></thead><tbody>
+        ${r.strategies.map((x) => x.error ? `<tr><td>${esc(x.label)}</td><td colspan="8" class="muted">${esc(x.error)}</td></tr>` : `<tr title="${esc(x.verdict)}">
+          <td>${esc(x.label)}</td><td>${fmtNum(x.tradesPerMonth, 1)}</td><td>${fmtPct(x.winRate)}</td><td class="${(x.profitFactor || 0) > 1 ? "up" : "down"}">${fmtNum(x.profitFactor)}</td>
+          <td class="${cls(x.medianMonthAt1pct)}">${x.medianMonthAt1pct === null ? "—" : pct(x.medianMonthAt1pct * 100, 1)}</td>
+          <td class="${x.needed ? "" : "down"}">${goalCell(x.needed)}</td>
+          <td class="${x.needed && x.needed.probHalved > 0.2 ? "down" : ""}">${x.needed ? fmtPct(x.needed.probHalved) : "—"}</td>
+          <td class="${x.needed && x.needed.probRuin > 0.01 ? "down" : ""}">${x.needed ? fmtPct(x.needed.probRuin) : "—"}</td>
+          <td>${x.best ? `${pct(x.best.medianMonthly * 100, 1)} @ ${x.best.riskPct}% (halves ${fmtPct(x.best.probHalved)})` : "—"}</td></tr>`).join("")}
+        </tbody></table></div>
+        <p class="muted small">Hover a row for its verdict. Simulations replay each strategy's own backtest trades (costs included) and ignore minimum-size limits.</p>`;
+    }
+  } catch (e) { out.innerHTML = `<p class="down">${esc(e.message)}</p>`; }
+  finally { $("#goal-one").disabled = $("#goal-scan").disabled = false; }
+}
+$("#goal-one").addEventListener("click", () => runGoal(false));
+$("#goal-scan").addEventListener("click", () => runGoal(true));
 
 // ---------------------------------------------------------------- automation
 let automation = { killSwitch: false, bots: [] };
